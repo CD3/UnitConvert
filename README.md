@@ -78,7 +78,7 @@ CHECK_THROWS(q.to("m"));
 
 
 // The unit registry can create Boost.Units quantities.
-// Wo we can easily convert to a unit in one of the Boost.Unit
+// So we can easily convert to a unit in one of the Boost.Unit
 // systems and then create a Boost.Unit quantity.
 q = ureg.Quantity<double>(100, "ft");
 boost::units::quantity<boost::units::si::length> L = q.to<boost::units::si::length>();
