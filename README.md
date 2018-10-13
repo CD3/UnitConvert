@@ -1,6 +1,6 @@
 # UnitConvert
 
-A small C++ library, inspired by [`pint`](https://pint.readthedocs.io/en/latest/), for doing runtime unit conversions interoperates with the `Boost.Units` library.
+A small C++ library, inspired by [`pint`](https://pint.readthedocs.io/en/latest/), for doing runtime unit conversions that interoperates with the `Boost.Units` library.
 
 ## Description
 
