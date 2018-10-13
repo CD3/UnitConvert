@@ -5,7 +5,7 @@ A small C++ library, inspired by [`pint`](https://pint.readthedocs.io/en/latest/
 ## Description
 
 `UnitConvert` provides **runtime** unit conversions. This is necessary when, for example, you want to perform a unit conversion based on user input. The library
-provides a `UnitRegistry` class (similar to [`pint`](https://pint.readthedocs.io/en/latest/)) that can parse unit strings 
+provides a `UnitRegistry` class (similar to [`pint`](https://pint.readthedocs.io/en/latest/)) that can parse unit strings.
 
 ## Getting Started
 
