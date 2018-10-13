@@ -9,7 +9,7 @@ provides a `UnitRegistry` class (similar to [`pint`](https://pint.readthedocs.io
 
 ## Getting Started
 
-To use `UnitConver`, include the header `UnitConver.hpp`. Then create a unit registriy, and add
+To use `UnitConvert`, include the header `UnitConvert.hpp`. Then create a unit registry, and add
 some units to it. You can then use the registry to create `Quantity` instances, which can be
 converted to any defined in the registry, as well as any derived units based on the units in the
 registry.
