@@ -118,21 +118,21 @@ TEST_CASE("UnitRegistry Devel", "[devel]")
   ureg.addUnit("1 W = 1 J/s");
   ureg.addUnit("1 cal = 4.184 J");
 
-  Quantity<double> q = ureg.Quantity<double>(200, "cm");
+  Quantity<double> q = ureg.makeQuantity<double>(200, "cm");
 
   CHECK(q.value() == Approx(200));
   // getUnit returns a unit that is in the registry
   CHECK(q.to(ureg.getUnit("m")).value() == Approx(2));
   CHECK_THROWS(q.to(ureg.getUnit("s")));
 
-  q = ureg.Quantity<double>(0.25, "s");
+  q = ureg.makeQuantity<double>(0.25, "s");
   CHECK(q.value() == Approx(0.25));
   // makeUnit can create a unit from the registry,
   // including SI prefixed versions of the units in the registry
   CHECK(q.to(ureg.makeUnit("ms")).value() == Approx(250));
   CHECK_THROWS(q.to(ureg.getUnit("m")));
 
-  q = ureg.Quantity<double>(100, "cal");
+  q = ureg.makeQuantity<double>(100, "cal");
   CHECK(q.value() == Approx(100));
   // the Quantity class can convert to a unit string
   // if it was created by a UnitRegistry
@@ -153,7 +153,7 @@ TEST_CASE("UnitRegistry Devel", "[devel]")
 
   SECTION("Converting to Boost.Units quantity")
   {
-    Quantity<double> distance = ureg.Quantity<double>(100, "ft");
+    Quantity<double> distance = ureg.makeQuantity<double>(100, "ft");
     boost::units::quantity<boost::units::si::length> L =
         distance.to<boost::units::si::length>();
     CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
@@ -174,21 +174,21 @@ TEST_CASE("BoostUnitRegistry Devel", "[devel]")
   ureg.addUnit("1 W = 1 J/s");
   ureg.addUnit("1 cal = 4.184 J");
 
-  Quantity<double> q = ureg.Quantity<double>(200, "cm");
+  Quantity<double> q = ureg.makeQuantity<double>(200, "cm");
 
   CHECK(q.value() == Approx(200));
   // getUnit returns a unit that is in the registry
   CHECK(q.to(ureg.getUnit("m")).value() == Approx(2));
   CHECK_THROWS(q.to(ureg.getUnit("s")));
 
-  q = ureg.Quantity<double>(0.25, "s");
+  q = ureg.makeQuantity<double>(0.25, "s");
   CHECK(q.value() == Approx(0.25));
   // makeUnit can create a unit from the registry,
   // including SI prefixed versions of the units in the registry
   CHECK(q.to(ureg.makeUnit("ms")).value() == Approx(250));
   CHECK_THROWS(q.to(ureg.getUnit("m")));
 
-  q = ureg.Quantity<double>(100, "cal");
+  q = ureg.makeQuantity<double>(100, "cal");
   CHECK(q.value() == Approx(100));
   // the Quantity class can convert to a unit string
   // if it was created by a UnitRegistry
@@ -209,7 +209,7 @@ TEST_CASE("BoostUnitRegistry Devel", "[devel]")
 
   SECTION("Converting to Boost.Units quantity")
   {
-    Quantity<double> distance = ureg.Quantity<double>(100, "ft");
+    Quantity<double> distance = ureg.makeQuantity<double>(100, "ft");
     boost::units::quantity<boost::units::si::length> L =
         distance.to<boost::units::si::length>();
     CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));

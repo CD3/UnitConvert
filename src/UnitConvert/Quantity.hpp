@@ -56,9 +56,9 @@ class Quantity
     Quantity<T>
       to(const std::string& unit) const;
 
-    template <class... Args>
+    template <class Dim, typename System>
       Quantity<T>
-      to(const boost::units::unit<Args...>& unit) const;
+      to(const boost::units::unit<Dim,System>& unit) const;
 
     template <class UNIT, typename TT = T>
       boost::units::quantity<UNIT, TT>
@@ -146,9 +146,9 @@ Quantity<T>::to(const std::string& unit) const
 }
 
 template <typename T>
-template <class... Args>
+template <typename Dim, typename System>
 Quantity<T>
-Quantity<T>::to(const boost::units::unit<Args...>& unit) const
+Quantity<T>::to(const boost::units::unit<Dim,System>& unit) const
 {
   return this->to(detail::str(unit, boost::units::format_mode::raw_fmt));
 }

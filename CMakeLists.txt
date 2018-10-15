@@ -5,6 +5,7 @@ if( TARGET UnitConvert )
 endif( TARGET UnitConvert )
 
 OPTION( BUILD_UNIT_TESTS "Build unit tests for the library" ON )
+OPTION( BUILD_BINDINGS "Build bindings for other languages using SWIG" OFF )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
@@ -55,8 +56,9 @@ enable_testing()
 add_subdirectory( testing )
 endif()
 
-
-
+if( BUILD_BINDINGS )
+add_subdirectory(swig)
+endif()
 
 
 

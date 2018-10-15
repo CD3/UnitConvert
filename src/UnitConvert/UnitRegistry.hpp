@@ -83,13 +83,6 @@ class UnitRegistry
       Quantity<T>
       makeQuantity(const T& val, const std::string& a_unit);
 
-    template <typename T>
-      Quantity<T>
-      Quantity(const T& val, const std::string& a_unit);
-
-
-
-
 
     /** Output operator.
     */
@@ -105,14 +98,7 @@ UnitRegistry::addBaseUnit(const std::string& k)
 }
 
 template <typename T>
-  Quantity<T>
-UnitRegistry::Quantity(const T& val, const std::string& a_unit)
-{
-  return ::Quantity<T>(val, makeUnit(a_unit), this);
-}
-
-template <typename T>
-  Quantity<T>
+  ::Quantity<T>
 UnitRegistry::makeQuantity(const T& val, const std::string& a_unit)
 {
   return ::Quantity<T>(val, makeUnit(a_unit), this);

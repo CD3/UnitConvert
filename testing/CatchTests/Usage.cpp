@@ -23,7 +23,7 @@ ureg.addUnit("1 J = 1 kg*m^2*s^-2");
 ureg.addUnit("1 W = 1 J/s");
 ureg.addUnit("1 cal = 4.184 J");
 
-Quantity<double> q = ureg.Quantity<double>(200, "cm");
+Quantity<double> q = ureg.makeQuantity<double>(200, "cm");
 
 // q.value() returns the numerical value of the quantity
 CHECK(q.value() == Approx(200));
@@ -37,7 +37,7 @@ CHECK_THROWS(q.to(ureg.getUnit("s")));
 
 
 // quantities  can be assigned to new dimensions
-q = ureg.Quantity<double>(0.25, "s");
+q = ureg.makeQuantity<double>(0.25, "s");
 CHECK(q.value() == Approx(0.25));
 CHECK(q.to("ms").value() == Approx(250));
 // conversions have to match the quantities current dimensions.
@@ -45,7 +45,7 @@ CHECK_THROWS(q.to(ureg.getUnit("m")));
 
 
 
-q = ureg.Quantity<double>(100, "cal");
+q = ureg.makeQuantity<double>(100, "cal");
 CHECK(q.value() == Approx(100));
 CHECK(q.to("J").value() == Approx(100 * 4.184));
 // again, we can use SI prefixes
@@ -63,7 +63,7 @@ CHECK_THROWS(q.to("m"));
 // The unit registry can create Boost.Units quantities.
 // So we can easily convert to a unit in one of the Boost.Unit
 // systems and then create a Boost.Unit quantity.
-q = ureg.Quantity<double>(100, "ft");
+q = ureg.makeQuantity<double>(100, "ft");
 boost::units::quantity<boost::units::si::length> L = q.to<boost::units::si::length>();
 CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
 
