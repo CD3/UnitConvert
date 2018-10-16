@@ -6,12 +6,11 @@ dependencies="" # list project names that your project needs to have installed
 locations=""    # list locations to look for the projects that need to be installed
 
 
-cd ${EXTDIR}
-mkdir -p ${INSTALLDIR} ${DOWNLOADDIR}
-cd ${DOWNLOADDIR}
-
 for dep in ${dependencies}
 do
+  mkdir -p ${EXTDIR}/${INSTALLDIR} ${EXTDIR}/${DOWNLOADDIR}
+  cd ${DOWNLOADDIR}
+
   downloaded=0
   [[ -e $dep ]] && downloaded=1
 
