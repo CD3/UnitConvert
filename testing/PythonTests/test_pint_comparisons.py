@@ -1,12 +1,11 @@
 import UnitConvert as uc
 import pint
 import timeit,time,math
+from Approx import *
 
 
 
 
-def Close(x,y,tol=0.01):
-  return math.fabs(x-y) <= tol*math.fabs(x)
 
 
 class Stats:
@@ -111,35 +110,35 @@ def test_stats():
   s = Stats()
 
   s.add(1)
-  assert Close(s.count, 1)
-  assert Close(s.mean, 1)
-  assert Close(s.min, 1)
-  assert Close(s.max, 1)
-  assert Close(s.stddev, 0)
-  assert Close(s.variance, 0)
-  assert Close(s.error, 0)
+  assert s.count == Approx( 1)
+  assert s.mean == Approx(  1)
+  assert s.min == Approx(  1)
+  assert s.max == Approx(  1)
+  assert s.stddev == Approx(  0)
+  assert s.variance == Approx(  0)
+  assert s.error == Approx(  0)
 
   s.add(2)
-  assert Close(s.count, 2)
-  assert Close(s.mean, 1.5)
-  assert Close(s.min, 1)
-  assert Close(s.max, 2)
-  assert Close(s.stddev, (2*0.5**2/2)**0.5 )
-  assert Close(s.error,  (2*0.5**2/2)**0.5/2**0.5 )
+  assert s.count == Approx(  2)
+  assert s.mean == Approx(  1.5)
+  assert s.min == Approx(  1)
+  assert s.max == Approx(  2)
+  assert s.stddev == Approx(  (2*0.5**2/2)**0.5 )
+  assert s.error == Approx(   (2*0.5**2/2)**0.5/2**0.5 )
 
   s.add(2)
-  assert Close(s.count, 3)
-  assert Close(s.mean, 5./3)
-  assert Close(s.min, 1)
-  assert Close(s.max, 2)
-  assert Close(s.stddev, (sum( [ (x - 5./3)**2 for x in [1,2,2] ] ) / 3)**0.5 )
+  assert s.count == Approx(  3)
+  assert s.mean == Approx(  5./3)
+  assert s.min == Approx(  1)
+  assert s.max == Approx(  2)
+  assert s.stddev == Approx(  (sum( [ (x - 5./3)**2 for x in [1,2,2] ] ) / 3)**0.5 )
 
   s.add(0)
-  assert Close(s.count, 4)
-  assert Close(s.mean, 5./4)
-  assert Close(s.min, 0)
-  assert Close(s.max, 2)
-  assert Close(s.stddev, (sum( [ (x - 5./4)**2 for x in [1,2,2,0] ] ) / 4)**0.5 )
+  assert s.count == Approx(  4)
+  assert s.mean == Approx(  5./4)
+  assert s.min == Approx(  0)
+  assert s.max == Approx(  2)
+  assert s.stddev == Approx(  (sum( [ (x - 5./4)**2 for x in [1,2,2,0] ] ) / 4)**0.5 )
 
 def test_speed():
   ureg = uc.UnitRegistry()

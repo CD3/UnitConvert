@@ -1,6 +1,5 @@
-print "HUH"
 import UnitConvert as uc
-
+from Approx import *
 
 
 def test_registry():
@@ -19,6 +18,5 @@ def test_registry():
   q = ureg.makeQuantity( 1, 'm')
   q2 = q.to("cm")
 
-  assert q2.value() == 100
-
+  assert q2.value() == Approx(100)
 
