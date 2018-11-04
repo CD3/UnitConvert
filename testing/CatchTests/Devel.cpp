@@ -1,13 +1,160 @@
 #include "catch.hpp"
 
+#include <UnitConvert.hpp>
+
 #include <boost/units/systems/si.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+
+
+namespace qi = boost::spirit::qi;
+namespace ascii = boost::spirit::ascii;
+
+template<typename Iterator>
+struct unit_parser : boost::spirit::qi::grammar<Iterator,void()>
+{
+
+  qi::rule<Iterator,void()> expression;
+  qi::rule<Iterator> unit, factor, term;
+  qi::rule<Iterator, double()> scale, offset;
+  qi::rule<Iterator, int()> power;
+
+  unit_parser(const UnitRegistry &registry ):unit_parser::base_type(expression)
+  {
+    
+
+    unit = +qi::char_("a-zA-Z");
+    offset = qi::double_;
+    scale = qi::double_;
+    power = qi::int_;
+
+    expression = term;
+
+    term = factor
+         >> *( (*qi::char_(" ") >> qi::char_("*") >> *qi::char_(" ") >> factor)
+             | (+qi::char_(" ") >> factor)
+             | (*qi::char_(" ") >> qi::char_("/") >> *qi::char_(" ") >> factor) );
+
+    factor = (unit >> *(qi::char_("^") >> power))
+           | (qi::char_("(") >> expression >> qi::char_(")"));
+
+
+
+  }
+
+
+
+};
+
+TEST_CASE("Spirit Tests")
+{
+  namespace qi = boost::spirit::qi;
+  namespace ascii = boost::spirit::ascii;
+  using qi::_val;
+  using qi::_1;
+
+  std::string text = "1.3 m / s / ( cm / s )";
+  double val = 0;
+  std::string unit;
+  std::vector<char> buffer;
+
+  auto it = text.begin();
+  bool r = qi::phrase_parse( it, text.end(), qi::double_>> qi::lexeme[*qi::char_], ascii::space, val, unit);
+
+  std::cout << "val: " << val << std::endl;
+  std::cout << "unit: " << unit << std::endl;
+
+  CHECK( r );
+  CHECK( it == text.end() );
+  CHECK( val == Approx(1.3) );
+  CHECK( unit == "m / s / ( cm / s )" );
+
+  SECTION("Unit Parser")
+  {
+
+    UnitRegistry ureg;
+
+    ureg.addBaseUnit<Dimension::Name::Length>("m");
+    ureg.addBaseUnit<Dimension::Name::Mass>("kg");
+    ureg.addBaseUnit<Dimension::Name::Time>("s");
+    ureg.addBaseUnit<Dimension::Name::Temperature>("K");
+    ureg.addBaseUnit<Dimension::Name::Amount>("mol");
+
+    ureg.addUnit("100 cm = 1 m");
+    ureg.addUnit("1 in = 2.54 cm");
+    ureg.addUnit("1 ft = 12 in");
+    ureg.addUnit("1 J = 1 kg*m^2*s^-2");
+    ureg.addUnit("1 W = 1 J/s");
+    ureg.addUnit("1 cal = 4.184 J");
+
+    unit_parser<std::string::iterator> parser(ureg);
+
+    Unit u = BaseUnit<Dimension::Name::Dimensionless>();
+
+    unit = "m";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+    unit = "m*s";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+    unit = "m * s";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+    unit = "m / s";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+    unit = "m^2 / s";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+    unit = "m^2 * s^-2";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+
+    unit = "m / (kg * s)";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+    unit = "N m";
+    it = unit.begin();
+    r = qi::parse( it, unit.end(), parser);
+    CHECK( r );
+    CHECK( unit.end() - it == 0);
+
+
+
+  }
+
+
+
+  
+}
+
 
 /**
  * This file is used for developement. As new classes are created, small tests
  * are written here so that we can try to compile and use them.
  */
 
-#include <UnitConvert.hpp>
 
 TEST_CASE("Dimension Devel", "[devel]")
 {

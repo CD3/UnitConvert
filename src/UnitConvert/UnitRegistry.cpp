@@ -2,7 +2,7 @@
 #include "./UnitRegistry.hpp"
 
   bool
-UnitRegistry::isSIPrefix(char p)
+UnitRegistry::isSIPrefix(char p) const
 {
   // check the common ones first
   if (p == 'k') return true;
@@ -33,7 +33,7 @@ UnitRegistry::isSIPrefix(char p)
 
 
   double
-UnitRegistry::getSIPrefixScale(char p)
+UnitRegistry::getSIPrefixScale(char p) const
 {
   if (p == 'Y') return 1e24;
   if (p == 'Z') return 1e21;
@@ -131,7 +131,7 @@ UnitRegistry::addUnit(const std::string& unit_equation)
 
 
   const Unit&
-UnitRegistry::getUnit(const std::string& a_unit)
+UnitRegistry::getUnit(const std::string& a_unit) const
 {
   auto ptr = m_UnitStore.find(a_unit);
   if (ptr != m_UnitStore.end()) {
@@ -143,7 +143,7 @@ UnitRegistry::getUnit(const std::string& a_unit)
   }
 }
     Unit
-UnitRegistry::makeUnit(const std::string& a_unit)
+UnitRegistry::makeUnit(const std::string& a_unit) const
       {
         // assume a dimensionless base unit.
         Unit r_unit = BaseUnit<Dimension::Name::Dimensionless>();

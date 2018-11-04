@@ -42,10 +42,10 @@ class UnitRegistry
      * used. 'u' is used instead of "\mu" so that plain ASCII can be used.
      */
     bool
-      isSIPrefix(char p);
+      isSIPrefix(char p) const;
 
     double
-      getSIPrefixScale(char p);
+      getSIPrefixScale(char p) const;
 
 
 
@@ -64,7 +64,7 @@ class UnitRegistry
       addBaseUnit(const std::string& k);
 
     const Unit&
-      getUnit(const std::string& a_unit);
+      getUnit(const std::string& a_unit) const;
 
     /**
      * Parse a string and string and return the unit it represents.
@@ -77,11 +77,11 @@ class UnitRegistry
      *
      */
     Unit
-      makeUnit(const std::string& a_unit);
+      makeUnit(const std::string& a_unit) const;
 
     template <typename T>
       Quantity<T>
-      makeQuantity(const T& val, const std::string& a_unit);
+      makeQuantity(const T& val, const std::string& a_unit) const;
 
 
     /** Output operator.
@@ -99,7 +99,7 @@ UnitRegistry::addBaseUnit(const std::string& k)
 
 template <typename T>
   ::Quantity<T>
-UnitRegistry::makeQuantity(const T& val, const std::string& a_unit)
+UnitRegistry::makeQuantity(const T& val, const std::string& a_unit) const
 {
   return ::Quantity<T>(val, makeUnit(a_unit), this);
 }

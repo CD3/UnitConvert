@@ -26,7 +26,7 @@ class Quantity
     Unit m_Unit;
     T m_Value;
 
-    UnitRegistry* m_UnitRegistry = nullptr;
+    UnitRegistry const* m_UnitRegistry = nullptr;
     friend UnitRegistry;
 
   public:
@@ -34,7 +34,7 @@ class Quantity
       Quantity(TT v, Unit u);
 
     template <typename TT>
-      Quantity(TT v, Unit u, UnitRegistry* r);
+      Quantity(TT v, Unit u, UnitRegistry const* r);
 
     Quantity();
 
@@ -86,7 +86,7 @@ Quantity<T>::Quantity() : m_Unit(BaseUnit<Dimension::Name::Dimensionless>()) {}
 
 template <typename T>
   template <typename TT>
-Quantity<T>::Quantity(TT v, Unit u, UnitRegistry* r)
+Quantity<T>::Quantity(TT v, Unit u, UnitRegistry const* r)
   : m_Unit(u), m_Value(v), m_UnitRegistry(r)
 {
 }
