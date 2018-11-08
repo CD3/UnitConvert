@@ -5,25 +5,47 @@
 #include <boost/units/systems/si.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/spirit/include/phoenix_bind.hpp>
+#include <boost/phoenix/statement/for.hpp>
 
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
+// A parser unit
+class PUnit : public Unit
+{
+  public:
+    PUnit():Unit(1,BaseDimension<Dimension::Name::Dimensionless>())
+    {}
+    PUnit(const Unit& u):Unit(u)
+  {}
+};
+
+std::string v2s(std::vector<char> s) { return std::string( s.begin(), s.end() ); }
 template<typename Iterator>
 struct unit_parser : boost::spirit::qi::grammar<Iterator,void()>
 {
 
   qi::rule<Iterator,void()> expression;
-  qi::rule<Iterator> unit, factor, term;
+  qi::rule<Iterator,PUnit()> unit,factor;
+  qi::rule<Iterator> term;
   qi::rule<Iterator, double()> scale, offset;
   qi::rule<Iterator, int()> power;
+  qi::rule<Iterator, std::string()> siprefix;
+  int i;
 
   unit_parser(const UnitRegistry &registry ):unit_parser::base_type(expression)
   {
     
+    // kg * m / (A * s^2)
 
-    unit = +qi::char_("a-zA-Z");
+    //unit = (+qi::char_("a-zA-Z"))[qi::_val *= 2*BaseUnit<Dimension::Name::Length>()];
+    unit = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind( &UnitRegistry::getUnit, registry, boost::phoenix::bind(&v2s,qi::_1) ) ];
     offset = qi::double_;
     scale = qi::double_;
     power = qi::int_;
@@ -35,7 +57,8 @@ struct unit_parser : boost::spirit::qi::grammar<Iterator,void()>
              | (+qi::char_(" ") >> factor)
              | (*qi::char_(" ") >> qi::char_("/") >> *qi::char_(" ") >> factor) );
 
-    factor = (unit >> *(qi::char_("^") >> power))
+    factor = (unit >> "^" >> power)[ boost::phoenix::for_( boost::phoenix::ref(i) = 0, boost::phoenix::ref(i) < qi::_2, ++boost::phoenix::ref(i))[ qi::_val *= qi::_1 ] ]
+           | unit[qi::_val = qi::_1]
            | (qi::char_("(") >> expression >> qi::char_(")"));
 
 
@@ -45,6 +68,24 @@ struct unit_parser : boost::spirit::qi::grammar<Iterator,void()>
 
 
 };
+
+TEST_CASE("Spirit Testing")
+{
+  namespace qi = boost::spirit::qi;
+  namespace ascii = boost::spirit::ascii;
+
+  std::string text = "1.3";
+  double val = 0;
+
+  auto it = text.begin();
+  bool r = qi::parse( it, text.end(), qi::double_[
+      qi::_val = qi::_1 + 10
+       ]
+      , val );
+
+  CHECK( val == Approx(11.3) );
+
+}
 
 TEST_CASE("Spirit Tests")
 {
@@ -91,56 +132,36 @@ TEST_CASE("Spirit Tests")
 
     Unit u = BaseUnit<Dimension::Name::Dimensionless>();
 
-    unit = "m";
+
+    auto test_parser = [&parser]( std::string unit )
+    {
+      std::cout << "parsing: " << unit << std::endl;
+      auto it = unit.begin();
+      bool r = qi::parse( it, unit.end(), parser );
+      return  r && unit.end() - it == 0;
+    };
+
+    CHECK( test_parser("m") );
+    CHECK( test_parser("m*N") );
+    CHECK( test_parser("m * N") );
+    CHECK( test_parser("m / s") );
+    CHECK( test_parser("m^2 / s") );
+    CHECK( test_parser("m^2 * s^-2") );
+    CHECK( test_parser("m / (kg * s)") );
+
+
+    auto it = unit.begin();
+    qi::parse( it, unit.end(), parser.unit, u );
+    std::cout << "u: " << u << std::endl;
+
     it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
+    qi::parse( it, unit.end(), parser.factor, u );
+    std::cout << "f: " << u << std::endl;
 
-    unit = "m*s";
+    unit = "s^3";
     it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
-
-    unit = "m * s";
-    it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
-
-    unit = "m / s";
-    it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
-
-    unit = "m^2 / s";
-    it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
-
-    unit = "m^2 * s^-2";
-    it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
-
-
-    unit = "m / (kg * s)";
-    it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
-
-    unit = "N m";
-    it = unit.begin();
-    r = qi::parse( it, unit.end(), parser);
-    CHECK( r );
-    CHECK( unit.end() - it == 0);
-
-
+    qi::parse( it, unit.end(), parser.factor, u );
+    std::cout << "f: " << u << std::endl;
 
   }
 
