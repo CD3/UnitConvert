@@ -1,118 +1,131 @@
 #include "catch.hpp"
 
-#include <UnitConvert.hpp>
-
-#include <boost/units/systems/si.hpp>
+#include <boost/phoenix/statement/for.hpp>
+#include <boost/spirit/include/phoenix_bind.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_char.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/spirit/include/phoenix_bind.hpp>
-#include <boost/phoenix/statement/for.hpp>
+#include <boost/units/systems/si.hpp>
 
+#include <UnitConvert.hpp>
 
-namespace qi = boost::spirit::qi;
+namespace qi    = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
 // A parser unit
 class PUnit : public Unit
 {
-  public:
-    PUnit():Unit(1,BaseDimension<Dimension::Name::Dimensionless>())
-    {}
-    PUnit(const Unit& u):Unit(u)
-  {}
+ public:
+  PUnit() : Unit(1, BaseDimension<Dimension::Name::Dimensionless>()) {}
+  PUnit(const Unit& u) : Unit(u) {}
 };
 
-std::string v2s(std::vector<char> s) { return std::string( s.begin(), s.end() ); }
+std::string v2s(std::vector<char> s) { return std::string(s.begin(), s.end()); }
 template<typename Iterator>
-struct unit_parser : boost::spirit::qi::grammar<Iterator,void()>
-{
-
-  qi::rule<Iterator,void()> expression;
-  qi::rule<Iterator,PUnit()> unit,factor;
-  qi::rule<Iterator> term;
-  qi::rule<Iterator, double()> scale, offset;
-  qi::rule<Iterator, int()> power;
+struct unit_parser : boost::spirit::qi::grammar<Iterator, PUnit()> {
+  qi::rule<Iterator, PUnit()>       unit, factor, term, expression;
+  qi::rule<Iterator, PUnit()>       named_unit, derived_unit, unit_power;
+  qi::rule<Iterator, double()>      scale, offset;
+  qi::rule<Iterator, int()>         power;
   qi::rule<Iterator, std::string()> siprefix;
-  int i;
+  int                               i;
 
-  unit_parser(const UnitRegistry &registry ):unit_parser::base_type(expression)
+  unit_parser(const UnitRegistry& registry) : unit_parser::base_type(expression)
   {
-    
-    // kg * m / (A * s^2)
+    using boost::phoenix::for_;
+    using boost::phoenix::ref;
 
-    //unit = (+qi::char_("a-zA-Z"))[qi::_val *= 2*BaseUnit<Dimension::Name::Length>()];
-    unit = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind( &UnitRegistry::getUnit, registry, boost::phoenix::bind(&v2s,qi::_1) ) ];
+    // unit
+    // ====
+    //    a string of characters (no whitespace) that identify the name or symbol of a single unit
+    //
+    // factor
+    // ======
+    //    a unit multiplied by an optional scale and raised to an optional power
+    //
+    // term
+    // ====
+    //    multiple factors divided or multiplied together
+    //
+    // expression
+    // ==========
+    //     multiple terms added or subtracted together
+
+    unit   = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind(
+                                      &UnitRegistry::getUnit, registry,
+                                      boost::phoenix::bind(&v2s, qi::_1))];
     offset = qi::double_;
-    scale = qi::double_;
-    power = qi::int_;
+    scale  = qi::double_;
+    power  = qi::int_;
 
-    expression = term;
+    expression = term[qi::_val = qi::_1];
 
-    term = factor
-         >> *( (*qi::char_(" ") >> qi::char_("*") >> *qi::char_(" ") >> factor)
-             | (+qi::char_(" ") >> factor)
-             | (*qi::char_(" ") >> qi::char_("/") >> *qi::char_(" ") >> factor) );
+    term = factor[qi::_val = qi::_1] >>
+           *((*qi::lit(" ") >> '*' >> *qi::lit(" ") >> factor[qi::_val *= qi::_1]) |
+             (*qi::lit(" ") >> '/' >> *qi::lit(" ") >> factor[qi::_val /= qi::_1]) |
+             (+qi::lit(" ") >> factor[qi::_val *= qi::_1]) )
+           ;
 
-    factor = (unit >> "^" >> power)[ boost::phoenix::for_( boost::phoenix::ref(i) = 0, boost::phoenix::ref(i) < qi::_2, ++boost::phoenix::ref(i))[ qi::_val *= qi::_1 ] ]
-           | unit[qi::_val = qi::_1]
-           | (qi::char_("(") >> expression >> qi::char_(")"));
+    auto pow_op = qi::lit("^"); // | qi::lit("**");
+    factor = (unit >> pow_op >> "-" >> power)[for_(ref(i) = 0, ref(i) < qi::_2, ++ref(i))[qi::_val /= qi::_1]] | // unit to negative powers
+             (unit >> pow_op >>        power)[for_(ref(i) = 0, ref(i) < qi::_2, ++ref(i))[qi::_val *= qi::_1]] | // unit to positive powers
+             unit[qi::_val = qi::_1] |                                                                        // bare unit
+             ('(' >> expression[qi::_val=qi::_1] >> ')');                                                     // an expression wrapped in parenthesis
 
+
+    //named_unit   = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind( &UnitRegistry::getUnit, registry, boost::phoenix::bind(&v2s, qi::_1))];
+    //derived_unit = 
+    //scaled_unit = 
+    //unit_power = 
 
 
   }
-
-
-
 };
 
 TEST_CASE("Spirit Testing")
 {
-  namespace qi = boost::spirit::qi;
+  namespace qi    = boost::spirit::qi;
   namespace ascii = boost::spirit::ascii;
 
   std::string text = "1.3";
-  double val = 0;
+  double      val  = 0;
 
   auto it = text.begin();
-  bool r = qi::parse( it, text.end(), qi::double_[
-      qi::_val = qi::_1 + 10
-       ]
-      , val );
+  bool r  = qi::parse(it, text.end(), qi::double_[qi::_val = qi::_1 + 10], val);
 
-  CHECK( val == Approx(11.3) );
-
+  CHECK(val == Approx(11.3));
 }
 
 TEST_CASE("Spirit Tests")
 {
-  namespace qi = boost::spirit::qi;
+  namespace qi    = boost::spirit::qi;
   namespace ascii = boost::spirit::ascii;
-  using qi::_val;
   using qi::_1;
+  using qi::_val;
 
-  std::string text = "1.3 m / s / ( cm / s )";
-  double val = 0;
-  std::string unit;
+  std::string       text = "1.3 m / s / ( cm / s )";
+  double            val  = 0;
+  std::string       unit;
   std::vector<char> buffer;
 
   auto it = text.begin();
-  bool r = qi::phrase_parse( it, text.end(), qi::double_>> qi::lexeme[*qi::char_], ascii::space, val, unit);
+  bool r =
+      qi::phrase_parse(it, text.end(), qi::double_ >> qi::lexeme[*qi::char_],
+                       ascii::space, val, unit);
 
   std::cout << "val: " << val << std::endl;
   std::cout << "unit: " << unit << std::endl;
 
-  CHECK( r );
-  CHECK( it == text.end() );
-  CHECK( val == Approx(1.3) );
-  CHECK( unit == "m / s / ( cm / s )" );
+  CHECK(r);
+  CHECK(it == text.end());
+  CHECK(val == Approx(1.3));
+  CHECK(unit == "m / s / ( cm / s )");
 
   SECTION("Unit Parser")
   {
-
     UnitRegistry ureg;
 
     ureg.addBaseUnit<Dimension::Name::Length>("m");
@@ -127,55 +140,92 @@ TEST_CASE("Spirit Tests")
     ureg.addUnit("1 J = 1 kg*m^2*s^-2");
     ureg.addUnit("1 W = 1 J/s");
     ureg.addUnit("1 cal = 4.184 J");
+    ureg.addUnit("1 N = 1 kg m / s^2");
 
     unit_parser<std::string::iterator> parser(ureg);
 
     Unit u = BaseUnit<Dimension::Name::Dimensionless>();
 
-
-    auto test_parser = [&parser]( std::string unit )
-    {
-      std::cout << "parsing: " << unit << std::endl;
+    auto test_parser = [&parser](std::string unit) {
       auto it = unit.begin();
-      bool r = qi::parse( it, unit.end(), parser );
-      return  r && unit.end() - it == 0;
+      bool r  = qi::parse(it, unit.end(), parser);
+      return r && unit.end() - it == 0;
     };
 
-    CHECK( test_parser("m") );
-    CHECK( test_parser("m*N") );
-    CHECK( test_parser("m * N") );
-    CHECK( test_parser("m / s") );
-    CHECK( test_parser("m^2 / s") );
-    CHECK( test_parser("m^2 * s^-2") );
-    CHECK( test_parser("m / (kg * s)") );
+    BaseDimension<Dimension::Name::Length>            L;
+    BaseDimension<Dimension::Name::Mass>              M;
+    BaseDimension<Dimension::Name::Time>              T;
+    BaseDimension<Dimension::Name::ElectricalCurrent> I;
+    BaseDimension<Dimension::Name::Temperature>       THETA;
+    BaseDimension<Dimension::Name::Amount>            N;
+    BaseDimension<Dimension::Name::LuminousIntensity> J;
 
+    CHECK(test_parser("m"));
+    CHECK(test_parser("m*N"));
+    CHECK(test_parser("m * N"));
+    CHECK(test_parser("m / s"));
+    CHECK(test_parser("m^2 / s"));
+    CHECK(test_parser("m^2 * s^-2"));
+    CHECK(test_parser("m / (kg * s)"));
 
+    unit = "m";
     auto it = unit.begin();
-    qi::parse( it, unit.end(), parser.unit, u );
-    std::cout << "u: " << u << std::endl;
+    qi::parse(it, unit.end(), parser.unit, u);
+    CHECK( u.dimension() == L );
+    CHECK(u.scale() == 1);
 
+    unit = "m";
     it = unit.begin();
-    qi::parse( it, unit.end(), parser.factor, u );
-    std::cout << "f: " << u << std::endl;
+    qi::parse(it, unit.end(), parser.factor, u);
+    CHECK( u.dimension() == L );
+    CHECK(u.scale() == 1);
 
     unit = "s^3";
-    it = unit.begin();
-    qi::parse( it, unit.end(), parser.factor, u );
-    std::cout << "f: " << u << std::endl;
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.factor, u);
+    CHECK( u.dimension() == T*T*T );
+    CHECK(u.scale() == 1);
 
+    unit = "kg m / s^2";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(u.dimension() == M*L/T/T);
+    CHECK(u.scale() == 1);
+
+    unit = "kg / (m / s^2)";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(u.dimension() == M*T*T/L);
+    CHECK(u.scale() == 1);
+
+    unit = "kg * m * s^-2)";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(u.dimension() == M*L/T/T);
+    CHECK(u.scale() == 1);
+
+    unit = "3 * kg * 2 * m * s^-2)";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(u.dimension() == M*L/T/T);
+    CHECK(u.scale() == 6);
+
+    //unit = "3 * kg * 2 * m * s^-2)";
+    //it   = unit.begin();
+    //qi::parse(it, unit.end(), parser.term, u);
+    //std::cout << "t: " << u << std::endl;
+
+    //unit = "3 * kg * m/ 2 * s^-2)";
+    //it   = unit.begin();
+    //qi::parse(it, unit.end(), parser.term, u);
+    //std::cout << "t: " << u << std::endl;
   }
-
-
-
-  
 }
-
 
 /**
  * This file is used for developement. As new classes are created, small tests
  * are written here so that we can try to compile and use them.
  */
-
 
 TEST_CASE("Dimension Devel", "[devel]")
 {
@@ -265,7 +315,6 @@ TEST_CASE("Unit Devel", "[devel]")
 
     CHECK(temperature.to(kelvin).value() == Approx(273.15 + 37));
     CHECK(temperature.to(fahrenheit).value() == Approx(98.6));
-
   }
 }
 
@@ -382,5 +431,4 @@ TEST_CASE("BoostUnitRegistry Devel", "[devel]")
         distance.to<boost::units::si::length>();
     CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
   }
-
 }
