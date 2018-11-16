@@ -1,82 +1,13 @@
 #include "catch.hpp"
 
-#include <boost/phoenix/statement/for.hpp>
-#include <boost/spirit/include/phoenix_bind.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/qi_char.hpp>
 #include <boost/units/systems/si.hpp>
 
 #include <UnitConvert.hpp>
 
-namespace qi    = boost::spirit::qi;
-namespace ascii = boost::spirit::ascii;
-
-// A parser unit
-class PUnit : public Unit
-{
- public:
-  PUnit() : Unit(1, BaseDimension<Dimension::Name::Dimensionless>()) {}
-  PUnit(const Unit& u) : Unit(u) {}
-};
-
-std::string v2s(std::vector<char> s) { return std::string(s.begin(), s.end()); }
-template<typename Iterator>
-struct unit_parser : boost::spirit::qi::grammar<Iterator, PUnit()> {
-  using ThisType = unit_parser<Iterator>;
-
-  qi::rule<Iterator, PUnit()>       named_unit, unit, factor, term, group, scale, expression;
-  qi::rule<Iterator, double()>      offset;
-  qi::rule<Iterator, int()>         exponent;
-  qi::rule<Iterator> mul, div, pow;
-
-  PUnit exponentiate( const PUnit& b, const int e )
-  {
-    PUnit r;
-    for(int i = 0; i < abs(e); i++)
-    {
-      if( e > 0 )
-        r *= b;
-      if( e < 0 )
-        r /= b;
-    }
-    return r;
-  }
-
-  unit_parser(const UnitRegistry& registry) : unit_parser::base_type(expression)
-  {
-    using boost::phoenix::for_;
-    using boost::phoenix::ref;
-
-    offset = qi::double_;
-    scale  = qi::double_[qi::_val *= qi::_1];
-    exponent = qi::int_;
-
-    mul = *qi::lit(" ") >> "*" >> *qi::lit(" ") | +qi::lit(" ");
-    div = *qi::lit(" ") >> "/" >> *qi::lit(" ");
-    pow = *qi::lit(" ") >> (qi::lit("^")|qi::lit("**")) >> *qi::lit(" ");
-
-    expression = named_unit[qi::_val = qi::_1];
-
-    named_unit = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind( &UnitRegistry::getUnit, registry, boost::phoenix::bind(&v2s, qi::_1))];
-
-    factor = (named_unit | scale | group)[qi::_val = qi::_1] >> *(pow >> exponent[qi::_val = boost::phoenix::bind(&ThisType::exponentiate,this,qi::_val,qi::_1) ]);
-
-    term = factor[qi::_val = qi::_1] >> *( mul >> factor[qi::_val *= qi::_1] | div >> factor[qi::_val /= qi::_1]);
-
-    group = '(' >> term[qi::_val = qi::_1] >> ')';
-
-    unit = term;
-
-
-  }
-};
-
 TEST_CASE("Spirit Testing")
 {
+  SECTION("Basic")
+  {
   namespace qi    = boost::spirit::qi;
   namespace ascii = boost::spirit::ascii;
 
@@ -87,10 +18,11 @@ TEST_CASE("Spirit Testing")
   bool r  = qi::parse(it, text.end(), qi::double_[qi::_val = qi::_1 + 10], val);
 
   CHECK(val == Approx(11.3));
-}
+  }
 
-TEST_CASE("Spirit Tests")
-{
+
+  SECTION("Unit Parsing")
+  {
   namespace qi    = boost::spirit::qi;
   namespace ascii = boost::spirit::ascii;
   using qi::_1;
@@ -113,29 +45,12 @@ TEST_CASE("Spirit Tests")
   CHECK(it == text.end());
   CHECK(val == Approx(1.3));
   CHECK(unit == "m / s / ( cm / s )");
+  }
 
-  SECTION("Unit Parser")
-  {
-    UnitRegistry ureg;
+}
 
-    ureg.addBaseUnit<Dimension::Name::Length>("m");
-    ureg.addBaseUnit<Dimension::Name::Mass>("kg");
-    ureg.addBaseUnit<Dimension::Name::Time>("s");
-    ureg.addBaseUnit<Dimension::Name::Temperature>("K");
-    ureg.addBaseUnit<Dimension::Name::Amount>("mol");
-
-    ureg.addUnit("100 cm = 1 m");
-    ureg.addUnit("1 in = 2.54 cm");
-    ureg.addUnit("1 ft = 12 in");
-    ureg.addUnit("1 J = 1 kg*m^2*s^-2");
-    ureg.addUnit("1 W = 1 J/s");
-    ureg.addUnit("1 cal = 4.184 J");
-    ureg.addUnit("1 N = 1 kg m / s^2");
-
-    unit_parser<std::string::iterator> parser(ureg);
-
-    Unit u = BaseUnit<Dimension::Name::Dimensionless>();
-
+TEST_CASE("Unit String Parsing")
+{
     BaseDimension<Dimension::Name::Length>            L;
     BaseDimension<Dimension::Name::Mass>              M;
     BaseDimension<Dimension::Name::Time>              T;
@@ -145,9 +60,28 @@ TEST_CASE("Spirit Tests")
     BaseDimension<Dimension::Name::LuminousIntensity> J;
     BaseDimension<Dimension::Name::Dimensionless>     D;
 
-    unit = "m";
+    UnitRegistry ureg;
+
+    ureg.addBaseUnit<Dimension::Name::Length>("m");
+    ureg.addBaseUnit<Dimension::Name::Mass>("kg");
+    ureg.addBaseUnit<Dimension::Name::Time>("s");
+    ureg.addBaseUnit<Dimension::Name::Temperature>("K");
+    ureg.addBaseUnit<Dimension::Name::Amount>("mol");
+    ureg.addBaseUnit<Dimension::Name::Dimensionless>("");
+
+    ureg.addUnit("100 cm = 1 m");
+    ureg.addUnit("1 in = 2.54 cm");
+    ureg.addUnit("1 ft = 12 in");
+    ureg.addUnit("1 J = 1 kg*m^2*s^-2");
+    ureg.addUnit("1 W = 1 J/s");
+    ureg.addUnit("1 cal = 4.184 J");
+    ureg.addUnit("1 N = 1 kg m / s^2");
+
+    Unit u = ureg.getUnit("");
+
+    std::string unit = "m";
     auto it = unit.begin();
-    auto r = qi::parse(it, unit.end(), parser.unit, u);
+    auto r = qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == L );
@@ -155,7 +89,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "m*s";
     it = unit.begin();
-    qi::parse(it, unit.end(), parser.unit, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == L*T );
@@ -163,7 +97,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "m/s";
     it = unit.begin();
-    qi::parse(it, unit.end(), parser.unit, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == L/T );
@@ -171,7 +105,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "m*m/s";
     it = unit.begin();
-    qi::parse(it, unit.end(), parser.unit, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == L*L/T );
@@ -179,7 +113,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "m/s*m";
     it = unit.begin();
-    qi::parse(it, unit.end(), parser.unit, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == L*L/T );
@@ -187,7 +121,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "s^3";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.unit, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == T*T*T );
@@ -195,7 +129,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "s^-3";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.unit, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == D/T/T/T );
@@ -203,7 +137,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg * m / s^2";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L/T/T);
@@ -211,7 +145,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg   m";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L);
@@ -219,7 +153,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg   m / s^2";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L/T/T);
@@ -227,7 +161,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg / (m / s^2)";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*T*T/L);
@@ -235,7 +169,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg * (m / s)^2";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L*L/T/T);
@@ -243,7 +177,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg   (m / s)^2";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L*L/T/T);
@@ -251,7 +185,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg   (m / s)^-2";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*T*T/L/L);
@@ -259,7 +193,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "kg * m * s^-2";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L/T/T);
@@ -267,7 +201,7 @@ TEST_CASE("Spirit Tests")
 
     unit = "3 * kg";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M);
@@ -275,38 +209,53 @@ TEST_CASE("Spirit Tests")
 
     unit = "3 * kg";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M);
     CHECK(u.scale() == 3);
 
+    unit = "-3 * kg";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M);
+    CHECK(u.scale() == -3);
+
     unit = "3 * kg / 2 / m";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.term, u);
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
     CHECK(r);
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M/L);
     CHECK(u.scale() == Approx(3/2.));
 
-    //unit = "3 * kg * 2 * m * s^-2)";
-    //it   = unit.begin();
-    //qi::parse(it, unit.end(), parser.term, u);
-    //CHECK(r);
-    //CHECK(unit.end() - it == 0);
-    //CHECK(u.dimension() == M*L/T/T);
-    //CHECK(u.scale() == 6);
+    unit = "3 * kg / -2 / m";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M/L);
+    CHECK(u.scale() == Approx(-3/2.));
 
-    //unit = "3 * kg * 2 * m * s^-2)";
-    //it   = unit.begin();
-    //qi::parse(it, unit.end(), parser.term, u);
-    //std::cout << "t: " << u << std::endl;
+    unit = "3 * kg * 2 * m * s^-2";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M*L/T/T);
+    CHECK(u.scale() == 6);
 
-    //unit = "3 * kg * m/ 2 * s^-2)";
-    //it   = unit.begin();
-    //qi::parse(it, unit.end(), parser.term, u);
-    //std::cout << "t: " << u << std::endl;
-  }
+    unit = "100 * m - 20";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == L);
+    CHECK(u.scale() == 100);
+    CHECK(u.offset() == 20);
+
 }
 
 /**

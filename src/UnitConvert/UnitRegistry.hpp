@@ -13,8 +13,16 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <boost/spirit/include/phoenix_bind.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/qi.hpp>
+
 #include "./detail/functions.hpp"
 #include "./Unit.hpp"
+
+namespace spt   = boost::spirit;
+namespace qi    = boost::spirit::qi;
+namespace phx   = boost::phoenix;
 
 
 template<typename T>
@@ -50,6 +58,7 @@ class UnitRegistry
 
 
   public:
+
     enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore };
     EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
 
@@ -63,11 +72,16 @@ class UnitRegistry
       void
       addBaseUnit(const std::string& k);
 
+    /**
+     * Querry the registry for a named unit and return
+     * the unit it represents. If the named unit is not
+     * found in the registry, an exception is thrown.
+     */
     const Unit&
       getUnit(const std::string& a_unit) const;
 
     /**
-     * Parse a string and string and return the unit it represents.
+     * Parse a string and return the unit it represents.
      *
      * All units in the string must already exist in the unit registry.
      *
@@ -79,6 +93,7 @@ class UnitRegistry
     Unit
       makeUnit(const std::string& a_unit) const;
 
+    
     template <typename T>
       Quantity<T>
       makeQuantity(const T& val, const std::string& a_unit) const;
@@ -88,6 +103,98 @@ class UnitRegistry
     */
     friend std::ostream&
       operator<<(std::ostream& out, const UnitRegistry& reg);
+
+  protected:
+    /*
+     * A default constructable unit
+     *
+     * Used for parsing unit strings.
+     */
+    class DUnit : public Unit
+    {
+     public:
+      DUnit() : Unit(1, BaseDimension<Dimension::Name::Dimensionless>()) {}
+      DUnit(const Unit& u) : Unit(u) {}
+    };
+
+
+    /**
+     * A Boost.Spirit grammar for parsing unit strings.
+     */
+  template<typename Iterator>
+  struct UnitParser : spt::qi::grammar<Iterator, DUnit()> {
+
+    using ThisType = UnitParser<Iterator>;
+
+    qi::rule<Iterator, DUnit()>       named_unit, factor, term, group, scale, expression, unit;
+    qi::rule<Iterator, double()>      offset;
+    qi::rule<Iterator, int()>         exponent;
+    qi::rule<Iterator> mul, div, pow, add, sub;
+
+    const UnitRegistry& ureg;
+
+    /**
+     * compute a unit raised to an integer power)
+     */
+    DUnit exponentiate( const DUnit& b, const int e )
+    {
+      DUnit r;
+      for(int i = 0; i < abs(e); i++)
+      {
+        if( e > 0 )
+          r *= b;
+        if( e < 0 )
+          r /= b;
+      }
+      return r;
+    }
+
+    Unit getUnitFromRegistry( const std::string& unit )
+    {
+      return ureg.getUnit(unit);
+    }
+
+    UnitParser(const UnitRegistry& registry) : UnitParser::base_type(unit), ureg(registry)
+    {
+
+      offset = qi::double_;
+      exponent = qi::int_;
+
+      scale  = qi::double_[qi::_val *= qi::_1];
+
+      mul = *qi::lit(" ") >> "*" >> *qi::lit(" ") | +qi::lit(" ");
+      div = *qi::lit(" ") >> "/" >> *qi::lit(" ");
+      pow = *qi::lit(" ") >> (qi::lit("^")|qi::lit("**")) >> *qi::lit(" ");
+      add = *qi::lit(" ") >> "+" >> *qi::lit(" ");
+      sub = *qi::lit(" ") >> "-" >> *qi::lit(" ");
+
+
+      named_unit = spt::as_string[(+qi::char_("a-zA-Z"))][qi::_val = phx::bind( &ThisType::getUnitFromRegistry, this, qi::_1)];
+
+      factor = (named_unit | scale | group)[qi::_val = qi::_1] >> *(pow >> exponent[qi::_val = phx::bind(&ThisType::exponentiate,this,qi::_val,qi::_1) ]);
+
+      term = factor[qi::_val = qi::_1] >> *( mul >> factor[qi::_val *= qi::_1] | div >> factor[qi::_val /= qi::_1]);
+
+      group = '(' >> term[qi::_val = qi::_1] >> ')';
+
+      expression = term >> *(sub >> offset);
+
+      unit = expression;
+
+
+    }
+  };
+
+  UnitParser<std::string::iterator> m_UnitParser;
+
+  public:
+    UnitRegistry():m_UnitParser(*this){};
+
+    const UnitParser<std::string::iterator>& getUnitParser() const
+    {return m_UnitParser;}
+
+
+    
 };
 
 template <Dimension::Name DIM>
