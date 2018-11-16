@@ -118,6 +118,9 @@ class Unit
   Unit
   operator+(const double& offset) const;
 
+  Unit&
+  operator+=(const double& offset);
+
   /**
    * Return the unit resulting from subtracting an offset to this unit.
    *
@@ -125,6 +128,9 @@ class Unit
    */
   Unit
   operator-(const double& offset) const;
+
+  Unit&
+  operator-=(const double& offset);
 };
 
 /**

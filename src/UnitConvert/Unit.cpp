@@ -123,8 +123,30 @@ Unit::operator+(const double& offset) const
     return Unit(this->m_Scale, this->offset() + offset, this->m_Dimension);
   }
 
+  Unit&
+Unit::operator+=(const double& offset)
+  {
+    if(!this->m_Offset)
+      this->m_Offset = 0;
+
+    this->m_Offset.get() += offset;
+
+    return *this;
+  }
+
   Unit
   Unit::operator-(const double& offset) const
   {
     return *this + (-offset);
+  }
+
+  Unit&
+Unit::operator-=(const double& offset)
+  {
+    if(!this->m_Offset)
+      this->m_Offset = 0;
+
+    this->m_Offset.get() -= offset;
+
+    return *this;
   }
