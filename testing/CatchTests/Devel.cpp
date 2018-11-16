@@ -254,13 +254,41 @@ TEST_CASE("Unit String Parsing")
     CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == L);
     CHECK(u.scale() == 100);
-    CHECK(u.offset() == 20);
+    CHECK(u.offset() == -20);
+
+    unit = "100 * m + 30";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == L);
+    CHECK(u.scale() == 100);
+    CHECK(u.offset() == 30);
+
+    unit = "100 * m + -30";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == L);
+    CHECK(u.scale() == 100);
+    CHECK(u.offset() == -30);
+
+    unit = "(3/10) m + 30";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == L);
+    CHECK(u.scale() == Approx(0.3));
+    CHECK(u.offset() == 30);
 
 }
 
 /**
- * This file is used for developement. As new classes are created, small tests
- * are written here so that we can try to compile and use them.
+ * This file is used for development. As new classes are created,
+ * small tests are written here so that we can try to compile and use
+ * them.
  */
 
 TEST_CASE("Dimension Devel", "[devel]")
@@ -312,6 +340,8 @@ TEST_CASE("Unit Devel", "[devel]")
   Unit celsius    = kelvin - 273.15;
   Unit fahrenheit = (5. / 9) * celsius + 32;
 
+  Unit unit = celsius;
+
   CHECK(meter.scale() == 1);
   CHECK(meter.offset() == 0);
   CHECK(kilogram.scale() == 1);
@@ -339,6 +369,14 @@ TEST_CASE("Unit Devel", "[devel]")
 
   CHECK(fahrenheit.scale() == Approx(5. / 9));
   CHECK(fahrenheit.offset() == Approx(32 - (9. / 5) * 273.15));
+
+  CHECK(unit.offset() == Approx(-273.15));
+  unit += 100;
+  CHECK(unit.offset() == Approx(-173.15));
+  unit += 100;
+  CHECK(unit.offset() == Approx(-73.15));
+  unit -= 50;
+  CHECK(unit.offset() == Approx(-123.15));
 
   SECTION("Quantity Devel", "[devel]")
   {

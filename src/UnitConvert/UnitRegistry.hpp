@@ -177,7 +177,7 @@ class UnitRegistry
 
       group = '(' >> term[qi::_val = qi::_1] >> ')';
 
-      expression = term >> *(sub >> offset);
+      expression = term[qi::_val = qi::_1] >> *(add >> offset[qi::_val += qi::_1] | sub >> offset[qi::_val -= qi::_1]);
 
       unit = expression;
 
