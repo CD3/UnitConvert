@@ -26,60 +26,50 @@ class PUnit : public Unit
 std::string v2s(std::vector<char> s) { return std::string(s.begin(), s.end()); }
 template<typename Iterator>
 struct unit_parser : boost::spirit::qi::grammar<Iterator, PUnit()> {
-  qi::rule<Iterator, PUnit()>       unit, factor, term, expression;
-  qi::rule<Iterator, PUnit()>       named_unit, derived_unit, unit_power;
-  qi::rule<Iterator, double()>      scale, offset;
-  qi::rule<Iterator, int()>         power;
-  qi::rule<Iterator, std::string()> siprefix;
-  int                               i;
+  using ThisType = unit_parser<Iterator>;
+
+  qi::rule<Iterator, PUnit()>       named_unit, unit, factor, term, group, scale, expression;
+  qi::rule<Iterator, double()>      offset;
+  qi::rule<Iterator, int()>         exponent;
+  qi::rule<Iterator> mul, div, pow;
+
+  PUnit exponentiate( const PUnit& b, const int e )
+  {
+    PUnit r;
+    for(int i = 0; i < abs(e); i++)
+    {
+      if( e > 0 )
+        r *= b;
+      if( e < 0 )
+        r /= b;
+    }
+    return r;
+  }
 
   unit_parser(const UnitRegistry& registry) : unit_parser::base_type(expression)
   {
     using boost::phoenix::for_;
     using boost::phoenix::ref;
 
-    // unit
-    // ====
-    //    a string of characters (no whitespace) that identify the name or symbol of a single unit
-    //
-    // factor
-    // ======
-    //    a unit multiplied by an optional scale and raised to an optional power
-    //
-    // term
-    // ====
-    //    multiple factors divided or multiplied together
-    //
-    // expression
-    // ==========
-    //     multiple terms added or subtracted together
-
-    unit   = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind(
-                                      &UnitRegistry::getUnit, registry,
-                                      boost::phoenix::bind(&v2s, qi::_1))];
     offset = qi::double_;
-    scale  = qi::double_;
-    power  = qi::int_;
+    scale  = qi::double_[qi::_val *= qi::_1];
+    exponent = qi::int_;
 
-    expression = term[qi::_val = qi::_1];
+    mul = *qi::lit(" ") >> "*" >> *qi::lit(" ") | +qi::lit(" ");
+    div = *qi::lit(" ") >> "/" >> *qi::lit(" ");
+    pow = *qi::lit(" ") >> (qi::lit("^")|qi::lit("**")) >> *qi::lit(" ");
 
-    term = factor[qi::_val = qi::_1] >>
-           *((*qi::lit(" ") >> '*' >> *qi::lit(" ") >> factor[qi::_val *= qi::_1]) |
-             (*qi::lit(" ") >> '/' >> *qi::lit(" ") >> factor[qi::_val /= qi::_1]) |
-             (+qi::lit(" ") >> factor[qi::_val *= qi::_1]) )
-           ;
+    expression = named_unit[qi::_val = qi::_1];
 
-    auto pow_op = qi::lit("^"); // | qi::lit("**");
-    factor = (unit >> pow_op >> "-" >> power)[for_(ref(i) = 0, ref(i) < qi::_2, ++ref(i))[qi::_val /= qi::_1]] | // unit to negative powers
-             (unit >> pow_op >>        power)[for_(ref(i) = 0, ref(i) < qi::_2, ++ref(i))[qi::_val *= qi::_1]] | // unit to positive powers
-             unit[qi::_val = qi::_1] |                                                                        // bare unit
-             ('(' >> expression[qi::_val=qi::_1] >> ')');                                                     // an expression wrapped in parenthesis
+    named_unit = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind( &UnitRegistry::getUnit, registry, boost::phoenix::bind(&v2s, qi::_1))];
 
+    factor = (named_unit | scale | group)[qi::_val = qi::_1] >> *(pow >> exponent[qi::_val = boost::phoenix::bind(&ThisType::exponentiate,this,qi::_val,qi::_1) ]);
 
-    //named_unit   = (+qi::char_("a-zA-Z"))[qi::_val = boost::phoenix::bind( &UnitRegistry::getUnit, registry, boost::phoenix::bind(&v2s, qi::_1))];
-    //derived_unit = 
-    //scaled_unit = 
-    //unit_power = 
+    term = factor[qi::_val = qi::_1] >> *( mul >> factor[qi::_val *= qi::_1] | div >> factor[qi::_val /= qi::_1]);
+
+    group = '(' >> term[qi::_val = qi::_1] >> ')';
+
+    unit = term;
 
 
   }
@@ -146,12 +136,6 @@ TEST_CASE("Spirit Tests")
 
     Unit u = BaseUnit<Dimension::Name::Dimensionless>();
 
-    auto test_parser = [&parser](std::string unit) {
-      auto it = unit.begin();
-      bool r  = qi::parse(it, unit.end(), parser);
-      return r && unit.end() - it == 0;
-    };
-
     BaseDimension<Dimension::Name::Length>            L;
     BaseDimension<Dimension::Name::Mass>              M;
     BaseDimension<Dimension::Name::Time>              T;
@@ -159,56 +143,159 @@ TEST_CASE("Spirit Tests")
     BaseDimension<Dimension::Name::Temperature>       THETA;
     BaseDimension<Dimension::Name::Amount>            N;
     BaseDimension<Dimension::Name::LuminousIntensity> J;
-
-    CHECK(test_parser("m"));
-    CHECK(test_parser("m*N"));
-    CHECK(test_parser("m * N"));
-    CHECK(test_parser("m / s"));
-    CHECK(test_parser("m^2 / s"));
-    CHECK(test_parser("m^2 * s^-2"));
-    CHECK(test_parser("m / (kg * s)"));
+    BaseDimension<Dimension::Name::Dimensionless>     D;
 
     unit = "m";
     auto it = unit.begin();
-    qi::parse(it, unit.end(), parser.unit, u);
+    auto r = qi::parse(it, unit.end(), parser.unit, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == L );
     CHECK(u.scale() == 1);
 
-    unit = "m";
+    unit = "m*s";
     it = unit.begin();
-    qi::parse(it, unit.end(), parser.factor, u);
-    CHECK( u.dimension() == L );
+    qi::parse(it, unit.end(), parser.unit, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == L*T );
+    CHECK(u.scale() == 1);
+
+    unit = "m/s";
+    it = unit.begin();
+    qi::parse(it, unit.end(), parser.unit, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == L/T );
+    CHECK(u.scale() == 1);
+
+    unit = "m*m/s";
+    it = unit.begin();
+    qi::parse(it, unit.end(), parser.unit, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == L*L/T );
+    CHECK(u.scale() == 1);
+
+    unit = "m/s*m";
+    it = unit.begin();
+    qi::parse(it, unit.end(), parser.unit, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == L*L/T );
     CHECK(u.scale() == 1);
 
     unit = "s^3";
     it   = unit.begin();
-    qi::parse(it, unit.end(), parser.factor, u);
+    qi::parse(it, unit.end(), parser.unit, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == T*T*T );
     CHECK(u.scale() == 1);
 
-    unit = "kg m / s^2";
+    unit = "s^-3";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.unit, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == D/T/T/T );
+    CHECK(u.scale() == 1);
+
+    unit = "kg * m / s^2";
     it   = unit.begin();
     qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M*L/T/T);
+    CHECK(u.scale() == 1);
+
+    unit = "kg   m";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M*L);
+    CHECK(u.scale() == 1);
+
+    unit = "kg   m / s^2";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L/T/T);
     CHECK(u.scale() == 1);
 
     unit = "kg / (m / s^2)";
     it   = unit.begin();
     qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*T*T/L);
     CHECK(u.scale() == 1);
 
-    unit = "kg * m * s^-2)";
+    unit = "kg * (m / s)^2";
     it   = unit.begin();
     qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M*L*L/T/T);
+    CHECK(u.scale() == 1);
+
+    unit = "kg   (m / s)^2";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M*L*L/T/T);
+    CHECK(u.scale() == 1);
+
+    unit = "kg   (m / s)^-2";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M*T*T/L/L);
+    CHECK(u.scale() == 1);
+
+    unit = "kg * m * s^-2";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
     CHECK(u.dimension() == M*L/T/T);
     CHECK(u.scale() == 1);
 
-    unit = "3 * kg * 2 * m * s^-2)";
+    unit = "3 * kg";
     it   = unit.begin();
     qi::parse(it, unit.end(), parser.term, u);
-    CHECK(u.dimension() == M*L/T/T);
-    CHECK(u.scale() == 6);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M);
+    CHECK(u.scale() == 3);
+
+    unit = "3 * kg";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M);
+    CHECK(u.scale() == 3);
+
+    unit = "3 * kg / 2 / m";
+    it   = unit.begin();
+    qi::parse(it, unit.end(), parser.term, u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK(u.dimension() == M/L);
+    CHECK(u.scale() == Approx(3/2.));
+
+    //unit = "3 * kg * 2 * m * s^-2)";
+    //it   = unit.begin();
+    //qi::parse(it, unit.end(), parser.term, u);
+    //CHECK(r);
+    //CHECK(unit.end() - it == 0);
+    //CHECK(u.dimension() == M*L/T/T);
+    //CHECK(u.scale() == 6);
 
     //unit = "3 * kg * 2 * m * s^-2)";
     //it   = unit.begin();
