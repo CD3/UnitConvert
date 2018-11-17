@@ -81,6 +81,17 @@ class UnitRegistry
       getUnit(const std::string& a_unit) const;
 
     /**
+     * Querry the registry for a named unit and return
+     * a copy of the unit it represents. If unit isn't found
+     * and a_trySIPrefix is true, then the function
+     * checks if unit is an SI prefix'ed version of a unit
+     * in the registry. If no unit is
+     * found in the registry, an exception is thrown.
+     */
+    Unit
+      getUnit(const std::string& a_unit, bool a_trySIPrefix) const;
+
+    /**
      * Parse a string and return the unit it represents.
      *
      * All units in the string must already exist in the unit registry.
@@ -104,7 +115,6 @@ class UnitRegistry
     friend std::ostream&
       operator<<(std::ostream& out, const UnitRegistry& reg);
 
-  protected:
     /*
      * A default constructable unit
      *
@@ -122,7 +132,8 @@ class UnitRegistry
      * A Boost.Spirit grammar for parsing unit strings.
      */
   template<typename Iterator>
-  struct UnitParser : spt::qi::grammar<Iterator, DUnit()> {
+  struct UnitParser : spt::qi::grammar<Iterator, DUnit()>
+  {
 
     using ThisType = UnitParser<Iterator>;
 
@@ -185,6 +196,55 @@ class UnitRegistry
     }
   };
 
+  struct SIPrefixParser : qi::symbols<char,int>
+  {
+    SIPrefixParser()
+    {
+      add
+        ("Y", 24)
+        ("yotta", 24)
+        ("Z", 21)
+        ("zetta", 21)
+        ("E", 18)
+        ("exa", 18)
+        ("P", 15)
+        ("peta", 15)
+        ("T", 12)
+        ("tera", 12)
+        ("G", 9)
+        ("giga", 9)
+        ("M", 6)
+        ("mega", 6)
+        ("k", 3)
+        ("kilo", 3)
+        ("h", 2)
+        ("hecto", 2)
+        ("da", 1)
+        ("deca", 1)
+        ("d", -1)
+        ("deci", -1)
+        ("c", -2)
+        ("centi", -2)
+        ("m", -3)
+        ("milli", -3)
+        ("u", -6)
+        ("micro", -6)
+        ("n", -9)
+        ("nano", -9)
+        ("p", -12)
+        ("pico", -12)
+        ("f", -15)
+        ("femto", -15)
+        ("a", -18)
+        ("atto", -18)
+        ("z", -21)
+        ("zepto", -21)
+        ("y", -24);
+        ("yocto", -24);
+    }
+  };
+
+  protected:
   UnitParser<std::string::iterator> m_UnitParser;
 
   public:

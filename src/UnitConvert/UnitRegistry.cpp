@@ -142,6 +142,35 @@ UnitRegistry::getUnit(const std::string& a_unit) const
         "' does not exist in the registry.");
   }
 }
+
+ Unit
+UnitRegistry::getUnit(const std::string& a_unit, bool a_trySIPrefix) const
+{
+  auto ptr = m_UnitStore.find(a_unit);
+  if (ptr != m_UnitStore.end()) {
+    return ptr->second;
+  } else {
+    if( a_trySIPrefix )
+    {
+      // check if the unit is an SI prefix'ed version of
+      // a unit in the store.
+      auto it = a_unit.begin();
+      int power = 0;
+      if( qi::parse(it, a_unit.end(), SIPrefixParser(), power) && it != a_unit.end())
+      {
+        std::string unit(it,a_unit.end());
+        ptr = m_UnitStore.find(unit);
+        if (ptr != m_UnitStore.end()) {
+          return ptr->second*pow(10,power);
+        }
+      }
+    }
+    // can't find the unit in the store.
+    // throw an exception.
+    throw std::runtime_error("Error: unit '" + a_unit +
+        "' does not exist in the registry.");
+  }
+}
     Unit
 UnitRegistry::makeUnit(const std::string& a_unit) const
       {

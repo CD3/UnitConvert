@@ -51,15 +51,6 @@ TEST_CASE("Spirit Testing")
 
 TEST_CASE("Unit String Parsing")
 {
-    BaseDimension<Dimension::Name::Length>            L;
-    BaseDimension<Dimension::Name::Mass>              M;
-    BaseDimension<Dimension::Name::Time>              T;
-    BaseDimension<Dimension::Name::ElectricalCurrent> I;
-    BaseDimension<Dimension::Name::Temperature>       THETA;
-    BaseDimension<Dimension::Name::Amount>            N;
-    BaseDimension<Dimension::Name::LuminousIntensity> J;
-    BaseDimension<Dimension::Name::Dimensionless>     D;
-
     UnitRegistry ureg;
 
     ureg.addBaseUnit<Dimension::Name::Length>("m");
@@ -77,7 +68,19 @@ TEST_CASE("Unit String Parsing")
     ureg.addUnit("1 cal = 4.184 J");
     ureg.addUnit("1 N = 1 kg m / s^2");
 
+    SECTION("Expression")
+    {
     Unit u = ureg.getUnit("");
+
+    BaseDimension<Dimension::Name::Length>            L;
+    BaseDimension<Dimension::Name::Mass>              M;
+    BaseDimension<Dimension::Name::Time>              T;
+    BaseDimension<Dimension::Name::ElectricalCurrent> I;
+    BaseDimension<Dimension::Name::Temperature>       THETA;
+    BaseDimension<Dimension::Name::Amount>            N;
+    BaseDimension<Dimension::Name::LuminousIntensity> J;
+    BaseDimension<Dimension::Name::Dimensionless>     D;
+
 
     std::string unit = "m";
     auto it = unit.begin();
@@ -86,6 +89,7 @@ TEST_CASE("Unit String Parsing")
     CHECK(unit.end() - it == 0);
     CHECK( u.dimension() == L );
     CHECK(u.scale() == 1);
+
 
     unit = "m*s";
     it = unit.begin();
@@ -283,6 +287,174 @@ TEST_CASE("Unit String Parsing")
     CHECK(u.scale() == Approx(0.3));
     CHECK(u.offset() == 30);
 
+    }
+
+    SECTION("SI Prefixes")
+    {
+      UnitRegistry::SIPrefixParser parser;
+
+      std::string unit;
+      auto it = unit.begin();
+      int i;
+      bool r;
+
+      unit = "Ym";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 24);
+
+      unit = "Zm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 21);
+
+
+
+      unit = "Em";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 18);
+
+      unit = "Pm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 15);
+
+      unit = "Tm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 12);
+
+
+
+      unit = "Gm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 9);
+
+      unit = "Mm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 6);
+
+
+
+
+      unit = "km";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 3);
+
+      unit = "Mm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 6);
+
+      unit = "km";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == 3);
+
+
+
+      unit = "dm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -1);
+
+      unit = "cm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -2);
+
+      unit = "mm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -3);
+
+
+
+
+      unit = "um";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -6);
+
+      unit = "nm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -9);
+
+      unit = "pm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -12);
+
+
+
+
+      unit = "fm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -15);
+
+      unit = "am";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -18);
+
+      unit = "zm";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -21);
+
+
+      unit = "ym";
+      it = unit.begin();
+      r = qi::parse(it, unit.end(), parser, i);
+      CHECK(r);
+      CHECK(unit.end() - it == 1);
+      CHECK(i == -24);
+
+    }
 }
 
 /**
@@ -409,7 +581,18 @@ TEST_CASE("UnitRegistry Devel", "[devel]")
   ureg.addUnit("1 W = 1 J/s");
   ureg.addUnit("1 cal = 4.184 J");
 
+  Unit u = BaseUnit<Dimension::Name::Dimensionless>();
   Quantity<double> q = ureg.makeQuantity<double>(200, "cm");
+
+  u = ureg.getUnit("m");
+  CHECK(u.scale() == Approx(1));
+  u = ureg.getUnit("cm");
+  CHECK(u.scale() == Approx(0.01));
+  CHECK_THROWS(ureg.getUnit("mm"));
+  u = ureg.getUnit("mm",true);
+  CHECK(u.scale() == Approx(0.001));
+  u = ureg.getUnit("millim",true);
+  CHECK(u.scale() == Approx(0.001));
 
   CHECK(q.value() == Approx(200));
   // getUnit returns a unit that is in the registry
@@ -449,6 +632,8 @@ TEST_CASE("UnitRegistry Devel", "[devel]")
         distance.to<boost::units::si::length>();
     CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
   }
+
+
 }
 
 TEST_CASE("BoostUnitRegistry Devel", "[devel]")
