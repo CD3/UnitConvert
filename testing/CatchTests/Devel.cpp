@@ -90,6 +90,30 @@ TEST_CASE("Unit String Parsing")
     CHECK( u.dimension() == L );
     CHECK(u.scale() == 1);
 
+    unit = "m ";
+    it = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == L );
+    CHECK(u.scale() == 1);
+
+    unit = " m";
+    it = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == L );
+    CHECK(u.scale() == 1);
+
+    unit = " m  ";
+    it = unit.begin();
+    qi::parse(it, unit.end(), ureg.getUnitParser(), u);
+    CHECK(r);
+    CHECK(unit.end() - it == 0);
+    CHECK( u.dimension() == L );
+    CHECK(u.scale() == 1);
+
 
     unit = "m*s";
     it = unit.begin();

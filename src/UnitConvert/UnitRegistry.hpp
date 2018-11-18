@@ -78,7 +78,7 @@ class UnitRegistry
      * found in the registry, an exception is thrown.
      */
     const Unit&
-      getUnit(const std::string& a_unit) const;
+      getUnit(std::string a_unit) const;
 
     /**
      * Querry the registry for a named unit and return
@@ -89,7 +89,7 @@ class UnitRegistry
      * found in the registry, an exception is thrown.
      */
     Unit
-      getUnit(const std::string& a_unit, bool a_trySIPrefix) const;
+      getUnit(std::string a_unit, bool a_trySIPrefix) const;
 
     /**
      * Parse a string and return the unit it represents.
@@ -102,7 +102,7 @@ class UnitRegistry
      *
      */
     Unit
-      makeUnit(const std::string& a_unit) const;
+      makeUnit(std::string a_unit) const;
 
     
     template <typename T>
@@ -162,7 +162,7 @@ class UnitRegistry
 
     Unit getUnitFromRegistry( const std::string& unit )
     {
-      return ureg.getUnit(unit);
+      return ureg.getUnit(unit,true);
     }
 
     UnitParser(const UnitRegistry& registry) : UnitParser::base_type(unit), ureg(registry)
@@ -173,11 +173,13 @@ class UnitRegistry
 
       scale  = qi::double_[qi::_val *= qi::_1];
 
-      mul = *qi::lit(" ") >> "*" >> *qi::lit(" ") | +qi::lit(" ");
-      div = *qi::lit(" ") >> "/" >> *qi::lit(" ");
-      pow = *qi::lit(" ") >> (qi::lit("^")|qi::lit("**")) >> *qi::lit(" ");
-      add = *qi::lit(" ") >> "+" >> *qi::lit(" ");
-      sub = *qi::lit(" ") >> "-" >> *qi::lit(" ");
+      auto space = qi::lit(" ");
+
+      mul = *space >> "*" >> *space | +space;
+      div = *space >> "/" >> *space;
+      pow = *space >> (qi::lit("^")|qi::lit("**")) >> *space;
+      add = *space >> "+" >> *space;
+      sub = *space >> "-" >> *space;
 
 
       named_unit = spt::as_string[(+qi::char_("a-zA-Z"))][qi::_val = phx::bind( &ThisType::getUnitFromRegistry, this, qi::_1)];
@@ -188,7 +190,7 @@ class UnitRegistry
 
       group = '(' >> term[qi::_val = qi::_1] >> ')';
 
-      expression = term[qi::_val = qi::_1] >> *(add >> offset[qi::_val += qi::_1] | sub >> offset[qi::_val -= qi::_1]);
+      expression = *space >> term[qi::_val = qi::_1] >> *(add >> offset[qi::_val += qi::_1] | sub >> offset[qi::_val -= qi::_1]) >> *space;
 
       unit = expression;
 
@@ -246,6 +248,7 @@ class UnitRegistry
 
   protected:
   UnitParser<std::string::iterator> m_UnitParser;
+  SIPrefixParser m_SIPrefixParser;
 
   public:
     UnitRegistry():m_UnitParser(*this){};
