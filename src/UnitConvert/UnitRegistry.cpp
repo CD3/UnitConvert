@@ -1,62 +1,6 @@
 
 #include "./UnitRegistry.hpp"
 
-bool UnitRegistry::isSIPrefix(char p) const
-{
-  // check the common ones first
-  if (p == 'k') return true;
-  if (p == 'c') return true;
-  if (p == 'm') return true;
-  if (p == 'u') return true;
-  if (p == 'n') return true;
-  if (p == 'p') return true;
-  if (p == 'f') return true;
-
-  if (p == 'Y') return true;
-  if (p == 'Z') return true;
-  if (p == 'E') return true;
-  if (p == 'P') return true;
-  if (p == 'T') return true;
-  if (p == 'G') return true;
-  if (p == 'M') return true;
-  if (p == 'h') return true;
-  if (p == 'D') return true;
-
-  if (p == 'd') return true;
-  if (p == 'a') return true;
-  if (p == 'z') return true;
-  if (p == 'y') return true;
-
-  return false;
-}
-
-double UnitRegistry::getSIPrefixScale(char p) const
-{
-  if (p == 'Y') return 1e24;
-  if (p == 'Z') return 1e21;
-  if (p == 'E') return 1e18;
-  if (p == 'P') return 1e15;
-  if (p == 'T') return 1e12;
-  if (p == 'G') return 1e9;
-  if (p == 'M') return 1e6;
-  if (p == 'k') return 1e3;
-  if (p == 'h') return 1e2;
-  if (p == 'D') return 1e1;
-
-  if (p == 'd') return 1e-1;
-  if (p == 'c') return 1e-2;
-  if (p == 'm') return 1e-3;
-  if (p == 'u') return 1e-6;
-  if (p == 'n') return 1e-9;
-  if (p == 'p') return 1e-12;
-  if (p == 'f') return 1e-15;
-  if (p == 'a') return 1e-18;
-  if (p == 'z') return 1e-21;
-  if (p == 'y') return 1e-24;
-
-  throw std::runtime_error("Error: '" + std::string(1, p) +
-                           "' is not a recognized SI prefix.");
-}
 
 void UnitRegistry::addUnit(const std::string& k, const Unit& v)
 {
@@ -76,51 +20,33 @@ void UnitRegistry::addUnit(const std::string& k, const Unit& v)
   }
 }
 
-void UnitRegistry::addUnit(const std::string& unit_equation)
+void UnitRegistry::addUnit(std::string unit_equation)
 {
-  // get left and right sides of equation
-  unit_string_tokenizer eq_toks(unit_equation,
-                                boost::char_separator<char>("="));
-  auto                  it   = eq_toks.begin();
-  std::string           left = *it;
-  detail::trim(left);
+  auto it = unit_equation.begin();
 
-  ++it;
-  if (it == eq_toks.end())
-    throw std::runtime_error(
-        "Error: string passed to addUnit must be a unit equation. No '=' "
-        "found in '" +
-        unit_equation + "'.");
+  boost::optional<double> scale;
+  std::string LHS, RHS;
 
-  std::string right = *it;
-  detail::trim(right);
-
-  // need to check left hand side for a value.
-  // for example, theuser might say something like
-  //
-  // 100 in = 254 cm
-  //
-  // we can choose not to support this, but either way,
-  // we have to check for it
-
-  unit_string_tokenizer l_toks(left, boost::char_separator<char>(" "));
-  it = l_toks.begin();
-
-  char*  end = 0;
-  double val = std::strtod((*it).c_str(), &end);
-  if (end == 0 || *end != 0) {
-    val = 1;
-  } else {
-    ++it;
+  // parse unit equation
+  // LHS should be a new named unit (no derived units) with an optional scale.
+  // RHS can be an arbitrary string that makeUnit will parse
+  // examples: 1 J = 1 kg * m^2 / s^s
+  //           100 cm = 1 m
+  auto space = qi::lit(" ");
+  auto eq = qi::lit("=");
+  auto uchars = m_UnitParser.unit_name_chars;
+  auto r = qi::parse( it, unit_equation.end(), -qi::double_ >> *space >> qi::as_string[+uchars] >> *space >> eq >> *space >> qi::as_string[+qi::char_] >> *space, scale, LHS, RHS );
+  if( r )
+  {
+    if( !scale )
+      scale = 1;
+    addUnit(LHS, makeUnit(RHS)/scale.get());
+  }
+  else
+  {
+    throw std::runtime_error("Could not parse unit equation: "+unit_equation);
   }
 
-  // need to rebuild left hand side of equation without value
-  left = *it;
-  while (++it != l_toks.end()) {
-    left += " " + *it;
-  }
-
-  addUnit(left, makeUnit(right) / val);
 }
 
 const Unit& UnitRegistry::getUnit(std::string a_unit) const

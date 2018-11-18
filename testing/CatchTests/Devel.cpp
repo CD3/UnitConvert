@@ -38,9 +38,6 @@ TEST_CASE("Spirit Testing")
       qi::phrase_parse(it, text.end(), qi::double_ >> qi::lexeme[*qi::char_],
                        ascii::space, val, unit);
 
-  std::cout << "val: " << val << std::endl;
-  std::cout << "unit: " << unit << std::endl;
-
   CHECK(r);
   CHECK(it == text.end());
   CHECK(val == Approx(1.3));
@@ -66,7 +63,7 @@ TEST_CASE("Unit String Parsing")
     ureg.addUnit("1 J = 1 kg*m^2*s^-2");
     ureg.addUnit("1 W = 1 J/s");
     ureg.addUnit("1 cal = 4.184 J");
-    ureg.addUnit("1 N = 1 kg m / s^2");
+    ureg.addUnit("N = 1 kg m / s^2");
 
     SECTION("Expression")
     {
