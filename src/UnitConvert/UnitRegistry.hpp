@@ -99,9 +99,9 @@ class UnitRegistry
   /**
    * A Boost.Spirit grammar for parsing unit strings.
    */
-  template<typename Iterator>
-  struct UnitParser : spt::qi::grammar<Iterator, DUnit()> {
-    using ThisType = UnitParser<Iterator>;
+  struct UnitParser : spt::qi::grammar<std::string::iterator, DUnit()> {
+    using Iterator = std::string::iterator;
+    using ThisType = UnitParser;
 
     qi::rule<Iterator, DUnit()> named_unit, factor, term, group, scale,
         expression, unit;
@@ -115,59 +115,14 @@ class UnitRegistry
     /**
      * compute a unit raised to an integer power)
      */
-    DUnit exponentiate(const DUnit& b, const int e)
-    {
-      DUnit r;
-      for (int i = 0; i < abs(e); i++) {
-        if (e > 0) r *= b;
-        if (e < 0) r /= b;
-      }
-      return r;
-    }
+    DUnit exponentiate(const DUnit& b, const int e);
 
-    Unit getUnitFromRegistry(const std::string& unit)
-    {
-      return ureg.getUnit(unit, true);
-    }
+    /**
+     * retrieve a named unit from the registry
+     */
+    Unit getUnitFromRegistry(const std::string& unit);
 
-    UnitParser(const UnitRegistry& registry)
-        : UnitParser::base_type(unit), ureg(registry)
-    {
-      offset   = qi::double_;
-      exponent = qi::int_;
-
-      scale = qi::double_[qi::_val *= qi::_1];
-
-      auto space = qi::lit(" ");
-
-      mul = *space >> "*" >> *space | +space;
-      div = *space >> "/" >> *space;
-      pow = *space >> (qi::lit("^") | qi::lit("**")) >> *space;
-      add = *space >> "+" >> *space;
-      sub = *space >> "-" >> *space;
-
-      unit_name_chars = qi::char_("a-zA-Z");
-      named_unit =
-          spt::as_string[(+unit_name_chars)]
-                        [qi::_val = phx::bind(&ThisType::getUnitFromRegistry,
-                                              this, qi::_1)];
-
-      factor = (named_unit | scale | group)[qi::_val = qi::_1] >>
-               *(pow >> exponent[qi::_val = phx::bind(&ThisType::exponentiate,
-                                                      this, qi::_val, qi::_1)]);
-
-      term = factor[qi::_val = qi::_1] >> *(mul >> factor[qi::_val *= qi::_1] |
-                                            div >> factor[qi::_val /= qi::_1]);
-
-      group = '(' >> term[qi::_val = qi::_1] >> ')';
-
-      expression = *space >> term[qi::_val = qi::_1] >>
-                   *(add >> offset[qi::_val += qi::_1] |
-                     sub >> offset[qi::_val -= qi::_1]) >>
-                   *space;
-
-      unit = expression;
-    }
+    UnitParser(const UnitRegistry& registry);
   };
 
   struct SIPrefixParser : qi::symbols<char, int> {
@@ -185,13 +140,13 @@ class UnitRegistry
   };
 
  protected:
-  UnitParser<std::string::iterator> m_UnitParser;
+  UnitParser m_UnitParser;
   SIPrefixParser                    m_SIPrefixParser;
 
  public:
   UnitRegistry() : m_UnitParser(*this){};
 
-  const UnitParser<std::string::iterator>& getUnitParser() const
+  const UnitParser& getUnitParser() const
   {
     return m_UnitParser;
   }
