@@ -49,7 +49,7 @@ int main()
   UnitRegistry ureg;
   ureg.addBaseUnit<Dimension::Name::Length>("m");
 
-  auto q = ureg.Quantity<double>(100,"m");
+  auto q = ureg.makeQuantity<double>(100,"m");
 
   std::cout << "100 m = " << q.to("km").value() << " km" << std::endl;
 
