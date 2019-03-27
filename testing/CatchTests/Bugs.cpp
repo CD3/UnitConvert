@@ -19,12 +19,12 @@ TEST_CASE("UnitRegistry Unit Equation Parser", "[bugs]")
     ureg.addUnit("C", ureg.getUnit("K")-273.15);
     ureg.addUnit("F", ureg.getUnit("C")*(5./9) + 32);
 
-    //auto q = ureg.Quantity<double>(37, "C");
-    //CHECK( q.value() == Approx(37) );
-    //// the Quantity class can convert to a unit string
-    //// if it was created by a UnitRegistry
-    //CHECK( q.to("F").value() == Approx(98.6) );
-    //CHECK_THROWS( q.to("m") );
+    auto q = ureg.makeQuantity<double>(37, "C");
+    CHECK( q.value() == Approx(37) );
+    // the Quantity class can convert to a unit string
+    // if it was created by a UnitRegistry
+    CHECK( q.to("F").value() == Approx(98.6) );
+    CHECK_THROWS( q.to("m") );
   }
 
 

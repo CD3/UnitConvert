@@ -26,6 +26,7 @@ class Unit
   Unit(double s, double o, const Dimension& d);
 
  public:
+
   /**
    * Return the unit's scale.
    * This is the "size" of the unit compared to the unit consisting of base
