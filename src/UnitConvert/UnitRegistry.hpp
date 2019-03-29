@@ -80,6 +80,9 @@ class UnitRegistry
   template<typename T>
   Quantity<T> makeQuantity(const T& val, const std::string& a_unit) const;
 
+  template<typename T>
+  Quantity<T> makeQuantity(std::string a_unit) const;
+
   /** Output operator.
    */
   friend std::ostream& operator<<(std::ostream& out, const UnitRegistry& reg);
@@ -163,6 +166,23 @@ template<typename T>
                                          const std::string& a_unit) const
 {
   return ::Quantity<T>(val, makeUnit(a_unit), this);
+}
+
+template<typename T>
+::Quantity<T> UnitRegistry::makeQuantity( std::string a_quantity) const
+{
+  // parse quantity string
+  // a quantity should have a numerical value and a unit that makeUnit will parse
+  auto it = a_quantity.begin();
+  auto space  = qi::lit(" ");
+  auto uchars = m_UnitParser.unit_name_chars;
+  double value;
+  std::string unit;
+  auto r =
+      qi::parse(it, a_quantity.end(),
+                -qi::double_ >> *space >> qi::as_string[+uchars] >> *space,
+                value, unit);
+  return ::Quantity<T>(value, makeUnit(unit), this);
 }
 
 #endif  // include protector

@@ -44,7 +44,7 @@ CHECK( q.to_base_units().value() == Approx(1e7) );
 q = ureg.makeQuantity<double>(2,"cal");
 CHECK( q.to_base_units().value() == Approx(2*4.184*1e7) );
 
-q = ureg.makeQuantity<double>(100,"degC");
+q = ureg.makeQuantity<double>("100 degC");
 CHECK( q.to("K").value() == Approx(373.15) );
 CHECK( q.to_base_units().value() == Approx(373.15) );
 
