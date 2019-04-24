@@ -182,7 +182,7 @@ template<typename T>
       qi::parse(it, a_quantity.end(),
                 -qi::double_ >> *space >> qi::as_string[+uchars] >> *space,
                 value, unit);
-  return ::Quantity<T>(value, makeUnit(unit), this);
+  return ::Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
 }
 
 #endif  // include protector
