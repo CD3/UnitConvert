@@ -46,8 +46,8 @@ target_include_directories( ${LIB_NAME} INTERFACE
   $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(${LIB_NAME}
-                        INTERFACE
-                          Boost::boost
+                        PUBLIC
+                        Boost::boost
                      )
 target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
 
