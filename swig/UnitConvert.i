@@ -24,7 +24,28 @@
 %rename(tQuantity) Quantity;
 
 
-%include "../src/UnitConvert/UnitRegistry.hpp"
+/*%include "../src/UnitConvert/UnitRegistry.hpp"*/
+class UnitRegistry
+{
+ public:
+  enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore };
+  EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
+
+  void addUnit(const std::string& k, const Unit& v);
+  void addUnit(std::string unit_equation);
+  template<Dimension::Name DIM>
+  void addBaseUnit(const std::string& k);
+  const Unit& getUnit(std::string a_unit) const;
+  Unit getUnit(std::string a_unit, bool a_trySIPrefix) const;
+  Unit makeUnit(std::string a_unit) const;
+  template<typename T>
+  Quantity<T> makeQuantity(const T& val, const std::string& a_unit) const;
+  template<typename T>
+  Quantity<T> makeQuantity(std::string a_unit) const;
+
+
+  UnitRegistry() : m_UnitParser(*this){};
+};
 %template(addLengthBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Length>;
 %template(addMassBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Mass>;
 %template(addTimeBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Time>;
@@ -37,12 +58,4 @@
 
 %include "../src/UnitConvert/Quantity.hpp"
 %template(Quantity) Quantity<double>;
-
-class Unit
-{
-  public:
-    %extend {
-      Unit(){}
-    }
-};
 
