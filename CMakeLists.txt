@@ -50,6 +50,7 @@ target_link_libraries(${LIB_NAME}
                         Boost::boost
                      )
 target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
+set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
 
 if( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} AND BUILD_UNIT_TESTS)
 enable_testing()

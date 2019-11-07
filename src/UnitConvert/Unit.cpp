@@ -103,6 +103,7 @@ Unit::operator/=(const Unit& other)
           "delta unit.");
     this->m_Scale /= other.m_Scale;
     this->m_Dimension /= other.m_Dimension;
+	return *this;
   }
   Unit&
 Unit::operator/=(const double& scale)
