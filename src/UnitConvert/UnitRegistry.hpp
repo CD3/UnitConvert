@@ -87,26 +87,14 @@ class UnitRegistry
    */
   friend std::ostream& operator<<(std::ostream& out, const UnitRegistry& reg);
 
-  /*
-   * A default constructable unit
-   *
-   * Used for parsing unit strings.
-   */
-  class DUnit : public Unit
-  {
-   public:
-    DUnit() : Unit(1, BaseDimension<Dimension::Name::Dimensionless>()) {}
-    DUnit(const Unit& u) : Unit(u) {}
-  };
-
   /**
    * A Boost.Spirit grammar for parsing unit strings.
    */
-  struct UnitParser : spt::qi::grammar<std::string::iterator, DUnit()> {
+  struct UnitParser : spt::qi::grammar<std::string::iterator, Unit()> {
     using Iterator = std::string::iterator;
     using ThisType = UnitParser;
 
-    qi::rule<Iterator, DUnit()> named_unit, factor, term, group, scale,
+    qi::rule<Iterator, Unit()> named_unit, factor, term, group, scale,
         expression, unit;
     qi::rule<Iterator, double()> offset;
     qi::rule<Iterator, int()>    exponent;
@@ -118,7 +106,7 @@ class UnitRegistry
     /**
      * compute a unit raised to an integer power)
      */
-    DUnit exponentiate(const DUnit& b, const int e);
+    Unit exponentiate(const Unit& b, const int e);
 
     /**
      * retrieve a named unit from the registry

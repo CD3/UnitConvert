@@ -22,10 +22,12 @@ class Unit
   double m_Scale;
   boost::optional<double> m_Offset;
 
+ public:
+
+  Unit():m_Dimension(BaseDimension<Dimension::Name::Dimensionless>()),m_Scale(1){}
   Unit(double s, const Dimension& d);
   Unit(double s, double o, const Dimension& d);
 
- public:
 
   /**
    * Return the unit's scale.
@@ -138,10 +140,6 @@ class Unit
  * A class for constructing base units. Base units are units for one of the base
  * dimensions
  * that have a scale of 1 and a zero offset.
- *
- * The Unit class cannot be constructed directly, so this class is used to
- * create the building
- * blocks that will be used to construct other units.
  */
 template <Dimension::Name DIM>
 class BaseUnit : public Unit

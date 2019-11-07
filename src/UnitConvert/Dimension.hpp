@@ -9,16 +9,17 @@
 
 #include <array>
 #include <ostream>
-#include <boost/units/physical_dimensions/length.hpp>
-#include <boost/units/physical_dimensions/mass.hpp>
-#include <boost/units/physical_dimensions/time.hpp>
-#include <boost/units/physical_dimensions/current.hpp>
-#include <boost/units/physical_dimensions/temperature.hpp>
+
+#include <boost/units/base_dimension.hpp>
 #include <boost/units/physical_dimensions/amount.hpp>
+#include <boost/units/physical_dimensions/current.hpp>
+#include <boost/units/physical_dimensions/length.hpp>
 #include <boost/units/physical_dimensions/luminance.hpp>
+#include <boost/units/physical_dimensions/mass.hpp>
 #include <boost/units/physical_dimensions/plane_angle.hpp>
 #include <boost/units/physical_dimensions/solid_angle.hpp>
-#include <boost/units/base_dimension.hpp>
+#include <boost/units/physical_dimensions/temperature.hpp>
+#include <boost/units/physical_dimensions/time.hpp>
 
 /**
  * A class representing a physical dimension. A physicsl dimension
@@ -56,11 +57,10 @@ class Dimension
     Dimensionless
   };
 
- protected:
+ public:
   Dimension();
   Dimension(Name dim);
 
- public:
   int operator[](Name dim)
       const;  //<<< Return the power of a base dimension for this dimension
   ArrayType powers() const;  //<<< Return the powers for each base dimension for
@@ -83,7 +83,7 @@ class Dimension
 
   bool operator==(const Dimension& other)
       const;  //<<< Return true if dimensions are the same. i.e. all powers of
-              //base dimensions are the same.
+              // base dimensions are the same.
 
   bool operator!=(const Dimension& other)
       const;  //<<< Return true if dimensions are not the same

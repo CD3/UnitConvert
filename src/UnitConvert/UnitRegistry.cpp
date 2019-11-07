@@ -108,9 +108,9 @@ std::ostream& operator<<(std::ostream& out, const UnitRegistry& reg)
 /**
  * compute a unit raised to an integer power)
  */
-UnitRegistry::DUnit UnitRegistry::UnitParser::exponentiate(const DUnit& b, const int e)
+Unit UnitRegistry::UnitParser::exponentiate(const Unit& b, const int e)
 {
-  DUnit r;
+  Unit r;
   for (int i = 0; i < abs(e); i++) {
     if (e > 0) r *= b;
     if (e < 0) r /= b;
