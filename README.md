@@ -90,7 +90,7 @@ CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
 
 
 There is also a `BoostUnitRegistry`, which adds more `Boost.Units` support.
-When you create the unit registry, pass it a `Boost.units` system, and it will automatically
+When you create the unit registry, pass it a `Boost.Units` system, and it will automatically
 populate the registry with the base units of the system. All prefixed versions are also added.
 You can add new units as before, or by passing in an instance of a boost unit
 (i.e. `boost::unit::gcs::length`). If you use a boost unit, the string
