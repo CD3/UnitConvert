@@ -140,7 +140,7 @@ def test_stats():
   assert s.max == Approx(  2)
   assert s.stddev == Approx(  (sum( [ (x - 5./4)**2 for x in [1,2,2,0] ] ) / 4)**0.5 )
 
-def test_speed():
+def test_speed_simple():
   ureg = uc.UnitRegistry()
 
   ureg.addLengthBaseUnit("m")
@@ -164,11 +164,50 @@ def test_speed():
   bm = Benchmark()
 
   bm.run( lambda : q.to("km/s") )
-  print()
+  print("UnitConvert")
   print("mean:",bm.stats.mean)
   print("count:",bm.stats.count)
   print("err:",bm.stats.error)
   bm.run( lambda : pq.to("km/s") )
+  print("pint")
+  print("mean:",bm.stats.mean)
+  print("count:",bm.stats.count)
+  print("err:",bm.stats.error)
+
+
+def test_speed_medium():
+  ureg = uc.UnitRegistry()
+
+  ureg.addLengthBaseUnit("m")
+  ureg.addMassBaseUnit("g")
+  ureg.addTimeBaseUnit("s")
+
+  ureg.addUnit("1 in = 2.54 cm")
+  ureg.addUnit("1 ft = 12 in")
+  ureg.addUnit("1 mile = 5280 ft")
+  ureg.addUnit("1 min = 60 s")
+  ureg.addUnit("1 hour = 60 min")
+  ureg.addUnit("1 J = kg m^2 / s^2")
+  ureg.addUnit("1 W = J / s")
+
+
+  pureg = pint.UnitRegistry()
+
+  q = ureg.makeQuantity(100,'W')
+
+  pq = pureg.Quantity(100, 'W')
+
+
+  bm = Benchmark()
+
+  bm.run( lambda : q.to("g cm mm / hour / min / ms") )
+  print("UnitConvert")
+  print()
+  print("mean:",bm.stats.mean)
+  print("count:",bm.stats.count)
+  print("err:",bm.stats.error)
+  bm.run( lambda : pq.to("g cm mm / hour / min / ms") )
+  print("pint")
   print("mean:",bm.stats.mean)
   print("count:",bm.stats.count)
   print("err:",bm.stats.error)
