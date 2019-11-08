@@ -97,7 +97,7 @@ populate the registry with the base units of the system. All prefixed versions a
 You can add new units as before, or by passing in an instance of a boost unit
 (i.e. `boost::unit::gcs::length`). If you use a boost unit, the string
 representation of the unit will be added to the registry.
-```
+```cpp
 #include <catch.hpp>
 #include <UnitConvert.hpp>
 
