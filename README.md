@@ -2,6 +2,8 @@
 
 A small C++ library, inspired by [`pint`](https://pint.readthedocs.io/en/latest/), for doing runtime unit conversions that interoperates with the `Boost.Units` library.
 
+A few examples are given below. You can also go to the [tutorial](doc/Tutorial.md) for a more detailed description of how to use the library.
+
 ## Description
 
 `UnitConvert` provides **runtime** unit conversions. This is necessary when, for example, you want to perform a unit conversion based on user input. The library
@@ -151,7 +153,7 @@ ureg.addUnit( boost::units::cgs::mass() );
 // or we can define the units with a string
 ureg.addUnit( "N = kg m / s^2" );
 ureg.addUnit( "J = N m" );
-ureg.addUnit( "W = J s" );
+ureg.addUnit( "W = J / s" );
 
 q = ureg.makeQuantity<double>( 24, "kg" );
 CHECK( q.to("kg").value() == Approx(24) );
@@ -183,4 +185,6 @@ CHECK( q.to("kW").value() == Approx(0.000024) );
 - Calculations involving `Quantity` objects are not supported. This library is intended for unit conversion, not quantity calculations.
   `Boost.Units` is a great unit library that supports calculations with quantities. If you need to do quantity calculations with
   input from a user, use `UnitConvert` to convert the user's input to the unit you want to use internally and create a `Boost.Units` `quantity`. `UnitConvert` supports creating `Boost.Units` `quantity` instances from `Quantity` objects.
+- No output formatting. The `UnitRegistry` can parse unit strings, but it does not format. If you print a unit to the screen, it will show the saling factor and dimension powers.
 - Only units with a linear scale and offset are supported. It's not possible to represent wire gauge for example.
+
