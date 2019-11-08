@@ -10,7 +10,6 @@
 #include "./UnitRegistry.hpp"
 
 
-
 namespace detail {
 
 // function to add the base units of a Boost.Units system
@@ -64,7 +63,7 @@ class BoostUnitRegistry : public UnitRegistry
   }
 
   using UnitRegistry::addUnit;
-  // add unit to registry using boost units instance
+  // add unit to registry using boost quantity instance
   template <class D, class S>
   void
   addUnit(const boost::units::unit<D, S>& u)
@@ -74,9 +73,9 @@ class BoostUnitRegistry : public UnitRegistry
     // either that, or we take the system as a template argument.
     typedef boost::units::unit<D, SYSTEM> si_base_unit;
     si_base_unit su;
-    this->addUnit(str(u), boost::units::conversion_factor(u, su) *
+    this->addUnit(detail::str(u), boost::units::conversion_factor(u, su) *
                               this->makeUnit(
-                                  str(su, boost::units::format_mode::raw_fmt)));
+                                  detail::str(su, boost::units::format_mode::raw_fmt)));
   }
 };
 

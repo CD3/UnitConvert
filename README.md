@@ -87,6 +87,88 @@ CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
 }
 
 ```
+
+
+There is also a `BoostUnitRegistry`, which adds more boost.units support.
+When you create the unit registry, pass it a boost.units system, and it will automatically
+populate the registry with the base units of the system. All prefixed versions are also added.
+You can add new units as before, or by passing in an instance of a boost unit. If you use a boost
+unit, the string representation of the unit will be added to the registry.
+
+```
+#include <catch.hpp>
+#include <UnitConvert.hpp>
+
+#include <boost/units/systems/si.hpp>
+#include <boost/units/systems/cgs.hpp>
+
+TEST_CASE("BoostUnitRegisty Example")
+{
+BoostUnitRegistry<boost::units::si::system> ureg;
+
+Quantity<double> q;
+
+// all SI base units and their prefixed versions
+// are automatically defined.
+
+q = ureg.makeQuantity<double>( 24, "cm" );
+CHECK( q.to("m").value() == Approx(0.24) );
+
+// mass
+q = ureg.makeQuantity<double>( 24, "kg" );
+CHECK( q.to("kg").value() == Approx(24) );
+//CHECK( q.to("g").value() == Approx(24000) ); // 'g' does not exist yet
+CHECK( q.to("mkg").value() == Approx(24000) );
+
+// time
+q = ureg.makeQuantity<double>( 24, "ms" );
+CHECK( q.to("ms").value() == Approx(24) );
+CHECK( q.to("s").value() == Approx(0.024) );
+CHECK( q.to_base_units().value() == Approx(0.024) );
+
+// electrical current
+q = ureg.makeQuantity<double>( 24, "A" );
+CHECK( q.to("mA").value() == Approx(24000) );
+
+// temperature
+q = ureg.makeQuantity<double>( 24, "K" );
+CHECK( q.to("mK").value() == Approx(24000) );
+
+// amount
+q = ureg.makeQuantity<double>( 24, "mol" );
+CHECK( q.to("mmol").value() == Approx(24000) );
+
+// luminous intensity
+q = ureg.makeQuantity<double>( 24, "cd" );
+CHECK( q.to("mcd").value() == Approx(24000) );
+
+
+
+// now add some non-base units
+// we can add boost unit directly.
+// however, the unit will be added using whatever it string-ify's to
+ureg.addUnit( boost::units::cgs::mass() );
+// or we can define the units with a string
+ureg.addUnit( "N = kg m / s^2" );
+ureg.addUnit( "J = N m" );
+ureg.addUnit( "W = J s" );
+
+q = ureg.makeQuantity<double>( 24, "kg" );
+CHECK( q.to("kg").value() == Approx(24) );
+CHECK( q.to("g").value() == Approx(24000) ); // 'g' exists now
+
+
+q = ureg.makeQuantity<double>( 24, "kJ" );
+CHECK( q.to("mJ").value() == Approx(24000000) );
+CHECK( q.to_base_units().value() == Approx(24000) );
+
+q = ureg.makeQuantity<double>( 24, "mW" );
+CHECK( q.to("kW").value() == Approx(0.000024) );
+
+
+}
+```
+
 ## Features
 
 - Small and simple library that only depends on `boost` (or is that a limitation?)

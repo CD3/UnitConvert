@@ -2,6 +2,7 @@
 #include <UnitConvert.hpp>
 
 #include <boost/units/systems/si.hpp>
+#include <boost/units/systems/cgs.hpp>
 
 TEST_CASE("UnitRegistry Example")
 {
@@ -66,5 +67,72 @@ CHECK_THROWS(q.to("m"));
 q = ureg.makeQuantity<double>(100, "ft");
 boost::units::quantity<boost::units::si::length> L = q.to<boost::units::si::length>();
 CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
+
+}
+
+
+TEST_CASE("BoostUnitRegisty Example")
+{
+BoostUnitRegistry<boost::units::si::system> ureg;
+
+Quantity<double> q;
+
+// all SI base units and their prefixed versions
+// are automatically defined.
+
+q = ureg.makeQuantity<double>( 24, "cm" );
+CHECK( q.to("m").value() == Approx(0.24) );
+
+// mass
+q = ureg.makeQuantity<double>( 24, "kg" );
+CHECK( q.to("kg").value() == Approx(24) );
+//CHECK( q.to("g").value() == Approx(24000) ); // 'g' does not exist yet
+CHECK( q.to("mkg").value() == Approx(24000) );
+
+// time
+q = ureg.makeQuantity<double>( 24, "ms" );
+CHECK( q.to("ms").value() == Approx(24) );
+CHECK( q.to("s").value() == Approx(0.024) );
+CHECK( q.to_base_units().value() == Approx(0.024) );
+
+// electrical current
+q = ureg.makeQuantity<double>( 24, "A" );
+CHECK( q.to("mA").value() == Approx(24000) );
+
+// temperature
+q = ureg.makeQuantity<double>( 24, "K" );
+CHECK( q.to("mK").value() == Approx(24000) );
+
+// amount
+q = ureg.makeQuantity<double>( 24, "mol" );
+CHECK( q.to("mmol").value() == Approx(24000) );
+
+// luminous intensity
+q = ureg.makeQuantity<double>( 24, "cd" );
+CHECK( q.to("mcd").value() == Approx(24000) );
+
+
+
+// now add some non-base units
+// we can add boost unit directly.
+// however, the unit will be added using whatever it string-ify's to
+ureg.addUnit( boost::units::cgs::mass() );
+// or we can define the units with a string
+ureg.addUnit( "N = kg m / s^2" );
+ureg.addUnit( "J = N m" );
+ureg.addUnit( "W = J s" );
+
+q = ureg.makeQuantity<double>( 24, "kg" );
+CHECK( q.to("kg").value() == Approx(24) );
+CHECK( q.to("g").value() == Approx(24000) ); // 'g' exists now
+
+
+q = ureg.makeQuantity<double>( 24, "kJ" );
+CHECK( q.to("mJ").value() == Approx(24000000) );
+CHECK( q.to_base_units().value() == Approx(24000) );
+
+q = ureg.makeQuantity<double>( 24, "mW" );
+CHECK( q.to("kW").value() == Approx(0.000024) );
+
 
 }
