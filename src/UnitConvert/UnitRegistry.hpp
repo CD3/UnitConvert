@@ -10,8 +10,6 @@
 #include <iostream>
 #include <map>
 
-#include <boost/optional.hpp>
-#include <boost/optional/optional_io.hpp>
 #include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -20,7 +18,6 @@ namespace qi  = boost::spirit::qi;
 namespace phx = boost::phoenix;
 
 #include "./Unit.hpp"
-#include "./detail/functions.hpp"
 
 template<typename T>
 class Quantity;
@@ -41,12 +38,42 @@ class UnitRegistry
   enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore };
   EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
 
+  /**
+   * Add a unit to the registry. This overload takes a string, which is the
+   * name/symbol that will be added to the database, and a Unit instance, which
+   * contains the scale, offset, and dimension that will be added.
+   */
   void addUnit(const std::string& k, const Unit& v);
 
+  /**
+   * Add a unit to the registry. This overload will parse a unit equation,
+   * which defines some unit in terms of other units already in the registry,
+   * and add a unit to the registry. For example:
+   *
+   * addUnit("J = kg m^2 / s^2")
+   *
+   * will a unit "J" to the registry by building the unit defined by "kg m^2 / s^2".
+   */
   void addUnit(std::string unit_equation);
 
+  /**
+   * Add a base unit for a given dimension to the registry. Base units have a scale of one.
+   * This function takes a template argument that specifies the dimension. A base unit for the dimension
+   * will be created and added to the registry under the name specified by the string argument.
+   */
   template<Dimension::Name DIM>
   void addBaseUnit(const std::string& k);
+
+  /**
+   * Load a set of units from a stream by reading lines from the stream and passing them
+   * to the addUnit(std::string) function.
+   */
+  void loadUnits(std::istream& in);
+  /**
+   * Load a set of units from a text file. The text file should contain lines that could be passed
+   * to the addUnit(std::string) function.
+   */
+  void loadUnits(std::string filename);
 
   /**
    * Querry the registry for a named unit and return
@@ -77,9 +104,19 @@ class UnitRegistry
    */
   Unit makeUnit(std::string a_unit) const;
 
+  /**
+   * Create a Quantity from a value and unit string. The string is parsed to create a Unit, which is
+   * then used to create a qantity.
+   */
   template<typename T>
   Quantity<T> makeQuantity(const T& val, const std::string& a_unit) const;
 
+  /**
+   * Create a Quantity from a string. This function first parses the string into a value and unit
+   * string and then calls the version above.
+   *
+   * This function is useful for reading user input into a quantity.
+   */
   template<typename T>
   Quantity<T> makeQuantity(std::string a_unit) const;
 
@@ -172,5 +209,6 @@ template<typename T>
                 value, unit);
   return ::Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
 }
+
 
 #endif  // include protector

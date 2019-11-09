@@ -1,6 +1,8 @@
 
 #include "./UnitRegistry.hpp"
 
+#include <fstream>
+
 void UnitRegistry::addUnit(const std::string& k, const Unit& v)
 {
   auto ptr = m_UnitStore.insert(PairType(k, v));
@@ -45,6 +47,22 @@ void UnitRegistry::addUnit(std::string unit_equation)
   } else {
     throw std::runtime_error("Could not parse unit equation: " + unit_equation);
   }
+}
+
+void UnitRegistry::loadUnits(std::istream& in)
+{
+  while (!in.eof()) {
+    std::string line;
+    std::getline(in, line);
+    this->addUnit(line);
+  }
+}
+
+void UnitRegistry::loadUnits(std::string filename)
+{
+  std::ifstream in(filename.c_str());
+  this->loadUnits(in);
+  in.close();
 }
 
 const Unit& UnitRegistry::getUnit(std::string a_unit) const

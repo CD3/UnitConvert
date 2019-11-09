@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <UnitConvert.hpp>
+#include <sstream>
 
 #include <boost/units/systems/si.hpp>
 
@@ -13,6 +14,10 @@ ureg.addBaseUnit<Dimension::Name::Mass>("g");
 ureg.addBaseUnit<Dimension::Name::Time>("s");
 ureg.addBaseUnit<Dimension::Name::Temperature>("K");
 ureg.addBaseUnit<Dimension::Name::Amount>("mol");
+
+SECTION("Adding unit directly")
+{
+
 
 // add some derived units
 ureg.addUnit("m = 100 cm");
@@ -56,6 +61,16 @@ CHECK( q.to("K").unit().offset() == Approx(0) );
 // but the offset will be zero.
 CHECK( q.to_base_units().unit().is_offset() );
 CHECK( q.to_base_units().unit().offset() == Approx(0) );
+}
+
+SECTION("Loading units")
+{
+  std::string units = "m = 100 cm\nN = kg m / s^2\nJ = N m\nW = J/s";
+  std::stringstream in(units);
+  ureg.loadUnits(in);
+
+  CHECK( ureg.makeQuantity<double>(10, "g m^2 / s^3").to("W").value() == 0.01);
+}
 
 }
 
