@@ -52,26 +52,28 @@ class UnitRegistry
    *
    * addUnit("J = kg m^2 / s^2")
    *
-   * will a unit "J" to the registry by building the unit defined by "kg m^2 / s^2".
+   * will a unit "J" to the registry by building the unit defined by "kg m^2 /
+   * s^2".
    */
   void addUnit(std::string unit_equation);
 
   /**
-   * Add a base unit for a given dimension to the registry. Base units have a scale of one.
-   * This function takes a template argument that specifies the dimension. A base unit for the dimension
-   * will be created and added to the registry under the name specified by the string argument.
+   * Add a base unit for a given dimension to the registry. Base units have a
+   * scale of one. This function takes a template argument that specifies the
+   * dimension. A base unit for the dimension will be created and added to the
+   * registry under the name specified by the string argument.
    */
   template<Dimension::Name DIM>
   void addBaseUnit(const std::string& k);
 
   /**
-   * Load a set of units from a stream by reading lines from the stream and passing them
-   * to the addUnit(std::string) function.
+   * Load a set of units from a stream by reading lines from the stream and
+   * passing them to the addUnit(std::string) function.
    */
   void loadUnits(std::istream& in);
   /**
-   * Load a set of units from a text file. The text file should contain lines that could be passed
-   * to the addUnit(std::string) function.
+   * Load a set of units from a text file. The text file should contain lines
+   * that could be passed to the addUnit(std::string) function.
    */
   void loadUnits(std::string filename);
 
@@ -105,15 +107,15 @@ class UnitRegistry
   Unit makeUnit(std::string a_unit) const;
 
   /**
-   * Create a Quantity from a value and unit string. The string is parsed to create a Unit, which is
-   * then used to create a qantity.
+   * Create a Quantity from a value and unit string. The string is parsed to
+   * create a Unit, which is then used to create a qantity.
    */
   template<typename T>
   Quantity<T> makeQuantity(const T& val, const std::string& a_unit) const;
 
   /**
-   * Create a Quantity from a string. This function first parses the string into a value and unit
-   * string and then calls the version above.
+   * Create a Quantity from a string. This function first parses the string into
+   * a value and unit string and then calls the version above.
    *
    * This function is useful for reading user input into a quantity.
    */
@@ -168,16 +170,13 @@ class UnitRegistry
   };
 
  protected:
-  UnitParser m_UnitParser;
-  SIPrefixParser                    m_SIPrefixParser;
+  UnitParser     m_UnitParser;
+  SIPrefixParser m_SIPrefixParser;
 
  public:
   UnitRegistry() : m_UnitParser(*this){};
 
-  const UnitParser& getUnitParser() const
-  {
-    return m_UnitParser;
-  }
+  const UnitParser& getUnitParser() const { return m_UnitParser; }
 };
 
 template<Dimension::Name DIM>
@@ -194,21 +193,18 @@ template<typename T>
 }
 
 template<typename T>
-::Quantity<T> UnitRegistry::makeQuantity( std::string a_quantity) const
+::Quantity<T> UnitRegistry::makeQuantity(std::string a_quantity) const
 {
-  // parse quantity string
-  // a quantity should have a numerical value and a unit that makeUnit will parse
-  auto it = a_quantity.begin();
-  auto space  = qi::lit(" ");
-  auto uchars = m_UnitParser.unit_name_chars;
-  double value;
+  double      value;
   std::string unit;
-  auto r =
-      qi::parse(it, a_quantity.end(),
-                -qi::double_ >> *space >> qi::as_string[+uchars] >> *space,
-                value, unit);
+  // parse quantity string
+  // a quantity should have a numerical value and a unit that makeUnit will
+  // parse
+  auto it    = a_quantity.begin();
+  auto space = qi::lit(" ");
+  auto r     = qi::parse(it, a_quantity.end(),
+                     -qi::double_ >> qi::as_string[+qi::char_], value, unit);
   return ::Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
 }
-
 
 #endif  // include protector

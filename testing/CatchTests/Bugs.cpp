@@ -32,3 +32,15 @@ TEST_CASE("UnitRegistry Unit Equation Parser", "[bugs]")
 }
 
 
+TEST_CASE("UnitRegistry.makeQuantity(std::string) does not parse derived units correctly", "[bugs]")
+{
+  UnitRegistry ureg;
+
+  ureg.addBaseUnit<Dimension::Name::Length>("m");
+  ureg.addBaseUnit<Dimension::Name::Mass>("g");
+  ureg.addBaseUnit<Dimension::Name::Mass>("s");
+
+  CHECK( ureg.makeQuantity<double>(10, "kg m").to("g m").value() == Approx(10000) );
+  CHECK( ureg.makeQuantity<double>("10 kg m").to("g m").value() == Approx(10000) );
+  CHECK( ureg.makeQuantity<double>("10 kg m / s").to("g m / ms").value() == Approx(10) );
+}
