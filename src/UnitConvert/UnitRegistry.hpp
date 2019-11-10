@@ -201,7 +201,6 @@ template<typename T>
   // a quantity should have a numerical value and a unit that makeUnit will
   // parse
   auto it    = a_quantity.begin();
-  auto space = qi::lit(" ");
   auto r     = qi::parse(it, a_quantity.end(),
                      -qi::double_ >> qi::as_string[+qi::char_], value, unit);
   return ::Quantity<T>(static_cast<T>(value), makeUnit(unit), this);

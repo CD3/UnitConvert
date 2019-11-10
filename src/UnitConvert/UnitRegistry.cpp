@@ -1,5 +1,6 @@
 
 #include "./UnitRegistry.hpp"
+#include "./detail//functions.hpp"
 
 #include <fstream>
 
@@ -54,6 +55,12 @@ void UnitRegistry::loadUnits(std::istream& in)
   while (!in.eof()) {
     std::string line;
     std::getline(in, line);
+    // skip comments and blank lines
+    detail::trim(line);
+    if( line.size() < 1 )
+      continue;
+    if( line[0] == '#' )
+      continue;
     this->addUnit(line);
   }
 }
