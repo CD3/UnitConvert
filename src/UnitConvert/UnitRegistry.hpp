@@ -138,7 +138,7 @@ class UnitRegistry
     qi::rule<Iterator, double()> offset;
     qi::rule<Iterator, int()>    exponent;
     qi::rule<Iterator>           mul, div, pow, add, sub;
-    qi::rule<Iterator, char()>   unit_name_chars;
+    qi::rule<Iterator, char()>   unit_name_begin_chars, unit_name_other_chars;
 
     const UnitRegistry& ureg;
 

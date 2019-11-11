@@ -36,7 +36,7 @@ void UnitRegistry::addUnit(std::string unit_equation)
   //           100 cm = 1 m
   auto space  = qi::lit(" ");
   auto eq     = qi::lit("=");
-  auto uchars = m_UnitParser.unit_name_chars;
+  auto uchars = qi::char_("a-zA-Z_/*+-^");
   auto r =
       qi::parse(it, unit_equation.end(),
                 -qi::double_ >> *space >> qi::as_string[+uchars] >> *space >>
@@ -164,9 +164,10 @@ UnitRegistry::UnitParser::UnitParser(const UnitRegistry& registry)
   add = *space >> "+" >> *space;
   sub = *space >> "-" >> *space;
 
-  unit_name_chars = qi::char_("a-zA-Z");
+  unit_name_begin_chars = qi::char_("a-zA-Z");
+  unit_name_other_chars = qi::char_("a-zA-Z_0-9");
   named_unit =
-      spt::as_string[(+unit_name_chars)]
+      spt::as_string[+unit_name_begin_chars>>*unit_name_other_chars]
                     [qi::_val = phx::bind(&ThisType::getUnitFromRegistry, this,
                                           qi::_1)];
 
