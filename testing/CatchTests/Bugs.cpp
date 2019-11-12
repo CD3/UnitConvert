@@ -44,3 +44,4 @@ TEST_CASE("UnitRegistry.makeQuantity(std::string) does not parse derived units c
   CHECK( ureg.makeQuantity<double>("10 kg m").to("g m").value() == Approx(10000) );
   CHECK( ureg.makeQuantity<double>("10 kg m / s").to("g m / ms").value() == Approx(10) );
 }
+

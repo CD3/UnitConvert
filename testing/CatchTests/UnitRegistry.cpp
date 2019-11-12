@@ -27,6 +27,9 @@ TEST_CASE("UnitRegisty Tests")
     ureg.addUnit("1 W = 1 J/s");
     ureg.addUnit("1 cal = 4.184 J");
     ureg.addUnit("1 degC = K - 273.15");
+    ureg.addUnit("C = K - 273.15");
+    ureg.addUnit("delta_K = K");
+    ureg.addUnit("delta_C = delta_K");
 
     Quantity<double> q;
 
@@ -61,6 +64,12 @@ TEST_CASE("UnitRegisty Tests")
     // but the offset will be zero.
     CHECK(q.to_base_units().unit().is_offset());
     CHECK(q.to_base_units().unit().offset() == Approx(0));
+
+    CHECK( ureg.makeQuantity<double>("20 C").to("K").value() == Approx(293.15) );
+    CHECK( ureg.makeQuantity<double>("20 1/delta_C").to("1/K").value() == Approx(20) );
+    CHECK( ureg.makeQuantity<double>("1 cal / g / delta_C").to("J/g/K").value() == Approx(4.184) );
+
+
   }
 
   SECTION("Loading units from stream")
