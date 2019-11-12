@@ -39,6 +39,15 @@ class UnitRegistry
   EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
 
   /**
+   * Add a base unit for a given dimension to the registry. Base units have a
+   * scale of one. This function takes a template argument that specifies the
+   * dimension. A base unit for the dimension will be created and added to the
+   * registry under the name specified by the string argument.
+   */
+  template<Dimension::Name DIM>
+  void addBaseUnit(const std::string& k);
+
+  /**
    * Add a unit to the registry. This overload takes a string, which is the
    * name/symbol that will be added to the database, and a Unit instance, which
    * contains the scale, offset, and dimension that will be added.
@@ -56,15 +65,6 @@ class UnitRegistry
    * s^2".
    */
   void addUnit(std::string unit_equation);
-
-  /**
-   * Add a base unit for a given dimension to the registry. Base units have a
-   * scale of one. This function takes a template argument that specifies the
-   * dimension. A base unit for the dimension will be created and added to the
-   * registry under the name specified by the string argument.
-   */
-  template<Dimension::Name DIM>
-  void addBaseUnit(const std::string& k);
 
   /**
    * Load a set of units from a stream by reading lines from the stream and
@@ -97,12 +97,15 @@ class UnitRegistry
   /**
    * Parse a string and return the unit it represents.
    *
-   * All units in the string must already exist in the unit registry.
+   * All units in the string must already exist in the unit registry,
+   * but the unit itself does not have to be.
    *
    * Example:
    *
    * 'kg m^2 / s^2'
    *
+   * as long as 'g', 'm', and 's' are in the registry, this derived
+   * unit can be built and returned.
    */
   Unit makeUnit(std::string a_unit) const;
 
@@ -155,6 +158,7 @@ class UnitRegistry
     UnitParser(const UnitRegistry& registry);
   };
 
+
   struct SIPrefixParser : qi::symbols<char, int> {
     SIPrefixParser()
     {
@@ -176,6 +180,9 @@ class UnitRegistry
  public:
   UnitRegistry() : m_UnitParser(*this){};
 
+  /**
+   * Returns a reference to the registry's unit parser.
+   */
   const UnitParser& getUnitParser() const { return m_UnitParser; }
 };
 

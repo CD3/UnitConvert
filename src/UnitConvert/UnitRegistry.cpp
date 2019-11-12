@@ -1,8 +1,9 @@
 
 #include "./UnitRegistry.hpp"
-#include "./detail//functions.hpp"
 
 #include <fstream>
+
+#include "./detail//functions.hpp"
 
 void UnitRegistry::addUnit(const std::string& k, const Unit& v)
 {
@@ -57,10 +58,8 @@ void UnitRegistry::loadUnits(std::istream& in)
     std::getline(in, line);
     // skip comments and blank lines
     detail::trim(line);
-    if( line.size() < 1 )
-      continue;
-    if( line[0] == '#' )
-      continue;
+    if (line.size() < 1) continue;
+    if (line[0] == '#') continue;
     this->addUnit(line);
   }
 }
@@ -110,6 +109,7 @@ Unit UnitRegistry::getUnit(std::string a_unit, bool a_trySIPrefix) const
                              "' does not exist in the registry.");
   }
 }
+
 Unit UnitRegistry::makeUnit(std::string a_unit) const
 {
   auto it     = a_unit.begin();
@@ -148,6 +148,9 @@ Unit UnitRegistry::UnitParser::getUnitFromRegistry(const std::string& unit)
   return ureg.getUnit(unit, true);
 }
 
+/**
+ * The unit parser setup
+ */
 UnitRegistry::UnitParser::UnitParser(const UnitRegistry& registry)
     : UnitRegistry::UnitParser::base_type(unit), ureg(registry)
 {
@@ -167,7 +170,7 @@ UnitRegistry::UnitParser::UnitParser(const UnitRegistry& registry)
   unit_name_begin_chars = qi::char_("a-zA-Z");
   unit_name_other_chars = qi::char_("a-zA-Z_0-9");
   named_unit =
-      spt::as_string[+unit_name_begin_chars>>*unit_name_other_chars]
+      spt::as_string[+unit_name_begin_chars >> *unit_name_other_chars]
                     [qi::_val = phx::bind(&ThisType::getUnitFromRegistry, this,
                                           qi::_1)];
 
