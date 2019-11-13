@@ -190,3 +190,43 @@ UnitRegistry::UnitParser::UnitParser(const UnitRegistry& registry)
 
   unit = expression;
 }
+
+/**
+ * The dimension parser setup
+ */
+UnitRegistry::DimensionParser::DimensionParser()
+    : UnitRegistry::DimensionParser::base_type(dimension)
+{
+  exponent = qi::int_;
+  auto space = qi::lit(" ");
+
+  mul = *space >> "*" >> *space | +space;
+  div = *space >> "/" >> *space;
+  pow = *space >> (qi::lit("^") | qi::lit("**")) >> *space;
+  add = *space >> "+" >> *space;
+  sub = *space >> "-" >> *space;
+
+  // a factor is a dimension symbol or a group, possibly raised to an exponent
+  factor = (base_dimension_symbol | group)[qi::_val = qi::_1] >>
+           *(pow >> exponent)[qi::_val = phx::bind(&ThisType::exponentiate, this, qi::_val, qi::_1)];
+
+  // a term is a factor, possibly multiplied or divided by another factor
+  term = factor[qi::_val = qi::_1] >> *(mul >> factor[qi::_val *= qi::_1] |
+                                        div >> factor[qi::_val /= qi::_1]);
+
+  // a group is a term wrapped in parenthesis
+  group = '(' >> term[qi::_val = qi::_1] >> ')';
+
+  // a dimension is a term wrapped in square brackets
+  dimension = qi::lit("[") >> *space >> term[qi::_val = qi::_1] >> *space >> qi::lit("]");
+}
+
+Dimension UnitRegistry::DimensionParser::exponentiate(const Dimension& b, const int e)
+{
+  Dimension r;
+  for (int i = 0; i < abs(e); i++) {
+    if (e > 0) r *= b;
+    if (e < 0) r /= b;
+  }
+  return r;
+}

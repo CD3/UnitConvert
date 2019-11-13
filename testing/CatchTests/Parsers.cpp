@@ -456,9 +456,9 @@ TEST_CASE("Unit String Parsing")
   }
 }
 
-TEST_CASE("Base Dimension String Parsing")
+TEST_CASE("Base Dimension Symbol Parsing")
 {
-  UnitRegistry::BaseDimensionParser parser;
+  UnitRegistry::BaseDimensionSymbolParser parser;
 
   std::string dimension_str;
   auto        it = dimension_str.begin();
@@ -538,4 +538,126 @@ TEST_CASE("Base Dimension String Parsing")
   powers = D.powers();
   CHECK(D[Dimension::Name::LuminousIntensity] == 1);
   CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 1 );
+}
+
+TEST_CASE("Dimension String Parsing")
+{
+  UnitRegistry::DimensionParser parser;
+
+  std::string dimension_str;
+  auto        it = dimension_str.begin();
+  Dimension   D;
+  auto powers = D.powers();
+  bool        r;
+
+
+  dimension_str = "L";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser.term, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Length] == 1);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 1 );
+
+  dimension_str = "L*T";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser.term, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Length] == 1);
+  CHECK(D[Dimension::Name::Time] == 1);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 2 );
+
+  dimension_str = "L/T";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser.term, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Length] == 1);
+  CHECK(D[Dimension::Name::Time] == -1);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 0 );
+
+  dimension_str = "L^2";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser.term, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Length] == 2);
+  CHECK(D[Dimension::Name::Time] == 0);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 2 );
+
+  dimension_str = "T^-2";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser.term, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Length] == 0);
+  CHECK(D[Dimension::Name::Time] == -2);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == -2 );
+
+
+
+  dimension_str = "[L / T]";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Length] == 1);
+  CHECK(D[Dimension::Name::Time] == -1);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 0 );
+
+  dimension_str = "[M (L / T)^2]";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Mass] == 1);
+  CHECK(D[Dimension::Name::Length] == 2);
+  CHECK(D[Dimension::Name::Time] == -2);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 1 );
+
+
+  dimension_str = "[L^2 M^1 T^-2 I^0 THETA^0 N^0 J^0]";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Mass] == 1);
+  CHECK(D[Dimension::Name::Length] == 2);
+  CHECK(D[Dimension::Name::Time] == -2);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 1 );
+
+
+  dimension_str = "[L*L*L]";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Mass] == 0);
+  CHECK(D[Dimension::Name::Length] == 3);
+  CHECK(D[Dimension::Name::Time] == 0);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 3 );
+
+  dimension_str = "[L*L*L/T/T]";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Mass] == 0);
+  CHECK(D[Dimension::Name::Length] == 3);
+  CHECK(D[Dimension::Name::Time] == -2);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 1 );
+
+
+
 }

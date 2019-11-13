@@ -130,6 +130,24 @@ class UnitRegistry
   friend std::ostream& operator<<(std::ostream& out, const UnitRegistry& reg);
 
   /**
+   * Symbol table parser to get exponent for all SI prefixes.
+   */
+  struct SIPrefixParser : qi::symbols<char, int> {
+    SIPrefixParser()
+    {
+      add("Y", 24)("yotta", 24)("Z", 21)("zetta", 21)("E", 18)("exa", 18)(
+          "P", 15)("peta", 15)("T", 12)("tera", 12)("G", 9)("giga", 9)("M", 6)(
+          "mega", 6)("k", 3)("kilo", 3)("h", 2)("hecto", 2)("da", 1)("deca", 1)(
+          "d", -1)("deci", -1)("c", -2)("centi", -2)("m", -3)("milli", -3)(
+          "u", -6)("micro", -6)("n", -9)("nano", -9)("p", -12)("pico", -12)(
+          "f", -15)("femto", -15)("a", -18)("atto", -18)("z", -21)(
+          "zepto", -21)("y", -24);
+      ("yocto", -24);
+    }
+  };
+
+
+  /**
    * A Boost.Spirit grammar for parsing unit strings.
    */
   struct UnitParser : spt::qi::grammar<std::string::iterator, Unit()> {
@@ -159,27 +177,11 @@ class UnitRegistry
   };
 
 
-  struct SIPrefixParser : qi::symbols<char, int> {
-    SIPrefixParser()
-    {
-      add("Y", 24)("yotta", 24)("Z", 21)("zetta", 21)("E", 18)("exa", 18)(
-          "P", 15)("peta", 15)("T", 12)("tera", 12)("G", 9)("giga", 9)("M", 6)(
-          "mega", 6)("k", 3)("kilo", 3)("h", 2)("hecto", 2)("da", 1)("deca", 1)(
-          "d", -1)("deci", -1)("c", -2)("centi", -2)("m", -3)("milli", -3)(
-          "u", -6)("micro", -6)("n", -9)("nano", -9)("p", -12)("pico", -12)(
-          "f", -15)("femto", -15)("a", -18)("atto", -18)("z", -21)(
-          "zepto", -21)("y", -24);
-      ("yocto", -24);
-    }
-  };
   /**
-   * A Boost.Spirit grammar for parsing dimension strings.
+   * Symbol table parser to return base dimension for dimension symbols.
    */
-  struct DimensionParser : spt::qi::grammar<std::string::iterator, Unit()> {
-  };
-
-  struct BaseDimensionParser : qi::symbols<char, Dimension> {
-    BaseDimensionParser()
+  struct BaseDimensionSymbolParser : qi::symbols<char, Dimension> {
+    BaseDimensionSymbolParser()
     {
       add("L", Dimension::Name::Length)
          ("M", Dimension::Name::Mass)
@@ -190,6 +192,27 @@ class UnitRegistry
          ("J", Dimension::Name::LuminousIntensity)
          ;
     }
+  };
+
+  /**
+   * A Boost.Spirit grammar for parsing dimension strings.
+   */
+  struct DimensionParser : spt::qi::grammar<std::string::iterator,Dimension()>{
+    using Iterator = std::string::iterator;
+    using ThisType = DimensionParser;
+
+    BaseDimensionSymbolParser base_dimension_symbol;
+    qi::rule<Iterator, Dimension()> factor, term, group, dimension;
+    qi::rule<Iterator, int()>    exponent;
+    qi::rule<Iterator>           mul, div, pow, add, sub;
+
+    /**
+     * compute a dimension raised to an integer power)
+     */
+    Dimension exponentiate(const Dimension& b, const int e);
+
+
+    DimensionParser();
   };
 
  protected:
