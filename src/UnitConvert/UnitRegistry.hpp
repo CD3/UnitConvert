@@ -172,6 +172,25 @@ class UnitRegistry
       ("yocto", -24);
     }
   };
+  /**
+   * A Boost.Spirit grammar for parsing dimension strings.
+   */
+  struct DimensionParser : spt::qi::grammar<std::string::iterator, Unit()> {
+  };
+
+  struct BaseDimensionParser : qi::symbols<char, Dimension> {
+    BaseDimensionParser()
+    {
+      add("L", Dimension::Name::Length)
+         ("M", Dimension::Name::Mass)
+         ("T", Dimension::Name::Time)
+         ("I", Dimension::Name::ElectricalCurrent)
+         ("THETA", Dimension::Name::Temperature)
+         ("N", Dimension::Name::Amount)
+         ("J", Dimension::Name::LuminousIntensity)
+         ;
+    }
+  };
 
  protected:
   UnitParser     m_UnitParser;
