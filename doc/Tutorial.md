@@ -18,14 +18,24 @@ To perform unit conversions using unit strings, you must first create a unit reg
 ```cpp
 ureg = UnitRegistry();
 ```
-Next, we need to add some base units to the registry. We do this by calling the `.addBaseUnit` method, specifying the unit dimension
-as a template parameter, and the unit symbol as a string argument.
+Next, we need to add some base units to the registry. We do this by calling the `.addUnit` method with a string
+that defines the unit in terms of its dimension(s), which are specified with square brackets.
 ```cpp
-ureg.addBaseUnit<Dimension::Name::Length>("m");
-ureg.addBaseUnit<Dimension::Name::Mass>("g");
-ureg.addBaseUnit<Dimension::Name::Time>("s");
+ureg.addUnit("m = [L]");
+ureg.addUnit("g = [M]");
+ureg.addUnit("s = [T]");
 ```
-The registry now contains units for length, mass, and time. We can now perform conversions between arbitrary combinations of
+The registry now contains units for length, mass, and time. A symbol for each of the [7 SI base dimensions](https://en.wikipedia.org/wiki/SI_base_unit), plus a symbol for dimensionless, is defined in the unit registry:
+  - `L` : Length
+  - `M` : Mass
+  - `T` : Time
+  - `N` : Amount
+  - `THETA` : Temperature
+  - `I` : Electrical Current
+  - `J` : Luminous Intensity
+  - `1` : Dimensionless
+
+We can now perform conversions between arbitrary combinations of
 these base units. We need to create a `Quantity` (a value with a unit). The `UnitRegistry` class provides a `makeQuantity` method
 for this. It takes a template parameter for the type used to store the units numerical value.
 ```cpp

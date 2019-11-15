@@ -12,7 +12,10 @@ provides a `UnitRegistry` class (similar to [`pint`](https://pint.readthedocs.io
 ## Getting Started
 
 To use `UnitConvert`, include the header `UnitConvert.hpp`. Then create a unit registry, and add
-some units to it. You can then use the registry to create `Quantity` instances, which can be
+some units to it. Units can be defined in terms of their dimension, or in terms of other units already defined.
+So you will need to define a set of base units in terms of their dimensions first, and then you can define all other units
+in terms of the base units (or other derived units that have been defined).
+You can then use the registry to create `Quantity` instances, which can be
 converted to any other unit defined in the registry, as well as any derived units based on the units in the
 registry.
 
@@ -28,11 +31,11 @@ TEST_CASE("UnitRegistry Example")
 UnitRegistry ureg;
 
 // add base units to the registry
-ureg.addBaseUnit<Dimension::Name::Length>("m");
-ureg.addBaseUnit<Dimension::Name::Mass>("kg");
-ureg.addBaseUnit<Dimension::Name::Time>("s");
-ureg.addBaseUnit<Dimension::Name::Temperature>("K");
-ureg.addBaseUnit<Dimension::Name::Amount>("mol");
+ureg.addUnit("m = [L]");
+ureg.addUnit("kg = [M]");
+ureg.addUnit("s = [T]");
+ureg.addUnit("K = [THETA]");
+ureg.addUnit("mol = [N]");
 
 // add some derived units to the registry
 ureg.addUnit("100 cm = 1 m");

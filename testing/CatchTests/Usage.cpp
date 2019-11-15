@@ -10,11 +10,11 @@ TEST_CASE("UnitRegistry Example")
 UnitRegistry ureg;
 
 // add base units to the registry
-ureg.addBaseUnit<Dimension::Name::Length>("m");
-ureg.addBaseUnit<Dimension::Name::Mass>("kg");
-ureg.addBaseUnit<Dimension::Name::Time>("s");
-ureg.addBaseUnit<Dimension::Name::Temperature>("K");
-ureg.addBaseUnit<Dimension::Name::Amount>("mol");
+ureg.addUnit("m = [L]");
+ureg.addUnit("kg = [M]");
+ureg.addUnit("s = [T]");
+ureg.addUnit("K = [THETA]");
+ureg.addUnit("mol = [N]");
 
 // add some derived units to the registry
 ureg.addUnit("100 cm = 1 m");
