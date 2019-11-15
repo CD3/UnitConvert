@@ -21,47 +21,66 @@ if( GIT_FOUND )
                    RESULT_VARIABLE IsGitRepo
                    OUTPUT_VARIABLE OutputTrash
                    ERROR_VARIABLE ErrorTrash)
+else()
+  message( STATUS "Could not find git command." )
+  set( IsGitRepo 1 )
+endif()
 
-  if( ${IsGitRepo} EQUAL 0 )
+if( ${IsGitRepo} EQUAL 0 )
+  message( STATUS "Detecting library version with git." )
+  if( "${GIT_COMMIT_ID}" STREQUAL "" )
+    execute_process( COMMAND ${GIT_EXECUTABLE} rev-parse --sq HEAD 
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                     OUTPUT_VARIABLE GIT_COMMIT_ID
+                     ERROR_VARIABLE Trash)
+  endif()
+  if( "${GIT_COMMIT_AUTHOR}" STREQUAL "" )
+    execute_process( COMMAND ${GIT_EXECUTABLE} log -n1 --pretty="%an" HEAD
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                     OUTPUT_VARIABLE GIT_COMMIT_AUTHOR
+                     ERROR_VARIABLE Trash)
+  endif()
+  if( "${GIT_COMMIT_DATE}" STREQUAL "" )
+    execute_process( COMMAND ${GIT_EXECUTABLE} log -n1 --pretty="%aD" HEAD
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                     OUTPUT_VARIABLE GIT_COMMIT_DATE
+                     ERROR_VARIABLE Trash)
+  endif()
+  if( "${GIT_COMMIT_BRANCH}" STREQUAL "" )
+    execute_process( COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                     OUTPUT_VARIABLE GIT_COMMIT_BRANCH
+                     ERROR_VARIABLE Trash)
+  endif()
+  if( "${GIT_COMMIT_DESC}" STREQUAL "" )
+    execute_process( COMMAND ${GIT_EXECUTABLE} describe --tags HEAD
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                     OUTPUT_VARIABLE GIT_COMMIT_DESC
+                     ERROR_VARIABLE Trash)
+  endif()
+else()
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/version.txt")
+    message( STATUS "Getting library version from '${CMAKE_CURRENT_SOURCE_DIR}/version.txt'." )
     if( "${GIT_COMMIT_ID}" STREQUAL "" )
-      execute_process( COMMAND ${GIT_EXECUTABLE} rev-parse --sq HEAD 
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                       OUTPUT_VARIABLE GIT_COMMIT_ID
-                       ERROR_VARIABLE Trash)
+      set( GIT_COMMIT_ID "UNKNOWN" )
     endif()
     if( "${GIT_COMMIT_AUTHOR}" STREQUAL "" )
-      execute_process( COMMAND ${GIT_EXECUTABLE} log -n1 --pretty="%an" HEAD
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                       OUTPUT_VARIABLE GIT_COMMIT_AUTHOR
-                       ERROR_VARIABLE Trash)
+      set( GIT_COMMIT_AUTHOR "UNKNOWN" )
     endif()
     if( "${GIT_COMMIT_DATE}" STREQUAL "" )
-      execute_process( COMMAND ${GIT_EXECUTABLE} log -n1 --pretty="%aD" HEAD
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                       OUTPUT_VARIABLE GIT_COMMIT_DATE
-                       ERROR_VARIABLE Trash)
+      set( GIT_COMMIT_DATE "UNKNOWN" )
     endif()
     if( "${GIT_COMMIT_BRANCH}" STREQUAL "" )
-      execute_process( COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                       OUTPUT_VARIABLE GIT_COMMIT_BRANCH
-                       ERROR_VARIABLE Trash)
+      set( GIT_COMMIT_BRANCH "UNKNOWN" )
     endif()
     if( "${GIT_COMMIT_DESC}" STREQUAL "" )
-      execute_process( COMMAND ${GIT_EXECUTABLE} describe --tags HEAD
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                       OUTPUT_VARIABLE GIT_COMMIT_DESC
-                       ERROR_VARIABLE Trash)
+      file( READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" GIT_COMMIT_DESC )
     endif()
   else()
-    message( WARNING "Source directory is not a git repo." )
+    message( WARNING "Could not determine library version." )
     set( GIT_COMMIT_DESC "0.0.0" )
     set( GIT_COMMIT_BRANCH "none" )
   endif()
-else()
-  message( WARNING "Could not find git command" )
-  set( GIT_COMMIT_DESC "0.0.0" )
-  set( GIT_COMMIT_BRANCH "none" )
 endif()
 
 # set defaults for any items that were not found
