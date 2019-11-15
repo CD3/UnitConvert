@@ -1,16 +1,16 @@
-# these base units need to be defined before loading this file
-# m
-# s
-# A
-# cd
-# g
-# mol
-# K
-# rad
-# bit
-# count
-# fine_structure_constant
-# dot
+# base unit definitions
+m = [L]
+s = [T]
+A = [I]
+cd = [J]
+g = [M]
+mol = [N]
+K = [THETA]
+rad = [1]
+bit = [1]
+count = [1]
+fine_structure_constant = [1]
+dot = [1]
 meter = 1 m
 metre = 1 m
 second = 1 s
@@ -585,9 +585,9 @@ UK_bbl = 0.16365923999999998 m^3
 kilogram = 1 kg
 centimeter = 0.01 m
 pi = 3.141592653589793
-milliliter = 1e-06 m^3
-milligram = 1e-06 kg
 decitex = 1.0000000000000001e-07 kg / m
+milligram = 1e-06 kg
+milliliter = 1e-06 m^3
 millimeter = 0.001 m
 kilometer = 1000.0 m
 percent = 0.01 rad

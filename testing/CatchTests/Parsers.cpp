@@ -658,6 +658,17 @@ TEST_CASE("Dimension String Parsing")
   CHECK(D[Dimension::Name::Time] == -2);
   CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 1 );
 
+  dimension_str = "[1]";
+  it = dimension_str.begin();
+  r    = qi::parse(it, dimension_str.end(), parser, D);
+  CHECK(r);
+  CHECK(dimension_str.end() - it == 0);
+  powers = D.powers();
+  CHECK(D[Dimension::Name::Mass] == 0);
+  CHECK(D[Dimension::Name::Length] == 0);
+  CHECK(D[Dimension::Name::Time] == 0);
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 0 );
+
 
 
 }

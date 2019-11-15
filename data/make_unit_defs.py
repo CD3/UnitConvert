@@ -9,9 +9,21 @@ base_units = [u for u in base_units if u == "{:~}".format(ureg.Quantity(1,u).uni
 other_units = [u for u in ureg._units if not u in base_units]
 
 
-print("# these base units need to be defined before loading this file")
+print("# base unit definitions")
 for u in base_units:
-  print("#",u)
+  unit_string = "{} = {}".format(u,str(ureg.Quantity(u).dimensionality))
+  # replace pint dimension strings with UnitConvert dimension symbols
+  unit_string = unit_string.replace("length","L")
+  unit_string = unit_string.replace("mass","M")
+  unit_string = unit_string.replace("time","T")
+  unit_string = unit_string.replace("current","I")
+  unit_string = unit_string.replace("substance","N")
+  unit_string = unit_string.replace("temperature","THETA")
+  unit_string = unit_string.replace("luminosity","J")
+  unit_string = unit_string.replace("dimensionless","[1]")
+  unit_string = unit_string.replace("printing_unit","1")
+  print(unit_string)
+
 for u in other_units:
   name = "{}".format(u)
   definition = "{:~}".format(ureg.Quantity(1,u).to_base_units())

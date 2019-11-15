@@ -89,17 +89,6 @@ TEST_CASE("UnitRegisty Tests")
 
   SECTION("Loading units from file")
   {
-    ureg.addBaseUnit<Dimension::Name::Length>("m");
-    ureg.addBaseUnit<Dimension::Name::Mass>("g");
-    ureg.addBaseUnit<Dimension::Name::Time>("s");
-    ureg.addBaseUnit<Dimension::Name::Temperature>("K");
-    ureg.addBaseUnit<Dimension::Name::Amount>("mol");
-    ureg.addBaseUnit<Dimension::Name::ElectricalCurrent>("A");
-    ureg.addBaseUnit<Dimension::Name::LuminousIntensity>("cd");
-    ureg.addBaseUnit<Dimension::Name::Dimensionless>("rad");
-    ureg.addUnit("count = rad");
-    ureg.addUnit("bit = count");
-    ureg.addUnit("dot = count");
     ureg.loadUnits("unit_definitions.txt");
 
     CHECK(ureg.makeQuantity<double>(10, "g m^2 / s^3").to("W").value() == 0.01);
@@ -119,6 +108,7 @@ TEST_CASE("UnitRegisty Tests")
     ureg.addUnit("A = [I]");
     ureg.addUnit("mol = [N]");
     ureg.addUnit("cd = [J]");
+    ureg.addUnit("rad = [1]");
 
     ureg.addUnit("100 cm = m");
     ureg.addUnit("in = 2.54 cm");

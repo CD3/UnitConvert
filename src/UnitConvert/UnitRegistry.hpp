@@ -111,7 +111,7 @@ class UnitRegistry
 
   /**
    * Create a Quantity from a value and unit string. The string is parsed to
-   * create a Unit, which is then used to create a qantity.
+   * create a Unit, which is then used to create a quantity.
    */
   template<typename T>
   Quantity<T> makeQuantity(const T& val, const std::string& a_unit) const;
@@ -184,7 +184,7 @@ class UnitRegistry
       add("L", Dimension::Name::Length)("M", Dimension::Name::Mass)(
           "T", Dimension::Name::Time)("I", Dimension::Name::ElectricalCurrent)(
           "THETA", Dimension::Name::Temperature)("N", Dimension::Name::Amount)(
-          "J", Dimension::Name::LuminousIntensity);
+          "J", Dimension::Name::LuminousIntensity)("1",Dimension::Name::Dimensionless);
     }
   };
 
