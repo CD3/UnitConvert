@@ -146,7 +146,6 @@ class UnitRegistry
     }
   };
 
-
   /**
    * A Boost.Spirit grammar for parsing unit strings.
    */
@@ -176,41 +175,36 @@ class UnitRegistry
     UnitParser(const UnitRegistry& registry);
   };
 
-
   /**
    * Symbol table parser to return base dimension for dimension symbols.
    */
   struct BaseDimensionSymbolParser : qi::symbols<char, Dimension> {
     BaseDimensionSymbolParser()
     {
-      add("L", Dimension::Name::Length)
-         ("M", Dimension::Name::Mass)
-         ("T", Dimension::Name::Time)
-         ("I", Dimension::Name::ElectricalCurrent)
-         ("THETA", Dimension::Name::Temperature)
-         ("N", Dimension::Name::Amount)
-         ("J", Dimension::Name::LuminousIntensity)
-         ;
+      add("L", Dimension::Name::Length)("M", Dimension::Name::Mass)(
+          "T", Dimension::Name::Time)("I", Dimension::Name::ElectricalCurrent)(
+          "THETA", Dimension::Name::Temperature)("N", Dimension::Name::Amount)(
+          "J", Dimension::Name::LuminousIntensity);
     }
   };
 
   /**
    * A Boost.Spirit grammar for parsing dimension strings.
    */
-  struct DimensionParser : spt::qi::grammar<std::string::iterator,Dimension()>{
+  struct DimensionParser
+      : spt::qi::grammar<std::string::iterator, Dimension()> {
     using Iterator = std::string::iterator;
     using ThisType = DimensionParser;
 
-    BaseDimensionSymbolParser base_dimension_symbol;
+    BaseDimensionSymbolParser       base_dimension_symbol;
     qi::rule<Iterator, Dimension()> factor, term, group, dimension;
-    qi::rule<Iterator, int()>    exponent;
-    qi::rule<Iterator>           mul, div, pow, add, sub;
+    qi::rule<Iterator, int()>       exponent;
+    qi::rule<Iterator>              mul, div, pow, add, sub;
 
     /**
      * compute a dimension raised to an integer power)
      */
     Dimension exponentiate(const Dimension& b, const int e);
-
 
     DimensionParser();
   };
@@ -218,6 +212,7 @@ class UnitRegistry
  protected:
   UnitParser     m_UnitParser;
   SIPrefixParser m_SIPrefixParser;
+  DimensionParser m_DimensionParser;
 
  public:
   UnitRegistry() : m_UnitParser(*this){};
@@ -249,8 +244,8 @@ template<typename T>
   // parse quantity string
   // a quantity should have a numerical value and a unit that makeUnit will
   // parse
-  auto it    = a_quantity.begin();
-  auto r     = qi::parse(it, a_quantity.end(),
+  auto it = a_quantity.begin();
+  auto r  = qi::parse(it, a_quantity.end(),
                      -qi::double_ >> qi::as_string[+qi::char_], value, unit);
   return ::Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
 }

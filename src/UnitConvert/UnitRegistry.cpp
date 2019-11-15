@@ -116,8 +116,17 @@ Unit UnitRegistry::makeUnit(std::string a_unit) const
   Unit r_unit = BaseUnit<Dimension::Name::Dimensionless>();
   auto r      = qi::parse(it, a_unit.end(), m_UnitParser, r_unit);
   if (!r || it != a_unit.end()) {
-    throw std::runtime_error(
-        "There was an error parsing unit in UnitRegistry::makeUnit: " + a_unit);
+    // try to parse as a dimension
+    Dimension r_dim;
+    it = a_unit.begin();
+    r  = qi::parse(it, a_unit.end(), m_DimensionParser, r_dim);
+    if (!r || it != a_unit.end()) {
+      throw std::runtime_error(
+          "There was an error parsing unit in UnitRegistry::makeUnit: " +
+          a_unit);
+    }
+
+    r_unit = Unit(1, r_dim);
   }
   return r_unit;
 }
@@ -197,7 +206,7 @@ UnitRegistry::UnitParser::UnitParser(const UnitRegistry& registry)
 UnitRegistry::DimensionParser::DimensionParser()
     : UnitRegistry::DimensionParser::base_type(dimension)
 {
-  exponent = qi::int_;
+  exponent   = qi::int_;
   auto space = qi::lit(" ");
 
   mul = *space >> "*" >> *space | +space;
@@ -208,7 +217,8 @@ UnitRegistry::DimensionParser::DimensionParser()
 
   // a factor is a dimension symbol or a group, possibly raised to an exponent
   factor = (base_dimension_symbol | group)[qi::_val = qi::_1] >>
-           *(pow >> exponent)[qi::_val = phx::bind(&ThisType::exponentiate, this, qi::_val, qi::_1)];
+           *(pow >> exponent)[qi::_val = phx::bind(&ThisType::exponentiate,
+                                                   this, qi::_val, qi::_1)];
 
   // a term is a factor, possibly multiplied or divided by another factor
   term = factor[qi::_val = qi::_1] >> *(mul >> factor[qi::_val *= qi::_1] |
@@ -218,10 +228,12 @@ UnitRegistry::DimensionParser::DimensionParser()
   group = '(' >> term[qi::_val = qi::_1] >> ')';
 
   // a dimension is a term wrapped in square brackets
-  dimension = qi::lit("[") >> *space >> term[qi::_val = qi::_1] >> *space >> qi::lit("]");
+  dimension = qi::lit("[") >> *space >> term[qi::_val = qi::_1] >> *space >>
+              qi::lit("]");
 }
 
-Dimension UnitRegistry::DimensionParser::exponentiate(const Dimension& b, const int e)
+Dimension UnitRegistry::DimensionParser::exponentiate(const Dimension& b,
+                                                      const int        e)
 {
   Dimension r;
   for (int i = 0; i < abs(e); i++) {

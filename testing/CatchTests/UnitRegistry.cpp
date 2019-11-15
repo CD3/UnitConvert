@@ -11,7 +11,7 @@ TEST_CASE("UnitRegisty Tests")
   UnitRegistry ureg;
 
 
-  SECTION("Adding units directly")
+  SECTION("Adding derived units from strings")
   {
     // add base units to the registry
     ureg.addBaseUnit<Dimension::Name::Length>("cm");
@@ -72,7 +72,7 @@ TEST_CASE("UnitRegisty Tests")
 
   }
 
-  SECTION("Loading units from stream")
+  SECTION("Loading derived units from stream")
   {
     // add base units to the registry
     ureg.addBaseUnit<Dimension::Name::Length>("cm");
@@ -108,5 +108,37 @@ TEST_CASE("UnitRegisty Tests")
 
     // H2O is a unit for pressure. 1 H2O is 9806.65 Pa
     CHECK(ureg.makeQuantity<double>(5, "H2O").to("Pa/m").value() == Approx(5*9806.65));
+  }
+
+  SECTION("Adding base units from strings")
+  {
+    ureg.addUnit("m = [L]");
+    ureg.addUnit("g = [M]");
+    ureg.addUnit("s = [T]");
+    ureg.addUnit("K = [THETA]");
+    ureg.addUnit("A = [I]");
+    ureg.addUnit("mol = [N]");
+    ureg.addUnit("cd = [J]");
+
+    ureg.addUnit("100 cm = m");
+    ureg.addUnit("in = 2.54 cm");
+    ureg.addUnit("ft = 12 in");
+    ureg.addUnit("J = 1 kg*m^2*s^-2");
+    ureg.addUnit("W = 1 J/s");
+    ureg.addUnit("cal = 4.184 J");
+
+    CHECK( ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200) );
+    CHECK( ureg.makeQuantity<double>("2 m").to("in").value() == Approx(200/2.54) );
+
+
+  }
+
+  SECTION("Parsing errors")
+  {
+
+    CHECK_THROWS( ureg.getUnit("m") );
+    CHECK_THROWS( ureg.makeUnit("m") );
+    CHECK_THROWS( ureg.getUnit("[L]") );
+    CHECK_NOTHROW( ureg.makeUnit("[L]") );
   }
 }
