@@ -9,9 +9,47 @@ A few examples are given below. You can also go to the [tutorial](doc/Tutorial.m
 `UnitConvert` provides **runtime** unit conversions. This is necessary when, for example, you want to perform a unit conversion based on user input. The library
 provides a `UnitRegistry` class (similar to [`pint`](https://pint.readthedocs.io/en/latest/)) that can parse unit strings.
 
+
 ## Getting Started
 
-To use `UnitConvert`, include the header `UnitConvert.hpp`. Then create a unit registry, and add
+### Installing
+
+`UnitConvert` needs to be compiled and installed in a place that your project can find it. Builds are managed by CMake, and you need to have boost installed.
+
+```bash
+$ cd /path/to/UnitConvert/source
+$ mkdir build
+$ cd build
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
+$ cmake --build .
+$ sudo cmake --build . --target install
+```
+
+This will compile and install the library (`libUnitConver.a`) and headers. It
+will also install a CMake `*Config.cmake` file that can be used to find
+`UnitConvert` in your own CMake project. By default, CMake will install these
+under `/usr/local`. You can change the default install location by passing the
+`-DCMAKE_INSTALL_PREFIX` command line option to CMake:
+```bash
+$ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install/dir
+```
+
+### Using
+
+To use `UnitConvert`, you need to link against the library `libUnitConvert.a`. If you use CMake, add these lines to your `CMakeLists.txt`:
+```cmake
+find_pacakge(UnitConvert)
+...
+# define your targets and link against UnitConvert
+target_link_libraries(MyTarget UnitConvert::UnitConvert )
+```
+If CMake complains that it cannot find the `UnitCovnert` package, specify the directory that contains the `UnitConvertConfig.cmake`
+explicitly when running CMake for the first time (`/usr/local/cmake/` by default).
+```bash
+$ cmake .. -DUnitConvert_DIR=/usr/local/cmake
+```
+In your code, include the header `UnitConvert.hpp`.
+Then create a unit registry, and add
 some units to it. Units can be defined in terms of their dimension, or in terms of other units already defined.
 So you will need to define a set of base units in terms of their dimensions first, and then you can define all other units
 in terms of the base units (or other derived units that have been defined).
