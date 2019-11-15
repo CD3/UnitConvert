@@ -3,6 +3,13 @@
 tag=$1
 shift
 
+if [[ -n $(git status --porcelain) ]]
+then
+  echo "ERROR: working directory is not clean"
+  echo "commit all changes and try again."
+  exit 1
+fi
+
 if [[ -z $tag ]]
 then
   echo "ERROR: version number required"
@@ -12,12 +19,6 @@ then
   exit 1
 fi
 
-if [[ -n $(git status --porcelain) ]]
-then
-  echo "ERROR: working directory is not clean"
-  echo "please clean or stash your changes."
-  exit 1
-fi
 
 function exit_on_error()
 {
@@ -37,6 +38,11 @@ script=$(find ./ -path ./externals -prune -o -name 'pre-tag-release.sh' -print)
 [[ $script != "" ]] && echo "Found: $script" && $script
 [[ $script != "" ]] || echo "Did NOT find a script to run."
 
+echo "writing ${tag} to version.txt"
+echo "${tag}" > version.txt
+echo "commiting change"
+git add version.txt
+git commit -m "housekeeping: bumped version in version.txt"
 echo "tagging with ${tag}"
 git tag --annotate ${tag}
 git tag | grep ${tag}
