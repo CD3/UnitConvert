@@ -45,3 +45,63 @@ TEST_CASE("UnitRegistry.makeQuantity(std::string) does not parse derived units c
   CHECK( ureg.makeQuantity<double>("10 kg m / s").to("g m / ms").value() == Approx(10) );
 }
 
+
+TEST_CASE("Fahrenheit conversions incorrect", "[bugs]")
+{
+    UnitRegistry ureg;
+
+    // this seems is probably an issue with offset units
+    // in general, but if temperature is the most common case
+    ureg.addUnit("K = [THETA]");
+
+    ureg.addUnit("C = K - 273.15");
+    ureg.addUnit("delta_C = K");
+
+    ureg.addUnit("900 R = 500 K");
+
+    ureg.addUnit("F = R - 459.67");
+    ureg.addUnit("delta_F = R");
+
+    auto K = ureg.getUnit("K");
+    auto C = ureg.getUnit("C");
+    auto R = ureg.getUnit("R");
+    auto F = ureg.getUnit("F");
+
+    std::cout << "K: " << K << std::endl;
+    std::cout << "C: " << C << std::endl;
+    std::cout << "R: " << R << std::endl;
+    std::cout << "F: " << F << std::endl;
+
+    // going from absolute to absolute and absolute to offset units
+    CHECK(ureg.makeQuantity<double>("0 K").to("C").value() == Approx(-273.15));
+    CHECK(ureg.makeQuantity<double>("0 K").to("R").value() == Approx(0));
+    CHECK(ureg.makeQuantity<double>("0 K").to("F").value() == Approx(-459.67));
+
+    CHECK(ureg.makeQuantity<double>("0 R").to("C").value() == Approx(-273.15));
+    CHECK(ureg.makeQuantity<double>("0 R").to("K").value() == Approx(0));
+    CHECK(ureg.makeQuantity<double>("0 R").to("F").value() == Approx(-459.67));
+
+    CHECK(ureg.makeQuantity<double>("100 K").to("C").value() == Approx(-173.15));
+    CHECK(ureg.makeQuantity<double>("100 K").to("R").value() == Approx(180));
+    CHECK(ureg.makeQuantity<double>("100 K").to("F").value() == Approx(180 - 459.67));
+
+    CHECK(ureg.makeQuantity<double>("100 R").to("C").value() == Approx(55.555 - 273.15));
+    CHECK(ureg.makeQuantity<double>("100 R").to("K").value() == Approx(55.555));
+    CHECK(ureg.makeQuantity<double>("100 R").to("F").value() == Approx(100 - 459.67));
+
+    CHECK(ureg.makeQuantity<double>("491.67 R").to("C").value() + 1 == Approx(1));
+    CHECK(ureg.makeQuantity<double>("491.67 R").to("K").value() == Approx(273.15));
+    CHECK(ureg.makeQuantity<double>("491.67 R").to("F").value() == Approx(32));
+
+
+
+    // going from offset units to absolute within the same scale
+    CHECK(ureg.makeQuantity<double>("0 C").to("K").value() == Approx(273.15));
+    CHECK(ureg.makeQuantity<double>("0 F").to("R").value() == Approx(459.67));
+    CHECK(ureg.makeQuantity<double>("100 C").to("K").value() == Approx(373.15));
+    CHECK(ureg.makeQuantity<double>("100 F").to("R").value() == Approx(559.67));
+
+    // going from offset to absolute in different scale
+    CHECK(ureg.makeQuantity<double>("0 C").to("R").value() == Approx(491.67));
+
+}

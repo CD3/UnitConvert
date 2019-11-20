@@ -1,0 +1,207 @@
+\documentclass[letterpaper,10pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{physics}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+
+\DeclareSIUnit \inch {in}
+\DeclareSIUnit \fahrenheit {\degree F}
+\DeclareSIUnit \rankine {R}
+
+\title{Offset Unit Conversions}
+\author{C.D. Clark III}
+
+
+\begin{document}
+\maketitle
+
+An offset unit is a unit that contains an offset from zero (a bias). The most common examples are the Celsius and Fahrenheit
+scales. Converting from Celsius to Kelvin is simple because they have the same
+scaling factor, you just add or subtract the offset. However, converting from
+Celsius to Fahrenheit requires correct conversion of the scaling factor and offset.
+
+Any non-base unit ($\hat{v}$) can be expressed in terms of a base unit ($\hat{u}$) with a scaling factor ($\alpha$) and offset ($\beta$).
+$$
+\label{eq:offset_unit}
+\hat{v} = \alpha \hat{u} + \beta
+$$
+Consider two offset units, $\hat{v}_1$ and $\hat{v}_2$, and assume our base unit $\hat{u}$ is an \emph{abolute} unit.
+\begin{align}
+  \hat{v}_1 &= \alpha_1 \hat{u} + \beta_1 \\
+  \hat{v}_2 &= \alpha_2 \hat{u} + \beta_2
+\end{align}
+
+We want to know how to convert quantities expressed in one offset unit to another offset units.
+
+\section{Incorrect Way}
+What follows is not correct, but it illustrates the difficulty in deriving a formula to convert from on offset unit to the other.
+
+To convert \emph{from} $\hat{v}_1$ \emph{to} $\hat{v}_2$,
+\begin{align}
+  \hat{u} &= \frac{\hat{v}_1 - \beta_1}{\alpha_1} \\
+  \hat{v}_2 &= \alpha_2 \left( \frac{\hat{v}_1 - \beta_1}{\alpha_1} \right)  + \beta_2 \\
+  \label{eq:v1_to_v2}
+  \hat{v}_2 &= \frac{\alpha_2}{\alpha_1}\hat{v}_1  + \left( \beta_2- \frac{\alpha_2}{\alpha_1}\beta_1 \right)
+\end{align}
+If $\beta_1 = \beta_2 = 0$ this just gives the usual unit convertion formula.
+
+Now, given a quantity $x = v_1 \hat{v}_1$, what is the numerical value for the quantity when expressed in terms of $\hat{v}_2$?
+
+\textbf{tangent}
+Note that \ref{eq:v1_to_v2} gives us a way to replace $\hat{v}_2$ with
+$\hat{v}_1$. Given a units $\hat{v}_1$, we can use Equation \ref{eq:v1_to_v2}
+to convert it to $\hat{v}_2$. For example, let $\hat{v}_1 = \si{\centi\meter}$ and $\hat{v}_2 = \si{\inch}$.
+Then:
+\begin{align}
+  \si{\centi\meter} &= \SI{0.01}{\meter} \\
+  \si{\inch} &= \SI{0.0254}{\meter} 
+\end{align}
+and
+\begin{align}
+  \si{\inch} &= 0.0254\times \SI{100}{\centi\meter}  = \SI{2.54}{\centi\meter}
+\end{align}
+Whic is a conversion \emph{from} \si{\centi\meter} \emph{to} \si{\inch}. But if we want to convert a quantity expressed in \si{\centi\meter}
+to \si{\inch}, say \SI{10}{\centi\meter} for example, we would do:
+\begin{align}
+  \SI{10}{\centi\meter} = \SI{10}{\centi\meter} \frac{\si{\inch}}{\SI{2.54}{\centi\meter}} = \frac{10}{2.54} \si{\inch}
+\end{align}
+So the numerical value of a quantity expressed in a given unit transforms in the opposite way as the unit. This is similar to the difference
+between covariant and contravariant vectors, where the components of contravariant vector transform in the opposte way of the basis vectors.
+
+To convert $x = v_1 \hat{v}_1$ to $\hat{v}_2$, we need to replace $\hat{v}_1$.
+\begin{align}
+  \hat{v}_1 &= \frac{\alpha_1}{\alpha_2}\hat{v}_2  + \left( \beta_1- \frac{\alpha_1}{\alpha_2}\beta_2 \right) \\
+  v_1 \hat{v}_1 &= v_1 \left(\frac{\alpha_1}{\alpha_2}\hat{v}_2  + \left( \beta_1- \frac{\alpha_1}{\alpha_2}\beta_2 \right)\right) \\
+  v_1 \hat{v}_1 &= v_1 \frac{\alpha_1}{\alpha_2}\hat{v}_2  + v_1 \left( \beta_1- \frac{\alpha_1}{\alpha_2}\beta_2 \right)
+\end{align}
+So what is $v_2$? For absolute units, we would just have $v_2 = v_1\frac{\alpha_1}{\alpha_2}$. But here we have the second term
+with no unit to deal with. First, consider the cases when of the units is an absolute unit. Let $\hat{v}_1$ be an absolute unit, so
+that $\beta_1 = 0$. Then we have
+\begin{align}
+  v_1 \hat{v}_1 &= v_1 \frac{\alpha_1}{\alpha_2}\hat{v}_2  - v_1 \frac{\alpha_1}{\alpha_2}\beta_2
+\end{align}
+The $v_1$ in the second term does not make any sense here. If we consider the case when $\hat{v}_1 = \si{\kelvin}$ and $\hat{v}_2 = \si{\celsius}$,
+then this says that
+\begin{align}
+  \SI{100}{\kelvin} &= 100 \si{\celsius}  - 100 \times 273
+\end{align}
+which is not correct. The correct equation is of course
+\begin{align}
+  \SI{100}{\kelvin} &= 100 \si{\celsius}  - 273,
+\end{align}
+but this doesn't even appear to be dimensionally correct. The issue is that units don't obey the normal algebra. It does not make sense to multiply
+an offset unit by a scaling factor (what is \SI{100}{\celsius} times 2?), so we cannot do it.
+
+\section{Correct Way}
+
+The correct way to convert offset units is to first subract off the bias,
+convert the scale, and add the new bias on.  Note that the $\beta$ term in
+Equation \ref{eq:offset_unit} is a numerical value expressed in the \emph{scale
+of the unit being defined}. When we convert from the absolute unit, to the offset unit,
+the $\beta$ term is \emph{not} scaled. i.e.
+\begin{align}
+  100\hat{u} \rightarrow \alpha (100\hat{u}) + \beta \ne \alpha (100\hat{u}) + 100 \beta
+\end{align}
+
+Note that, while $\hat{v}$ is an offset unit, $\hat{v}-\beta$ is \emph{not}. This
+illustrates the breakdown in our notation, it looks like we are adding two different things.
+
+Reformulating our conversion then
+\begin{align}
+  \hat{v}_1  - \beta_1 &= \alpha_1 \hat{u} \\
+  \hat{v}_2  - \beta_2 &= \alpha_2 \hat{u}.
+\end{align}
+Since $\hat{v}_i  - \beta_i$ is an absolute unit, it will obey our usual algebra, as long as we keep it together. Let $\hat{v}^\prime_i = \hat{v}_i - \beta_i$. Then
+\begin{align}
+  \hat{v}_1  - \beta_1 &= \alpha_1 \hat{u} = \hat{v}^\prime_1 \\
+  \hat{v}_2  - \beta_2 &= \alpha_2 \hat{u} = \hat{v}^\prime_2 ,
+\end{align}
+and
+\begin{align}
+  \hat{v}^\prime_1 &= \alpha_1 \hat{u} \\
+  \hat{v}^\prime_2 &= \alpha_2 \hat{u} = \frac{\alpha_2}{\alpha_1} \hat{v}^\prime_1 \\
+  \hat{v}^\prime_1 &= \frac{\alpha_1}{\alpha_2} \hat{v}^\prime_2 \\
+\end{align}
+Note that $\frac{\alpha_1}{\alpha_2}$ (expressed in terms of each units scaling factor for the base unit of the dimension)
+is the conversion factor from $\hat{v}_2$ to $\hat{v}_1$ but will convert quantities expressed
+in $\hat{v}_1$ to $\hat{v}_2$.
+$$
+v^\prime_1 \hat{v}^\prime_1 = v^\prime_1 \frac{\alpha_1}{\alpha_2} \hat{v}^\prime_2 = v^\prime_2 \hat{v}^\prime_2
+$$
+Now we just need a rule to convert between quantities expressed in terms of the primed and unprimed units:
+\begin{align}
+  v \hat{v} &= (v - \beta)\hat{v}^\prime = v^\prime \hat{v}^\prime \\
+  v^\prime \hat{v}^\prime &= (v^\prime + \beta)\hat{v} = v\hat{v}
+\end{align}
+Now given $x = v_1\hat{v}_1$
+\begin{align}
+  v_1 \hat{v}_1 &= (v_1 - \beta_1) \hat{v}^\prime_1 = (v_1 - \beta_1) \frac{\alpha_1}{\alpha_2} \hat{v}^\prime_2 = \left((v_1 - \beta_1) \frac{\alpha_1}{\alpha_2} + \beta_2\right) \hat{v}_2 \\
+  v_2 &= \left((v_1 - \beta_1) \frac{\alpha_1}{\alpha_2} + \beta_2\right)
+\end{align}
+
+\subsection{Final Note}
+
+The discussion about covariant and contravariant vectors above is fun, but it does have some practical consequenses. In fact, it is the reason
+I started writing this document.
+
+Take the well known conversion forula for Celsius to Fahrenheit:
+$$
+\si{\fahrenheit} = \frac{9}{5} \si{\celsius} + 32
+$$
+
+The Rankine scale is an aboslute temperature scale that uses the Fahrenheit degree size. That is, Rankine is zero at absolute zero, but
+the size of one degree is the same as Fahrenheit. So, to convert from Kelvin to Rankine, we have
+\begin{equation}
+  \label{eq:rankine_quant}
+\si{\rankine} = \frac{9}{5} \si{\kelvin}
+\end{equation}
+Now, since a Kelvin degree is larger than a Rankine degree, we also have
+$$
+\SI{900}{\rankine} = \SI{500}{\kelvin}
+$$
+but this means that 
+\begin{equation}
+  \label{eq:rankine_unit}
+\si{\rankine} = \frac{5}{9}\si{\kelvin}.
+\end{equation}
+So which is correct?
+
+The answer is that they are both correct, but Equation \ref{eq:rankine_quant} is a conversion for the numerical values of the quantity, and
+Equation \ref{eq:rankine_unit} is a conversion for the units. Perhaps Equation \ref{eq:rankine_quant} should be written as
+\begin{equation}
+  T_R = \frac{9}{5} T_K,
+\end{equation}
+i.e. a relationships between the \emph{components} of a quantity. The point here is that we must be careful when defining unit conversions
+in the library. The library expects conversions for the units, \emph{not} the components, so Equation \ref{eq:rankine_unit} is the correct way
+to specify the unit.
+
+\section{General Case}
+
+In general, a unit may be defined as an arbitrary transformation. For example, the American Wire Gauge unit is defined as
+$$
+d_n = \SI{0.127}{\milli\meter} \times 92^{\frac{36 - n}{39}}
+$$
+where $n$ is the wire gauge. To perform arbitrary unit conversions, including conversions between non-linear units, we just need the
+function that relates unit to a linear, absolute base unit. Given two units:
+\begin{align}
+\hat{v}_1 &= f(\hat{u}) \\
+\hat{v}_2 &= g(\hat{u})
+\end{align}
+%then
+%\begin{align}
+  %\hat{u} &= f^{-1}(\hat{v}_1) \\
+%\hat{v}_2 &= g(f^{-1}(\hat{v}_1)).
+%\end{align}
+To convert quantities, be just convert to the base unit first, then to the second unit.
+\begin{align}
+v_1 \hat{v}_1 &= g(f^{-1}(v_1)) \hat{v}_2 = v_2 \hat{v}_2 \\
+v_2 &= g(f^{-1}(v_1))
+\end{align}
+
+
+
+\end{document}
+

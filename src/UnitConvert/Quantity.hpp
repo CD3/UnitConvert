@@ -111,7 +111,7 @@ Quantity<T> Quantity<T>::to(const Unit& unit) const
   // we scale the value
   if (this->m_Unit.is_offset()) value -= this->m_Unit.offset();
 
-  // now scale the value
+  // now scale the value.
   value *= this->m_Unit.scale() / unit.scale();
 
   // if the new unit has an offset, we need to add it
