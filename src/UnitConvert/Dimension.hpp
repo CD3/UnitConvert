@@ -47,7 +47,7 @@ class Dimension
 
  public:
   enum class Name {
-    Length,
+    Length = 0,
     Mass,
     Time,
     ElectricalCurrent,
