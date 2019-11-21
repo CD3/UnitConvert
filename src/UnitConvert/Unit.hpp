@@ -24,10 +24,23 @@ class Unit
 
  public:
 
-  Unit():m_Dimension(BaseDimension<Dimension::Name::Dimensionless>()),m_Scale(1){}
-  Unit(double s, const Dimension& d);
-  Unit(double s, double o, const Dimension& d);
+  Unit()
+	  : m_Dimension(BaseDimension<Dimension::Name::Dimensionless>())
+	  , m_Scale(1)
+  {
+  }
 
+  Unit(double s, const Dimension& d)
+	  : m_Scale(s)
+	  , m_Dimension(d) 
+  {}
+
+  Unit(double s, double o, const Dimension& d)
+	  : m_Scale(s)
+	  , m_Offset(o)
+	  , m_Dimension(d)
+  {
+  }
 
   /**
    * Return the unit's scale.
@@ -35,13 +48,19 @@ class Unit
    * units only.
    */
   const double&
-  scale() const;
+  scale() const
+  { 
+	  return m_Scale; 
+  }
 
   /**
    * Return the dimension of this unit.
    */
   const Dimension&
-  dimension() const;
+  dimension() const
+  { 
+	  return m_Dimension; 
+  }
 
   /**
    * Reuturn the offset for this dimension.
@@ -50,29 +69,51 @@ class Unit
    * value that must be subtracted to make the unit an absolute unit.
    */
   const double
-  offset() const;
+  offset() const
+  {
+	  if (m_Offset)
+		  return m_Offset.get();
+	  else
+		  return 0;
+  }
 
   /**
    * Return true if this is an offset unit
    */
   bool
-  is_offset() const;
-
-  /**
-   * Output operator for the unit.
-   */
-  friend std::ostream&
-  operator<<(std::ostream& out, const Unit& unit);
+  is_offset() const
+  { 
+	  return static_cast<bool>(m_Offset); 
+  }
 
   /**
    * Return the unit resulting from multiplying this unit by another.
    */
-  Unit operator*(const Unit& other) const;
+  Unit operator*(const Unit& other) const
+  {
+	  if (this->is_offset() || other.is_offset())
+		  throw std::runtime_error(
+			  "Error: cannot multiply offset units by another unit. You should use "
+			  "a delta unit.");
+	  return Unit(this->m_Scale * other.m_Scale,
+		  this->m_Dimension * other.m_Dimension);
+  }
 
   /**
    * Return the unit resulting from multiplying this unit by a scale.
    */
-  Unit operator*(const double& scale) const;
+  Unit operator*(const double& scale) const
+  {
+	  // if this is an offset unit, we need update the offset as well
+	  // offset should be the number of *this* units that must be subtracted
+	  // to get an absolute unit. *not* the number of base units.
+	  // so, if the unit scale increases, then the offset should decrease...
+	  if (this->is_offset())
+		  return Unit(this->m_Scale * scale, this->offset() / scale,
+			  this->m_Dimension);
+	  else
+		  return Unit(this->m_Scale * scale, this->m_Dimension);
+  }
 
   /**
    * Free function version of operator* to support scaling factor
@@ -87,31 +128,74 @@ class Unit
    * Multiplying this unit by another.
    */
   Unit&
-  operator*=(const Unit& other);
+  operator*=(const Unit& other)
+  {
+	  if (this->is_offset() || other.is_offset())
+		  throw std::runtime_error(
+			  "Error: cannot multiply offset units by another unit. You should use "
+			  "a delta unit.");
+	  this->m_Scale *= other.m_Scale;
+	  this->m_Dimension *= other.m_Dimension;
+	  return *this;
+  }
 
   /**
    * Scale this unit
    */
   Unit&
-  operator*=(const double& scale);
+  operator*=(const double& scale)
+  {
+	  this->m_Scale *= scale;
+
+	  if (this->is_offset()) this->m_Offset = this->m_Offset.get() / scale;
+
+	  return *this;
+  }
 
   /**
    * Return the unit resulting from dividing this unit by another.
    */
   Unit
-  operator/(const Unit& other) const;
+  operator/(const Unit& other) const
+  {
+	  if (this->is_offset() || other.is_offset())
+		  throw std::runtime_error(
+			  "Error: cannot divide offset units by another unit. You should use a "
+			  "delta unit.");
+	  return Unit(this->m_Scale / other.m_Scale,
+		  this->m_Dimension / other.m_Dimension);
+  }
 
   /**
    * Return the unit resulting from dividing this unit by a scale factor.
    */
   Unit
-  operator/(const double& scale) const;
+  operator/(const double& scale) const
+  {
+	  return (*this) * (1. / scale);
+  }
 
   Unit&
-  operator/=(const Unit& other);
+  operator/=(const Unit& other)
+  {
+	  if (this->is_offset() || other.is_offset())
+		  throw std::runtime_error(
+			  "Error: cannot divide offset units by another unit. You should use a "
+			  "delta unit.");
+	  this->m_Scale /= other.m_Scale;
+	  this->m_Dimension /= other.m_Dimension;
+	  return *this;
+  }
 
   Unit&
-  operator/=(const double& scale);
+  operator/=(const double& scale)
+  {
+	  this->m_Scale /= scale;
+
+	  if (this->is_offset()) this->m_Offset = this->m_Offset.get() * scale;
+
+	  return *this;
+  }
 
   /**
    * Return the unit resulting from adding an offset to this unit.
@@ -119,10 +203,23 @@ class Unit
    * The resulting unit will have the same scale.
    */
   Unit
-  operator+(const double& offset) const;
+  operator+(const double& offset) const
+  {
+	  // offset specifies the value that must be subtraced
+	  // to get an absolute unit.
+	  return Unit(this->m_Scale, this->offset() + offset, this->m_Dimension);
+  }
 
   Unit&
-  operator+=(const double& offset);
+  operator+=(const double& offset)
+  {
+	  if(!this->m_Offset)
+		  this->m_Offset = 0;
+
+	  this->m_Offset.get() += offset;
+
+	  return *this;
+  }
 
   /**
    * Return the unit resulting from subtracting an offset to this unit.
@@ -130,11 +227,38 @@ class Unit
    * The resulting unit will have the same scale.
    */
   Unit
-  operator-(const double& offset) const;
+  operator-(const double& offset) const
+  {
+	  return *this + (-offset);
+  }
 
   Unit&
-  operator-=(const double& offset);
+  operator-=(const double& offset)
+  {
+	  if(!this->m_Offset)
+		  this->m_Offset = 0;
+
+	  this->m_Offset.get() -= offset;
+
+	  return *this;
+  }
+
+  /**
+  * Output operator for the unit.
+  */
+  friend std::ostream&
+	  operator<<(std::ostream& out, const Unit& unit);
+
 };
+
+inline std::ostream&
+operator<<(std::ostream& out, const Unit& unit)
+{
+	out << unit.m_Scale << " ";
+	out << unit.m_Dimension << " ";
+	if (unit.m_Offset) out << " + " << unit.m_Offset.get();
+	return out;
+}
 
 /**
  * A class for constructing base units. Base units are units for one of the base
