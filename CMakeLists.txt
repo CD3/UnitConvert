@@ -21,7 +21,7 @@ configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/version.h.in"
 configure_file( "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
 
-find_package( Boost REQUIRED )
+find_package( Boost COMPONENTS filesystem REQUIRED )
 
 string( REGEX REPLACE "^lib" "" LIB_NAME ${PROJECT_NAME} )
 add_library( ${LIB_NAME} )
@@ -48,6 +48,7 @@ target_include_directories( ${LIB_NAME} INTERFACE
 target_link_libraries(${LIB_NAME}
                         PUBLIC
                         Boost::boost
+                        Boost::filesystem
                      )
 target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
 set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )

@@ -105,3 +105,11 @@ TEST_CASE("Fahrenheit conversions incorrect", "[bugs]")
     CHECK(ureg.makeQuantity<double>("0 C").to("R").value() == Approx(491.67));
 
 }
+
+
+TEST_CASE("Loading units into UnitRegistry from missing file does not fail gracefully.", "[bugs]")
+{
+
+  UnitRegistry ureg;
+  CHECK_THROWS( ureg.loadUnits("missing.txt") );
+}
