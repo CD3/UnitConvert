@@ -667,7 +667,7 @@ TEST_CASE("Dimension String Parsing")
   CHECK(D[Dimension::Name::Mass] == 0);
   CHECK(D[Dimension::Name::Length] == 0);
   CHECK(D[Dimension::Name::Time] == 0);
-  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 0 );
+  CHECK(std::accumulate(powers.begin(), powers.end(), 0) == 1 );
 
 
 

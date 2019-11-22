@@ -39,7 +39,7 @@
 class Dimension
 {
  public:
-  static const int           N = 7;
+  static const int           N = 8;
   typedef std::array<int, N> ArrayType;
 
  protected:
