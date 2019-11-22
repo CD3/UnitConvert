@@ -39,13 +39,6 @@
 class Dimension
 {
  public:
-  static const int           N = 8;
-  typedef std::array<int, N> ArrayType;
-
- protected:
-  ArrayType m_Powers;
-
- public:
   enum class Name {
     Length = 0,
     Mass,
@@ -54,9 +47,16 @@ class Dimension
     Temperature,
     Amount,
     LuminousIntensity,
-    Dimensionless
+    Dimensionless  // WARNING: This needs to be the last entry so that the two
+                   // lines below work.
   };
+  static const int           N = static_cast<int>(Name::Dimensionless) + 1;
+  typedef std::array<int, N> ArrayType;
 
+ protected:
+  ArrayType m_Powers;
+
+ public:
  public:
   Dimension();
   Dimension(Name dim);
