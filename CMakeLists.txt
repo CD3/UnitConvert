@@ -4,6 +4,27 @@ if( TARGET UnitConvert )
   return()
 endif( TARGET UnitConvert )
 
+project( UnitConvert )
+
+#
+# Modules
+#
+
+find_package( CMakeCommonModules 3.0 REQUIRED )
+list(APPEND CMAKE_MODULE_PATH "${CMakeCommonModules_DIR}" )
+list(REMOVE_DUPLICATES CMAKE_MODULE_PATH )
+include( CMakeCommonModules-macros )
+
+GIT_VERSION()
+
+#
+# Options
+#
+
+set_PREFIX_CACHE()               # Set CACHE for CMAKE_PREFIX_PATH, and set CMAKE_INSTALL_PREFIX.
+set_PROJECT_LIBRARY_TYPE_CACHE() # Set the default for the project's library type.
+set_PROJECT_STANDALONE()         # Set ${PROJECT_NAME}_STANDALONE to indicate whether we are being called from another project 
+
 OPTION( BUILD_UNIT_TESTS "Build unit tests for the library" ON )
 OPTION( BUILD_BINDINGS "Build bindings for other languages using SWIG" OFF )
 
@@ -14,98 +35,80 @@ set(INSTALL_PATH ${INSTALL_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/externals/install/
 include(function-git_version)
 GIT_VERSION(UnitConvert)
 message( STATUS "UnitConvert version: ${UnitConvert_VERSION}")
-project(UnitConvert VERSION ${UnitConvert_VERSION})
+
+
 # need to run configure_file twice
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/version.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
 configure_file( "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
 
+#
+# Dependencies
+#
+
 find_package( Boost REQUIRED )
 
-string( REGEX REPLACE "^lib" "" LIB_NAME ${PROJECT_NAME} )
-add_library( ${LIB_NAME} )
-add_library( ${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_NAME} )
-target_sources(
-  ${LIB_NAME}
-  PUBLIC
+#
+# Build
+#
+
+add_library( ${PROJECT_NAME} INTERFACE )
+add_library( AFRL-RHD::${PROJECT_NAME} ALIAS ${PROJECT_NAME} )
+
+target_sources( ${PROJECT_NAME}
+INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert.hpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/UnitRegistry.hpp>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Unit.cpp>
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Unit.cpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Unit.hpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Quantity.hpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/BoostUnitRegistry.hpp>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Dimension.cpp>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/UnitRegistry.cpp>
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Dimension.cpp>
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/UnitRegistry.cpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Dimension.hpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/detail/functions.hpp>
 )
-target_include_directories( ${LIB_NAME} INTERFACE
+
+target_include_directories( ${PROJECT_NAME} 
+INTERFACE
   $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/src>
   $<BUILD_INTERFACE:${${PROJECT_NAME}_BINARY_DIR}>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(${LIB_NAME}
-                        PUBLIC
-                        Boost::boost
-                     )
-target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
-set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
+
+target_compile_features( ${PROJECT_NAME} 
+INTERFACE
+	cxx_std_11 
+	)  # let clients know we need c++11
+
+target_link_libraries( ${PROJECT_NAME}
+INTERFACE
+	Boost::boost
+	)
+
+#set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
 
 configure_file("${CMAKE_SOURCE_DIR}/data/unit_definitions.txt" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY )
 
-if( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} AND BUILD_UNIT_TESTS)
+#
+# Ancillaries
+#
+
+#set( ${PROJECT_NAME}_DO_SWIG OFF)
+set(PYTHON_BINDINGS OFF)
 enable_testing()
-add_subdirectory( testing )
-endif()
+add_ancillaries_RHDO()
 
-if( BUILD_BINDINGS )
-add_subdirectory(swig)
-endif()
+#
+# Installation
+#
 
+install_RHDO( HEADERS_DIRECTORY src/ )
 
-
-# Install and Packaging
-install( TARGETS ${LIB_NAME} EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
-install(DIRECTORY src/
-  DESTINATION include
-  FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
-)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
-  DESTINATION include
-  FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
-)
-install(EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION cmake
-)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-"include(CMakeFindDependencyMacro)
-find_dependency(Boost)
-include(\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake)
-"
-  )
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${${PROJECT_NAME}_VERSION}
-  COMPATIBILITY SameMajorVersion
-  )
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-  DESTINATION cmake
-  )
-
-
-
-
-INCLUDE(InstallRequiredSystemLibraries)
+#
+# Packaging
+#
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "")
 SET(CPACK_PACKAGE_VENDOR "")
