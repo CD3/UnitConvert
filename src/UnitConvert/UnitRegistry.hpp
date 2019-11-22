@@ -75,7 +75,7 @@ class UnitRegistry
    * Load a set of units from a text file. The text file should contain lines
    * that could be passed to the addUnit(std::string) function.
    */
-  void loadUnits(std::string filename);
+  bool loadUnits(std::string filename);
 
   /**
    * Querry the registry for a named unit and return

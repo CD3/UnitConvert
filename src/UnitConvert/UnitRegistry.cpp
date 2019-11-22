@@ -64,11 +64,16 @@ void UnitRegistry::loadUnits(std::istream& in)
   }
 }
 
-void UnitRegistry::loadUnits(std::string filename)
+bool UnitRegistry::loadUnits(std::string filename)
 {
   std::ifstream in(filename.c_str());
+  if( !in.is_open())
+  {
+	  return false;
+  }
   this->loadUnits(in);
   in.close();
+  return true;
 }
 
 const Unit& UnitRegistry::getUnit(std::string a_unit) const

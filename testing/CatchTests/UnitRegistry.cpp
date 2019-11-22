@@ -89,14 +89,18 @@ TEST_CASE("UnitRegisty Tests")
 
   SECTION("Loading units from file")
   {
-    ureg.loadUnits("unit_definitions.txt");
+    bool opened = ureg.loadUnits("unit_definitions.txt");
+	CHECK( opened);
 
-    CHECK(ureg.makeQuantity<double>(10, "g m^2 / s^3").to("W").value() == 0.01);
-    CHECK(ureg.makeQuantity<double>(5, "m / s^2").to("gravity").value() == Approx(5/9.80665));
-    CHECK(ureg.makeQuantity<double>(5, "gravity").to("m/s^2").value() == Approx(5*9.80665));
+	if (opened)
+	{
+		CHECK(ureg.makeQuantity<double>(10, "g m^2 / s^3").to("W").value() == 0.01);
+		CHECK(ureg.makeQuantity<double>(5, "m / s^2").to("gravity").value() == Approx(5/9.80665));
+		CHECK(ureg.makeQuantity<double>(5, "gravity").to("m/s^2").value() == Approx(5*9.80665));
 
-    // H2O is a unit for pressure. 1 H2O is 9806.65 Pa
-    CHECK(ureg.makeQuantity<double>(5, "H2O").to("Pa/m").value() == Approx(5*9806.65));
+		// H2O is a unit for pressure. 1 H2O is 9806.65 Pa
+		CHECK(ureg.makeQuantity<double>(5, "H2O").to("Pa/m").value() == Approx(5*9806.65));
+	}
   }
 
   SECTION("Adding base units from strings")
