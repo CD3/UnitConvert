@@ -12,7 +12,7 @@ provides a `UnitRegistry` class (similar to [`pint`](https://pint.readthedocs.io
 
 ## Getting Started
 
-### Installing
+### Installing (Manual)
 
 `UnitConvert` needs to be compiled and installed in a place that your project can find it. Builds are managed by CMake, and you need to have boost installed.
 
@@ -34,6 +34,23 @@ under `/usr/local`. You can change the default install location by passing the
 $ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install/dir
 ```
 
+### Conan Install
+
+`UnitConvert` releases are also provided as [Conan](https://conan.io) packages. To install via Conan, you need to add a remote
+```
+$ conan remote add cd3 https://api.bintray.com/conan/cd3/conan-devel
+```
+Use `conan search` to find the latest release. For example
+```
+$ conan search UnitConvert -r cd3
+Existing package recipes:
+
+UnitConvert/0.5.1@cd3/devel
+UnitConvert/0.5.2@cd3/devel
+```
+The Conan packages set the `UnitConvert_DIR` environment variable to point at the directory containing the CMake `*Config.cmake` file,
+so you do not need to make any changes to your CMakeLists.txt file. Just use the `virtualenv` generator and `find_package` will work.
+
 ### Using
 
 To use `UnitConvert`, you need to link against the library `libUnitConvert.a`. If you use CMake, add these lines to your `CMakeLists.txt`:
@@ -48,6 +65,28 @@ explicitly when running CMake for the first time (`/usr/local/cmake/` by default
 ```bash
 $ cmake .. -DUnitConvert_DIR=/usr/local/cmake
 ```
+If you get an error when running CMake that says
+```
+  New Boost version may have incorrect or missing dependencies and imported targets
+```
+Then you need to upgrade your CMake version.
+
+If you're using conan, use the `virtualenv` generator and run CMake inside the
+virtual environment. This will point CMake at the correct configuration file.
+For example, create a file named conanfile.txt next to your CMakeLists.txt with the following
+```
+[requires]
+UnitConvert/0.5.2@cd3/devel
+[generators]
+virtualenv
+```
+Then run (from the build directory)
+```bash
+$ conan install ..
+$ source ./activate.sh
+$ cmake ..
+```
+
 In your code, include the header `UnitConvert.hpp`.
 Then create a unit registry, and add
 some units to it. Units can be defined in terms of their dimension, or in terms of other units already defined.
