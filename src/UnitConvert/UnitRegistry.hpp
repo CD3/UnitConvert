@@ -39,6 +39,13 @@ class UnitRegistry
   EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
 
   /**
+   * Return the number of entries in unit registry. This will not include
+   * prefixed versions of all units that are implicitly defined, only prefixed
+   * versions that have been explicitly added.
+   */
+  int size() const;
+
+  /**
    * Add a base unit for a given dimension to the registry. Base units have a
    * scale of one. This function takes a template argument that specifies the
    * dimension. A base unit for the dimension will be created and added to the

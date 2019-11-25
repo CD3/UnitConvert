@@ -5,11 +5,12 @@
 #include <boost/units/systems/si.hpp>
 
 #include <UnitConvert.hpp>
+#include <UnitConvert/GlobalUnitRegistry.hpp>
 
 TEST_CASE("UnitRegisty Tests")
 {
   UnitRegistry ureg;
-
+  CHECK(ureg.size() == 0);
 
   SECTION("Adding derived units from strings")
   {
@@ -18,6 +19,7 @@ TEST_CASE("UnitRegisty Tests")
     ureg.addBaseUnit<Dimension::Name::Mass>("g");
     ureg.addBaseUnit<Dimension::Name::Time>("s");
     ureg.addBaseUnit<Dimension::Name::Temperature>("K");
+    CHECK(ureg.size() == 4);
 
     // add some derived units
     ureg.addUnit("m = 100 cm");
@@ -65,11 +67,12 @@ TEST_CASE("UnitRegisty Tests")
     CHECK(q.to_base_units().unit().is_offset());
     CHECK(q.to_base_units().unit().offset() == Approx(0));
 
-    CHECK( ureg.makeQuantity<double>("20 C").to("K").value() == Approx(293.15) );
-    CHECK( ureg.makeQuantity<double>("20 1/delta_C").to("1/K").value() == Approx(20) );
-    CHECK( ureg.makeQuantity<double>("1 cal / g / delta_C").to("J/g/K").value() == Approx(4.184) );
-
-
+    CHECK(ureg.makeQuantity<double>("20 C").to("K").value() == Approx(293.15));
+    CHECK(ureg.makeQuantity<double>("20 1/delta_C").to("1/K").value() ==
+          Approx(20));
+    CHECK(
+        ureg.makeQuantity<double>("1 cal / g / delta_C").to("J/g/K").value() ==
+        Approx(4.184));
   }
 
   SECTION("Loading derived units from stream")
@@ -92,11 +95,14 @@ TEST_CASE("UnitRegisty Tests")
     ureg.loadUnits("unit_definitions.txt");
 
     CHECK(ureg.makeQuantity<double>(10, "g m^2 / s^3").to("W").value() == 0.01);
-    CHECK(ureg.makeQuantity<double>(5, "m / s^2").to("gravity").value() == Approx(5/9.80665));
-    CHECK(ureg.makeQuantity<double>(5, "gravity").to("m/s^2").value() == Approx(5*9.80665));
+    CHECK(ureg.makeQuantity<double>(5, "m / s^2").to("gravity").value() ==
+          Approx(5 / 9.80665));
+    CHECK(ureg.makeQuantity<double>(5, "gravity").to("m/s^2").value() ==
+          Approx(5 * 9.80665));
 
     // H2O is a unit for pressure. 1 H2O is 9806.65 Pa
-    CHECK(ureg.makeQuantity<double>(5, "H2O").to("Pa/m").value() == Approx(5*9806.65));
+    CHECK(ureg.makeQuantity<double>(5, "H2O").to("Pa/m").value() ==
+          Approx(5 * 9806.65));
   }
 
   SECTION("Adding base units from strings")
@@ -117,21 +123,57 @@ TEST_CASE("UnitRegisty Tests")
     ureg.addUnit("W = 1 J/s");
     ureg.addUnit("cal = 4.184 J");
 
-    CHECK( ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200) );
-    CHECK( ureg.makeQuantity<double>("2 m").to("in").value() == Approx(200/2.54) );
-
-
+    CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+    CHECK(ureg.makeQuantity<double>("2 m").to("in").value() ==
+          Approx(200 / 2.54));
   }
 
   SECTION("Parsing errors")
   {
+    CHECK_THROWS(ureg.getUnit("m"));
+    CHECK_THROWS(ureg.makeUnit("m"));
+    CHECK_THROWS(ureg.getUnit("[L]"));
+    CHECK_NOTHROW(ureg.makeUnit("[L]"));
+  }
+}
 
-    CHECK_THROWS( ureg.getUnit("m") );
-    CHECK_THROWS( ureg.makeUnit("m") );
-    CHECK_THROWS( ureg.getUnit("[L]") );
-    CHECK_NOTHROW( ureg.makeUnit("[L]") );
+TEST_CASE("Global Unit Registry Tests")
+{
+  SECTION("First Usage")
+  {
+    UnitRegistry& ureg = getGlobalUnitRegistry();
+
+    CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+    CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+          Approx(2. * 100 * 100));
+    CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() == Approx(32));
   }
 
+  SECTION("Second Usage")
+  {
+    UnitRegistry& ureg = getGlobalUnitRegistry();
 
+    CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+    CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+          Approx(2. * 100 * 100));
+    CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() == Approx(32));
+
+  }
+
+  SECTION("Obscure conversions")
+  {
+    UnitRegistry& ureg = getGlobalUnitRegistry();
+
+    auto q = ureg.makeQuantity<float>("2 pound");
+    CHECK(q.to("kg").value() == Approx(0.90718474));
+    CHECK(q.to("electron_mass").value() == Approx(9.95879467317e+29));
+    CHECK(q.to("carat").value() == Approx(4535.9237));
+    CHECK(q.to("metric_ton").value() == Approx(0.00090718474));
+    CHECK(q.to("bag").value() == Approx(0.0212765957447));
+    CHECK(q.to("grain").value() == Approx(14000.0));
+    CHECK(q.to("oz").value() == Approx(32));
+    CHECK(q.to("short_ton").value() == Approx(0.001));
+
+  }
 
 }

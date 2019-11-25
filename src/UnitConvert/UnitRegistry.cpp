@@ -7,6 +7,11 @@
 
 #include "./detail//functions.hpp"
 
+int UnitRegistry::size() const
+{
+  return m_UnitStore.size();
+}
+
 void UnitRegistry::addUnit(const std::string& k, const Unit& v)
 {
   auto ptr = m_UnitStore.insert(PairType(k, v));
