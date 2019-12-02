@@ -251,6 +251,67 @@ CHECK( q.to("kW").value() == Approx(0.000024) );
 }
 ```
 
+#### Global Unit Registry
+
+In the examples above, the unit registry that is created will be local to the scope it was created in.
+This may not be convenient, if you need to access the unit registry inside of a function that gets called
+a lot.
+
+`UnitConvert` provides a global unit registry that can be used in these cases. To access the global registry,
+you need to include the `GlobalUnitRegistry.hpp` header and then call `getGlobalUnitRegistry()`, which
+will return a **reference** to a global unit registry instance. The unit registry is automatically
+configured and contains hundreds of pre-defined units.
+
+```cpp
+#include <UnitConvert.hpp>
+#include <UnitConvert/GlobalUnitRegistry.hpp>
+
+TEST_CASE("Global Unit Registry Tests")
+{
+  SECTION("First Usage")
+  {
+    UnitRegistry& ureg = getGlobalUnitRegistry();
+
+    CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+    CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+          Approx(2. * 100 * 100));
+    CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() == Approx(32));
+  }
+
+  SECTION("Second Usage")
+  {
+    UnitRegistry& ureg = getGlobalUnitRegistry();
+
+    CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+    CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+          Approx(2. * 100 * 100));
+    CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() == Approx(32));
+
+  }
+
+  SECTION("Obscure conversions")
+  {
+    UnitRegistry& ureg = getGlobalUnitRegistry();
+
+    auto q = ureg.makeQuantity<float>("2 pound");
+    CHECK(q.to("kg").value() == Approx(0.90718474));
+    CHECK(q.to("electron_mass").value() == Approx(9.95879467317e+29));
+    CHECK(q.to("carat").value() == Approx(4535.9237));
+    CHECK(q.to("metric_ton").value() == Approx(0.00090718474));
+    CHECK(q.to("bag").value() == Approx(0.0212765957447));
+    CHECK(q.to("grain").value() == Approx(14000.0));
+    CHECK(q.to("oz").value() == Approx(32));
+    CHECK(q.to("short_ton").value() == Approx(0.001));
+
+  }
+
+}
+```
+
+Note that the unit registry is created as a static variable in the `getGlobalUnitRegistry()` function,
+so it will not be created until the first call to `getGlobalUnitRegistry()`.
+
+
 ## Features
 
 - Small and simple library that only depends on `boost` (or is that a limitation?)
