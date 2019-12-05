@@ -74,7 +74,7 @@ target_include_directories( ${PROJECT_NAME}
 INTERFACE
   $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/src>
   $<BUILD_INTERFACE:${${PROJECT_NAME}_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:${${PROJECT_NAME}_INSTALL_DIR}/include>
 )
 
 target_compile_features( ${PROJECT_NAME} 
