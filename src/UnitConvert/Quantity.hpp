@@ -103,8 +103,8 @@ Quantity<T> Quantity<T>::to(const Unit& unit) const
 {
   if (this->m_Unit.dimension() != unit.dimension()) {
     throw std::runtime_error("Dimension Error: Cannot convert from " +
-                             detail::str(this->m_Unit.dimension()) + " to " +
-                             detail::str(unit.dimension()));
+                             ::detail::str(this->m_Unit.dimension()) + " to " +
+                             ::detail::str(unit.dimension()));
   }
   T value = this->m_Value;
   // if current unit has an offset, we need subtract it before
@@ -135,7 +135,7 @@ template<typename T>
 template<typename Dim, typename System>
 Quantity<T> Quantity<T>::to(const boost::units::unit<Dim, System>& unit) const
 {
-  return this->to(detail::str(unit, boost::units::format_mode::raw_fmt));
+  return this->to(::detail::str(unit, boost::units::format_mode::raw_fmt));
 }
 
 template<typename T>
@@ -143,7 +143,7 @@ template<class UNIT, typename TT>
 boost::units::quantity<UNIT, TT> Quantity<T>::to() const
 {
   return boost::units::quantity<UNIT, TT>::from_value(
-      this->to(detail::str(UNIT{}, boost::units::format_mode::raw_fmt))
+      this->to(::detail::str(UNIT{}, boost::units::format_mode::raw_fmt))
           .value());
 }
 
