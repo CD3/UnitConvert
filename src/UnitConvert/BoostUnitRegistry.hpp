@@ -10,6 +10,7 @@
 #include "./UnitRegistry.hpp"
 
 
+namespace UnitConvert {
 namespace detail {
 
 // function to add the base units of a Boost.Units system
@@ -47,6 +48,7 @@ struct addSystemBaseUnits<SYSTEM,boost::units::dimensionless_type> {
 };
 
 }
+}
 
 /**
  * A unit registry that integrates with Boost.Units. The template parameter SYSTEM
@@ -59,7 +61,7 @@ class BoostUnitRegistry : public UnitRegistry
  public:
   BoostUnitRegistry()
   {
-    detail::addSystemBaseUnits<SYSTEM>::apply(this);
+    UnitConvert::detail::addSystemBaseUnits<SYSTEM>::apply(this);
   }
 
   using UnitRegistry::addUnit;
@@ -73,9 +75,9 @@ class BoostUnitRegistry : public UnitRegistry
     // either that, or we take the system as a template argument.
     typedef boost::units::unit<D, SYSTEM> si_base_unit;
     si_base_unit su;
-    this->addUnit(detail::str(u), boost::units::conversion_factor(u, su) *
+    this->addUnit(UnitConvert::detail::str(u), boost::units::conversion_factor(u, su) *
                               this->makeUnit(
-                                  detail::str(su, boost::units::format_mode::raw_fmt)));
+                                  UnitConvert::detail::str(su, boost::units::format_mode::raw_fmt)));
   }
 };
 

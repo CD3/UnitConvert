@@ -10,6 +10,7 @@
 #include <sstream>
 #include <boost/units/io.hpp>
 
+namespace UnitConvert {
 namespace detail {
 
 template <typename T>
@@ -61,6 +62,7 @@ str(const T& t, boost::units::format_mode mode)
 
 
 
+}
 }
 
 
