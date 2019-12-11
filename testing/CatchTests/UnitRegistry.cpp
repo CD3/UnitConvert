@@ -177,3 +177,35 @@ TEST_CASE("Global Unit Registry Tests")
   }
 
 }
+
+TEST_CASE("UnitRegisty Adding Unit Tests")
+{
+  UnitRegistry ureg;
+  CHECK(ureg.size() == 0);
+
+  ureg.addUnit("m = [L]");
+  ureg.addUnit("cm = 0.01 m");
+
+  CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+
+  CHECK_THROWS(ureg.addUnit("cm = 10 m"));
+  CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+
+  ureg.existing_unit_policy = UnitRegistry::EXISTING_UNIT_POLICY::Warn;
+  ureg.addUnit("cm = 10 m");
+  CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+
+  ureg.existing_unit_policy = UnitRegistry::EXISTING_UNIT_POLICY::Ignore;
+  ureg.addUnit("cm = 10 m");
+  CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+
+  ureg.existing_unit_policy = UnitRegistry::EXISTING_UNIT_POLICY::Overwrite;
+  ureg.addUnit("cm = 10 m");
+  CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(0.2));
+
+
+
+
+
+
+}

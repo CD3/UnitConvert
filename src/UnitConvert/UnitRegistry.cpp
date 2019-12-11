@@ -27,6 +27,9 @@ void UnitRegistry::addUnit(const std::string& k, const Unit& v)
     }
     if (existing_unit_policy == EXISTING_UNIT_POLICY::Ignore) {
     }
+    if (existing_unit_policy == EXISTING_UNIT_POLICY::Overwrite) {
+      m_UnitStore[k] = v;
+    }
   }
 }
 

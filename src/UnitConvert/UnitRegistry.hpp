@@ -35,7 +35,7 @@ class UnitRegistry
   StoreType m_UnitStore;
 
  public:
-  enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore };
+  enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore, Overwrite };
   EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
 
   /**
