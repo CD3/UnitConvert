@@ -23,6 +23,7 @@ fi
 function exit_on_error()
 {
   echo "There was an error. Commit will not be tagged."
+  exit 1
 }
 
 trap exit_on_error ERR
@@ -34,9 +35,7 @@ echo "cd'ing to root directory ($root)"
 cd $root
 
 echo "looking for pre-tag-release.sh to run"
-script=$(find ./ -path ./externals -prune -o -name 'pre-tag-release.sh' -print)
-[[ $script != "" ]] && echo "Found: $script" && $script
-[[ $script != "" ]] || echo "Did NOT find a script to run."
+$(find ./ -name 'pre-tag-release.sh')
 
 echo "writing ${tag} to version.txt"
 echo "${tag}" > version.txt
@@ -44,6 +43,7 @@ echo "commiting change"
 git add version.txt
 git commit -m "housekeeping: bumped version in version.txt"
 echo "tagging with ${tag}"
-git tag --annotate ${tag}
+git tag ${tag}
+git tag -f current-release
 git tag | grep ${tag}
 echo "Successfully tagged commit."

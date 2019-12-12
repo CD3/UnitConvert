@@ -1,5 +1,4 @@
-.*.swp
 build/
 build-*/
-CMakeLists.txt.bak
-compile_commands.json
+.*.swp
+.git-*

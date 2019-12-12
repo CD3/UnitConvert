@@ -59,15 +59,30 @@ for cmake_file in (args.cmake_files if len(args.cmake_files) > 0  else ('-',)):
     print "ERROR: target_source command found. I don't know what to do."
     sys.exit(1)
 
+  # separate *.cpp files from everything else.
+  source_files_cpp = list()
+  source_files_other = list()
+  for source in source_files:
+    if source.endswith(".cpp"):
+      source_files_cpp.append(source)
+    else:
+      source_files_other.append(source)
+
   target_source_arguments = parser.arguments_parser.parseString(source_commands[0]['arguments'])
   lines = []
   lines.append(source_commands[0]['cmd_name']+"(")
-  i = 0
-  while i < len(target_source_arguments) and re.search( "CMAKE_CURRENT_SOURCE_DIR", target_source_arguments[i]) == None:
-    lines.append("  "+target_source_arguments[i])
-    i += 1
-  for source in source_files:
-    lines.append( "  $<BUILD_INTERFACE:%s>"%re.sub("^./","${CMAKE_CURRENT_SOURCE_DIR}/",source,count=1) )
+  lines.append(target_source_arguments[0] )
+
+  # add sources
+  if len(source_files_cpp) > 0:
+    lines.append("  PUBLIC")
+    for source in source_files_cpp:
+      lines.append( "    $<BUILD_INTERFACE:%s>"%re.sub("^./","${CMAKE_CURRENT_SOURCE_DIR}/",source,count=1) )
+  if len(source_files_other) > 0:
+    lines.append("  INTERFACE")
+    for source in source_files_other:
+      lines.append( "    $<BUILD_INTERFACE:%s>"%re.sub("^./","${CMAKE_CURRENT_SOURCE_DIR}/",source,count=1) )
+
   lines.append(")")
 
   new = "\n".join(lines)
@@ -80,6 +95,8 @@ for cmake_file in (args.cmake_files if len(args.cmake_files) > 0  else ('-',)):
     pass
     f.write(cmake_text)
 
+  if len(source_files_cpp) < 1:
+    print("WARNING: no .cpp files were found. This mean your add_library() call will need the INTERFACE argument.")
 
   
 
