@@ -12,6 +12,8 @@
 
 TEST_CASE("Dimension Devel", "[devel]")
 {
+  using namespace UnitConvert;
+
   BaseDimension<Dimension::Name::Length>            L;
   BaseDimension<Dimension::Name::Mass>              M;
   BaseDimension<Dimension::Name::Time>              T;
@@ -43,6 +45,8 @@ TEST_CASE("Dimension Devel", "[devel]")
 
 TEST_CASE("Unit Devel", "[devel]")
 {
+  using namespace UnitConvert;
+
   BaseUnit<Dimension::Name::Length>      meter;
   BaseUnit<Dimension::Name::Mass>        kilogram;
   BaseUnit<Dimension::Name::Time>        second;
@@ -113,6 +117,8 @@ TEST_CASE("Unit Devel", "[devel]")
 
 TEST_CASE("UnitRegistry Devel", "[devel]")
 {
+  using namespace UnitConvert;
+
   UnitRegistry ureg;
 
   ureg.addBaseUnit<Dimension::Name::Length>("m");
@@ -185,6 +191,8 @@ TEST_CASE("UnitRegistry Devel", "[devel]")
 
 TEST_CASE("BoostUnitRegistry Devel", "[devel]")
 {
+  using namespace UnitConvert;
+
   BoostUnitRegistry<boost::units::si::system> ureg;
 
   // base units are automatically loaded into the

@@ -5,6 +5,8 @@
 
 TEST_CASE("Spirit Testing")
 {
+  using namespace UnitConvert;
+
   SECTION("Basic")
   {
     namespace qi    = boost::spirit::qi;
@@ -46,6 +48,8 @@ TEST_CASE("Spirit Testing")
 
 TEST_CASE("Unit String Parsing")
 {
+  using namespace UnitConvert;
+
   UnitRegistry ureg;
 
   ureg.addBaseUnit<Dimension::Name::Length>("m");
@@ -458,6 +462,8 @@ TEST_CASE("Unit String Parsing")
 
 TEST_CASE("Base Dimension Symbol Parsing")
 {
+  using namespace UnitConvert;
+
   UnitRegistry::BaseDimensionSymbolParser parser;
 
   std::string dimension_str;
@@ -542,6 +548,8 @@ TEST_CASE("Base Dimension Symbol Parsing")
 
 TEST_CASE("Dimension String Parsing")
 {
+  using namespace UnitConvert;
+
   UnitRegistry::DimensionParser parser;
 
   std::string dimension_str;

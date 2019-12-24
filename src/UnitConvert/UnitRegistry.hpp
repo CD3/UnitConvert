@@ -21,6 +21,9 @@ namespace phx = boost::phoenix;
 #include "./Unit.hpp"
 #include "./detail/functions.hpp"
 
+namespace UnitConvert
+{
+
 template<typename T>
 class Quantity;
 
@@ -450,14 +453,14 @@ void UnitRegistry::addBaseUnit(const std::string& k)
 }
 
 template<typename T>
-::Quantity<T> UnitRegistry::makeQuantity(const T&           val,
+UnitConvert::Quantity<T> UnitRegistry::makeQuantity(const T&           val,
                                          const std::string& a_unit) const
 {
-  return ::Quantity<T>(val, makeUnit(a_unit), this);
+  return UnitConvert::Quantity<T>(val, makeUnit(a_unit), this);
 }
 
 template<typename T>
-::Quantity<T> UnitRegistry::makeQuantity(std::string a_quantity) const
+UnitConvert::Quantity<T> UnitRegistry::makeQuantity(std::string a_quantity) const
 {
   double      value;
   std::string unit;
@@ -467,7 +470,9 @@ template<typename T>
   auto it = a_quantity.begin();
   auto r  = qi::parse(it, a_quantity.end(),
                      -qi::double_ >> qi::as_string[+qi::char_], value, unit);
-  return ::Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
+  return UnitConvert::Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
 }
+
+} // end namespace UnitConvert
 
 #endif  // include protector

@@ -6,6 +6,7 @@
 
 TEST_CASE("UnitRegistry Example")
 {
+using namespace UnitConvert;
 
 UnitRegistry ureg;
 
@@ -73,6 +74,8 @@ CHECK(boost::units::quantity_cast<double>(L) == Approx(30.48));
 
 TEST_CASE("BoostUnitRegisty Example")
 {
+using namespace UnitConvert;
+
 BoostUnitRegistry<boost::units::si::system> ureg;
 
 Quantity<double> q;

@@ -11,6 +11,9 @@
 
 #include "./Dimension.hpp"
 
+namespace UnitConvert
+{
+
 /**
  * A class representing a unit. A unit has a dimension, a scale, and possibly an
  * offset.
@@ -272,6 +275,6 @@ class BaseUnit : public Unit
   BaseUnit() : Unit(1., BaseDimension<DIM>{}) {}
 };
 
-
+} // end namespace UnitConvert
 
 #endif // include protector

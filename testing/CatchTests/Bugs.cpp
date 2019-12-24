@@ -5,6 +5,8 @@
 
 TEST_CASE("UnitRegistry Unit Equation Parser", "[bugs]")
 {
+  using namespace UnitConvert;
+
   UnitRegistry ureg;
 
   ureg.addBaseUnit<Dimension::Name::Length>("m");
@@ -34,6 +36,8 @@ TEST_CASE("UnitRegistry Unit Equation Parser", "[bugs]")
 
 TEST_CASE("UnitRegistry.makeQuantity(std::string) does not parse derived units correctly", "[bugs]")
 {
+  using namespace UnitConvert;
+
   UnitRegistry ureg;
 
   ureg.addBaseUnit<Dimension::Name::Length>("m");
@@ -48,7 +52,9 @@ TEST_CASE("UnitRegistry.makeQuantity(std::string) does not parse derived units c
 
 TEST_CASE("Fahrenheit conversions incorrect", "[bugs]")
 {
-    UnitRegistry ureg;
+	using namespace UnitConvert;
+
+	UnitRegistry ureg;
 
     // this seems is probably an issue with offset units
     // in general, but if temperature is the most common case

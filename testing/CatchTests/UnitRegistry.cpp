@@ -8,6 +8,8 @@
 
 TEST_CASE("UnitRegisty Tests")
 {
+  using namespace UnitConvert;
+
   UnitRegistry ureg;
 
 

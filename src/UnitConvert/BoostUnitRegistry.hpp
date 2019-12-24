@@ -17,12 +17,12 @@ namespace detail {
 template <class SYSTEM, class DIM_LIST = void>
 struct addSystemBaseUnits {
   static void
-  apply(UnitRegistry* ureg)
+  apply(UnitConvert::UnitRegistry* ureg)
   {
     typedef typename DIM_LIST::item::dimension_type DIMENSION;
     typedef boost::units::unit<DIMENSION, SYSTEM> BOOST_UNIT;
     // create unit and add it to the registry
-    ureg->addBaseUnit< get_dimension_name<DIMENSION>::value >( str(BOOST_UNIT{}) );
+    ureg->addBaseUnit< UnitConvert::get_dimension_name<DIMENSION>::value >( str(BOOST_UNIT{}) );
 
     addSystemBaseUnits<SYSTEM, typename DIM_LIST::next>::apply(ureg);
   }
@@ -32,7 +32,7 @@ struct addSystemBaseUnits {
 template <class SYSTEM>
 struct addSystemBaseUnits<SYSTEM,void> {
   static void
-  apply(UnitRegistry* ureg)
+  apply(UnitConvert::UnitRegistry* ureg)
   {
     addSystemBaseUnits<SYSTEM, typename SYSTEM::type>::apply(ureg);
   }
@@ -41,7 +41,7 @@ struct addSystemBaseUnits<SYSTEM,void> {
 template <class SYSTEM>
 struct addSystemBaseUnits<SYSTEM,boost::units::dimensionless_type> {
   static void
-  apply(UnitRegistry* ureg)
+  apply(UnitConvert::UnitRegistry* ureg)
   {
   }
 };
@@ -54,7 +54,7 @@ struct addSystemBaseUnits<SYSTEM,boost::units::dimensionless_type> {
  * base units into the registry.
  */
 template <class SYSTEM>
-class BoostUnitRegistry : public UnitRegistry
+class BoostUnitRegistry : public UnitConvert::UnitRegistry
 {
  public:
   BoostUnitRegistry()
@@ -62,7 +62,7 @@ class BoostUnitRegistry : public UnitRegistry
     detail::addSystemBaseUnits<SYSTEM>::apply(this);
   }
 
-  using UnitRegistry::addUnit;
+  using UnitConvert::UnitRegistry::addUnit;
   // add unit to registry using boost quantity instance
   template <class D, class S>
   void

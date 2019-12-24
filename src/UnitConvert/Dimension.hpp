@@ -21,6 +21,9 @@
 #include <boost/units/physical_dimensions/temperature.hpp>
 #include <boost/units/physical_dimensions/time.hpp>
 
+namespace UnitConvert
+{
+
 /**
  * A class representing a physical dimension. A physicsl dimension
  * consists of 0 or more of the seven SI base dimensions
@@ -237,5 +240,7 @@ template<class D, class S>
 struct get_dimension_name<boost::units::absolute<boost::units::unit<D, S>>> {
   static const Dimension::Name value = get_dimension_name<D>::value;
 };
+
+} // end namespace UnitConvert
 
 #endif  // include protector

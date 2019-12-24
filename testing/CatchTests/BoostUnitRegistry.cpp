@@ -7,6 +7,8 @@
 
 TEST_CASE("BoostUnitRegisty")
 {
+  using namespace UnitConvert;
+
   BoostUnitRegistry<boost::units::si::system> ureg;
   
 
