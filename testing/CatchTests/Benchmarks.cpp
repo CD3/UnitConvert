@@ -5,6 +5,7 @@
 
 TEST_CASE("Building unit from string", "[performance]")
 {
+  using namespace UnitConvert;
   UnitRegistry ureg;
 
   ureg.addBaseUnit<Dimension::Name::Length>("m");

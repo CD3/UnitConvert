@@ -7,8 +7,10 @@
 #include <UnitConvert.hpp>
 #include <UnitConvert/GlobalUnitRegistry.hpp>
 
+
 TEST_CASE("UnitRegisty Tests")
 {
+  using namespace UnitConvert;
   UnitRegistry ureg;
   CHECK(ureg.size() == 0);
 
@@ -139,6 +141,7 @@ TEST_CASE("UnitRegisty Tests")
 
 TEST_CASE("Global Unit Registry Tests")
 {
+  using namespace UnitConvert;
   SECTION("First Usage")
   {
     UnitRegistry& ureg = getGlobalUnitRegistry();
@@ -180,6 +183,7 @@ TEST_CASE("Global Unit Registry Tests")
 
 TEST_CASE("UnitRegisty Adding Unit Tests")
 {
+  using namespace UnitConvert;
   UnitRegistry ureg;
   CHECK(ureg.size() == 0);
 

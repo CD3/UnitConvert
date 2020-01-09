@@ -10,6 +10,7 @@
 #include "./UnitRegistry.hpp"
 #include "./detail/functions.hpp"
 
+namespace UnitConvert {
 /** A class for storing quantities. A quantity has a value and a unit.
  *
  * This class also stores a pointer to a unit registry that can be
@@ -171,6 +172,7 @@ Quantity<T> Quantity<T>::to_base_units() const
         value, (this->m_Unit - this->m_Unit.offset()) / this->m_Unit.scale());
   else
     return Quantity<T>(value, this->m_Unit / this->m_Unit.scale());
+}
 }
 
 #endif  // include protector

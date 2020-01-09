@@ -7,13 +7,13 @@
 
 TEST_CASE("BoostUnitRegisty")
 {
-  BoostUnitRegistry<boost::units::si::system> ureg;
+  UnitConvert::BoostUnitRegistry<boost::units::si::system> ureg;
   
 
   SECTION("Conversions")
   {
 
-  Quantity<double> q;
+  UnitConvert::Quantity<double> q;
 
   // length
   q = ureg.makeQuantity<double>(24, "cm");

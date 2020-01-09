@@ -22,6 +22,7 @@ target_compile_definitions( ${testName} PRIVATE -DTESTING )
 target_link_libraries(${testName} Catch)
 target_link_libraries(${testName} UnitConvert::UnitConvert)
 target_include_directories( ${testName} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+target_compile_definitions( ${testName} PUBLIC UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE)
 set_target_properties(${testName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${binDir})
 set_target_properties(${testName} PROPERTIES CXX_STANDARD 11)
 

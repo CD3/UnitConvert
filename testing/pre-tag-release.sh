@@ -12,11 +12,13 @@ function cleanup()
 }
 trap cleanup EXIT
 
-function copy_bindir()
+function error_exit()
 {
   cp -r $bindir $bindir.error
+  echo "There was an error."
+  echo "Tapped on '$BASH_COMMAND'"
 }
-trap copy_bindir ERR
+trap error_exit ERR
 
 mkdir $bindir
 cd $bindir
@@ -31,8 +33,69 @@ cmake --build . --target test
 cmake --build . --target install
 
 
+# TEST APP
+cd $bindir
 echo
 echo "Building test app"
+rm -rf app
+mkdir app
+cd app
+
+cat << EOF > main.cpp
+#include <iostream>
+#define UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE
+#include <UnitConvert.hpp>
+#include <UnitConvert/GlobalUnitRegistry.hpp>
+
+int main()
+{
+  UnitRegistry ureg;
+  return 0;
+}
+EOF
+
+cat << EOF > CMakeLists.txt
+cmake_minimum_required(VERSION 3.1)
+add_executable( main main.cpp )
+find_package( UnitConvert REQUIRED )
+target_link_libraries(main UnitConvert::UnitConvert )
+set_target_properties(main PROPERTIES CXX_STANDARD 14)
+EOF
+
+mkdir build1
+cd build1
+cmake .. -DUnitConvert_DIR=${bindir}/install/cmake/
+ret=$(cmake --build . > /dev/null 2>&1; echo $?)
+echo $ret
+test "$ret" -ne 0
+
+cd ..
+cat << EOF > main.cpp
+#include <iostream>
+#define UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE
+#include <UnitConvert.hpp>
+#include <UnitConvert/GlobalUnitRegistry.hpp>
+
+int main()
+{
+  UnitConvert::UnitRegistry& ureg = UnitConvert::getGlobalUnitRegistry();
+  return 0;
+}
+EOF
+
+cd build1
+cmake .. -DUnitConvert_DIR=${bindir}/install/cmake/
+cmake --build .
+./main
+
+
+
+
+# BACKWARD COMPATIBILITY
+cd $bindir
+echo
+echo "Building test app using old (no UnitConvert namespace) API"
+rm -rf app
 mkdir app
 cd app
 
@@ -68,7 +131,7 @@ EOF
 
 mkdir build1
 cd build1
-cmake .. -DUnitConvert_DIR=${bindir}/install/UnitConvert-*/cmake/
+cmake .. -DUnitConvert_DIR=${bindir}/install/kmake/
 cmake --build .
 ./main
 

@@ -3,6 +3,7 @@
 #include <boost/units/systems/si.hpp>
 
 #include <UnitConvert.hpp>
+using namespace UnitConvert;
 
 /**
  * This file is used for development. As new classes are created,

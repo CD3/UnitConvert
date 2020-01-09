@@ -1,5 +1,7 @@
 #include "./Unit.hpp"
 
+namespace UnitConvert {
+
   std::ostream&
   operator<<(std::ostream& out, const Unit& unit)
   {
@@ -151,3 +153,4 @@ Unit::operator-=(const double& offset)
 
     return *this;
   }
+}

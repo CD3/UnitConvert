@@ -1,5 +1,7 @@
 #include "./Dimension.hpp"
 
+namespace UnitConvert {
+
 std::ostream& operator<<(std::ostream& out, const Dimension& dim)
 {
   out << " L^" << dim.m_Powers[(int)Dimension::Name::Length];
@@ -71,4 +73,5 @@ bool Dimension::operator==(const Dimension& other) const
 bool Dimension::operator!=(const Dimension& other) const
 {
   return !(*this == other);
+}
 }

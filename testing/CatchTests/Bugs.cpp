@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include <UnitConvert.hpp>
+using namespace UnitConvert;
 
 
 TEST_CASE("UnitRegistry Unit Equation Parser", "[bugs]")

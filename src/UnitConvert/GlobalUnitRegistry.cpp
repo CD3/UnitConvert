@@ -1,5 +1,7 @@
 #include "./UnitRegistry.hpp"
 
+namespace UnitConvert {
+
 UnitRegistry& getGlobalUnitRegistry(bool loadUnits)
 {
   static UnitRegistry instance;
@@ -615,4 +617,5 @@ UnitRegistry& getGlobalUnitRegistry(bool loadUnits)
   }
 
   return instance;
+}
 }

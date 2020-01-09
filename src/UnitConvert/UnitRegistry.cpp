@@ -7,6 +7,8 @@
 
 #include "./detail//functions.hpp"
 
+namespace UnitConvert {
+
 int UnitRegistry::size() const
 {
   return m_UnitStore.size();
@@ -255,4 +257,5 @@ Dimension UnitRegistry::DimensionParser::exponentiate(const Dimension& b,
     if (e < 0) r /= b;
   }
   return r;
+}
 }

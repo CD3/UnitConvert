@@ -4,7 +4,7 @@
 TEST_CASE("Quantity Class Tests")
 {
 
-  Quantity<double> q;
+  UnitConvert::Quantity<double> q;
 
 
 }
