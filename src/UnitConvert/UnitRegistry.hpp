@@ -14,16 +14,15 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/qi.hpp>
 namespace spt = boost::spirit;
-namespace qi  = boost::spirit::qi;
+namespace qi = boost::spirit::qi;
 namespace phx = boost::phoenix;
 
 #include "./Unit.hpp"
 
-namespace UnitConvert {
-
-template<typename T>
+namespace UnitConvert
+{
+template <typename T>
 class Quantity;
-
 
 /**
  * A class for storing units according to their string representation.
@@ -32,7 +31,7 @@ class UnitRegistry
 {
  public:
   typedef std::pair<std::string, Unit> PairType;
-  typedef std::map<std::string, Unit>  StoreType;
+  typedef std::map<std::string, Unit> StoreType;
 
  protected:
   StoreType m_UnitStore;
@@ -54,7 +53,7 @@ class UnitRegistry
    * dimension. A base unit for the dimension will be created and added to the
    * registry under the name specified by the string argument.
    */
-  template<Dimension::Name DIM>
+  template <Dimension::Name DIM>
   void addBaseUnit(const std::string& k);
 
   /**
@@ -123,7 +122,7 @@ class UnitRegistry
    * Create a Quantity from a value and unit string. The string is parsed to
    * create a Unit, which is then used to create a quantity.
    */
-  template<typename T>
+  template <typename T>
   Quantity<T> makeQuantity(const T& val, const std::string& a_unit) const;
 
   /**
@@ -132,7 +131,7 @@ class UnitRegistry
    *
    * This function is useful for reading user input into a quantity.
    */
-  template<typename T>
+  template <typename T>
   Quantity<T> makeQuantity(std::string a_unit) const;
 
   /** Output operator.
@@ -151,8 +150,7 @@ class UnitRegistry
           "d", -1)("deci", -1)("c", -2)("centi", -2)("m", -3)("milli", -3)(
           "u", -6)("micro", -6)("n", -9)("nano", -9)("p", -12)("pico", -12)(
           "f", -15)("femto", -15)("a", -18)("atto", -18)("z", -21)(
-          "zepto", -21)("y", -24);
-      ("yocto", -24);
+          "zepto", -21)("y", -24)("yocto", -24);
     }
   };
 
@@ -166,9 +164,9 @@ class UnitRegistry
     qi::rule<Iterator, Unit()> named_unit, factor, term, group, scale,
         expression, unit;
     qi::rule<Iterator, double()> offset;
-    qi::rule<Iterator, int()>    exponent;
-    qi::rule<Iterator>           mul, div, pow, add, sub;
-    qi::rule<Iterator, char()>   unit_name_begin_chars, unit_name_other_chars;
+    qi::rule<Iterator, int()> exponent;
+    qi::rule<Iterator> mul, div, pow, add, sub;
+    qi::rule<Iterator, char()> unit_name_begin_chars, unit_name_other_chars;
 
     const UnitRegistry& ureg;
 
@@ -194,7 +192,8 @@ class UnitRegistry
       add("L", Dimension::Name::Length)("M", Dimension::Name::Mass)(
           "T", Dimension::Name::Time)("I", Dimension::Name::ElectricalCurrent)(
           "THETA", Dimension::Name::Temperature)("N", Dimension::Name::Amount)(
-          "J", Dimension::Name::LuminousIntensity)("1",Dimension::Name::Dimensionless);
+          "J", Dimension::Name::LuminousIntensity)(
+          "1", Dimension::Name::Dimensionless);
     }
   };
 
@@ -206,10 +205,10 @@ class UnitRegistry
     using Iterator = std::string::iterator;
     using ThisType = DimensionParser;
 
-    BaseDimensionSymbolParser       base_dimension_symbol;
+    BaseDimensionSymbolParser base_dimension_symbol;
     qi::rule<Iterator, Dimension()> factor, term, group, dimension;
-    qi::rule<Iterator, int()>       exponent;
-    qi::rule<Iterator>              mul, div, pow, add, sub;
+    qi::rule<Iterator, int()> exponent;
+    qi::rule<Iterator> mul, div, pow, add, sub;
 
     /**
      * compute a dimension raised to an integer power)
@@ -220,7 +219,7 @@ class UnitRegistry
   };
 
  protected:
-  UnitParser     m_UnitParser;
+  UnitParser m_UnitParser;
   SIPrefixParser m_SIPrefixParser;
   DimensionParser m_DimensionParser;
 
@@ -233,32 +232,32 @@ class UnitRegistry
   const UnitParser& getUnitParser() const { return m_UnitParser; }
 };
 
-template<Dimension::Name DIM>
+template <Dimension::Name DIM>
 void UnitRegistry::addBaseUnit(const std::string& k)
 {
   this->addUnit(k, BaseUnit<DIM>());
 }
 
-template<typename T>
-Quantity<T> UnitRegistry::makeQuantity(const T&           val,
-                                         const std::string& a_unit) const
+template <typename T>
+Quantity<T> UnitRegistry::makeQuantity(const T& val,
+                                       const std::string& a_unit) const
 {
   return Quantity<T>(val, makeUnit(a_unit), this);
 }
 
-template<typename T>
+template <typename T>
 Quantity<T> UnitRegistry::makeQuantity(std::string a_quantity) const
 {
-  double      value;
+  double value;
   std::string unit;
   // parse quantity string
   // a quantity should have a numerical value and a unit that makeUnit will
   // parse
   auto it = a_quantity.begin();
-  auto r  = qi::parse(it, a_quantity.end(),
+  auto r = qi::parse(it, a_quantity.end(),
                      -qi::double_ >> qi::as_string[+qi::char_], value, unit);
   return Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
 }
-}
+}  // namespace UnitConvert
 
 #endif  // include protector
