@@ -94,7 +94,7 @@ class Measurement
     // z^\prime = \frac{ |m_1 - m_2| }{ \sqrt{\Delta m_1^2 + \Delta m_2^2} } \ge
     // 2
     //
-    T diff = abs(this->m_nominal - other.m_nominal);
+    T diff = std::abs(this->m_nominal - other.m_nominal);
     T unc = sqrt(this->m_uncertainty * this->m_uncertainty +
                  other.m_uncertainty * other.m_uncertainty);
 
