@@ -35,7 +35,7 @@ class Unit
    * This is the "size" of the unit compared to the unit consisting of base
    * units only.
    */
-  const double&
+  double
   scale() const;
 
   /**
@@ -50,7 +50,7 @@ class Unit
    * The offset is always expressed in the scale of the unit. It is the
    * value that must be subtracted to make the unit an absolute unit.
    */
-  const double
+  double
   offset() const;
 
   /**

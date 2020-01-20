@@ -19,9 +19,9 @@ Unit::Unit(double s, double o, const Dimension& d)
 {
 }
 
-const double&    Unit::scale() const { return m_Scale; }
+double    Unit::scale() const { return m_Scale; }
 const Dimension& Unit::dimension() const { return m_Dimension; }
-const double     Unit::offset() const
+double     Unit::offset() const
 {
   if (m_Offset)
     return m_Offset.get();
