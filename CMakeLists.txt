@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.12 )
+cmake_minimum_required( VERSION 3.13 )
 
 if( TARGET UnitConvert )
   return()
@@ -51,6 +51,7 @@ target_link_libraries(${LIB_NAME}
                         PUBLIC
                         Boost::boost
                         Boost::filesystem
+                        Boost::disable_autolinking
                      )
 target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
 set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
