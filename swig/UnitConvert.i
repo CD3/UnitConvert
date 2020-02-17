@@ -1,6 +1,8 @@
-%module UnitConvert
+%module pyUnitConvert
 %{
+#define UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE
 #include <UnitConvert.hpp>
+using namespace UnitConvert;
 %}
 
 %include <std_string.i>
@@ -20,42 +22,34 @@
   }
 }
 
-%rename(output) operator<<;
-%rename(tQuantity) Quantity;
 
 
-/*%include "../src/UnitConvert/UnitRegistry.hpp"*/
+%rename(TQuantity) Quantity;
+template<typename T>
+class Quantity
+{
+ public:
+  tQuantity() {};
+  const T& value() const;
+  Quantity<T> to(const std::string& unit) const;
+};
+%template(Quantity) Quantity<double>;
+
+
 class UnitRegistry
 {
  public:
+  UnitRegistry() : m_UnitParser(*this){};
+
   enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore };
   EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
 
-  void addUnit(const std::string& k, const Unit& v);
   void addUnit(std::string unit_equation);
-  template<Dimension::Name DIM>
-  void addBaseUnit(const std::string& k);
-  const Unit& getUnit(std::string a_unit) const;
-  Unit getUnit(std::string a_unit, bool a_trySIPrefix) const;
-  Unit makeUnit(std::string a_unit) const;
-  template<typename T>
-  Quantity<T> makeQuantity(const T& val, const std::string& a_unit) const;
   template<typename T>
   Quantity<T> makeQuantity(std::string a_unit) const;
 
-
-  UnitRegistry() : m_UnitParser(*this){};
 };
-%template(addLengthBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Length>;
-%template(addMassBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Mass>;
-%template(addTimeBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Time>;
-%template(addElectricalCurrentBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::ElectricalCurrent>;
-%template(addTemperatureBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Temperature>;
-%template(addAmountBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Amount>;
-%template(addLuminousIntensityBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::LuminousIntensity>;
-%template(addDimensionlessBaseUnit) UnitRegistry::addBaseUnit<Dimension::Name::Dimensionless>;
 %template(makeQuantity) UnitRegistry::makeQuantity<double>;
 
-%include "../src/UnitConvert/Quantity.hpp"
-%template(Quantity) Quantity<double>;
+
 

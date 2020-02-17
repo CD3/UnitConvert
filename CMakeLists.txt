@@ -5,7 +5,8 @@ if( TARGET UnitConvert )
 endif( TARGET UnitConvert )
 
 OPTION( BUILD_UNIT_TESTS "Build unit tests for the library" ON )
-OPTION( BUILD_BINDINGS "Build bindings for other languages using SWIG" OFF )
+OPTION( BUILD_SWIG_BINDINGS "Build bindings for other languages using SWIG" OFF )
+OPTION( BUILD_PYBIND11_BINDINGS "Build bindings python using pybind11" ON )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
@@ -20,6 +21,12 @@ configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/version.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
 configure_file( "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
+
+
+if( EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake" )
+  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+  conan_basic_setup()
+endif()
 
 find_package( Boost COMPONENTS filesystem REQUIRED )
 
@@ -63,10 +70,23 @@ enable_testing()
 add_subdirectory( testing )
 endif()
 
-if( BUILD_BINDINGS )
-add_subdirectory(swig)
+if( BUILD_SWIG_BINDINGS )
+  add_subdirectory(swig)
 endif()
 
+if( BUILD_PYBIND11_BINDINGS )
+  find_package(pybind11 REQUIRED)
+  pybind11_add_module( pyUnitConvert $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/pybind11/pyUnitConvert.cpp> )
+  target_link_libraries( pyUnitConvert PUBLIC UnitConvert )
+
+  find_package( Python3 REQUIRED COMPONENTS Interpreter)
+  add_test (NAME python-tests
+    COMMAND ${Python3_EXECUTABLE} -m pytest -s ${PROJECT_SOURCE_DIR}/testing/PythonTests
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  )
+
+
+endif()
 
 
 # Install and Packaging

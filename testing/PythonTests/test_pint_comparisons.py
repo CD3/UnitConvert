@@ -1,4 +1,4 @@
-import UnitConvert as uc
+import lib.pyUnitConvert as uc
 import pint
 import timeit,time,math
 from Approx import *
@@ -143,9 +143,12 @@ def test_stats():
 def test_speed_simple():
   ureg = uc.UnitRegistry()
 
-  ureg.addLengthBaseUnit("m")
-  ureg.addMassBaseUnit("g")
-  ureg.addTimeBaseUnit("s")
+  # ureg.addLengthBaseUnit("m")
+  # ureg.addMassBaseUnit("g")
+  # ureg.addTimeBaseUnit("s")
+  ureg.addUnit("m = [L]")
+  ureg.addUnit("g = [M]")
+  ureg.addUnit("s = [T]")
 
   ureg.addUnit("1 in = 2.54 cm")
   ureg.addUnit("1 ft = 12 in")
@@ -156,7 +159,7 @@ def test_speed_simple():
 
   pureg = pint.UnitRegistry()
 
-  q = ureg.makeQuantity(100,'mile/hour')
+  q = ureg.makeQuantity('100 mile/hour')
 
   pq = pureg.Quantity(100, 'mile/hour')
 
@@ -178,9 +181,12 @@ def test_speed_simple():
 def test_speed_medium():
   ureg = uc.UnitRegistry()
 
-  ureg.addLengthBaseUnit("m")
-  ureg.addMassBaseUnit("g")
-  ureg.addTimeBaseUnit("s")
+  # ureg.addLengthBaseUnit("m")
+  # ureg.addMassBaseUnit("g")
+  # ureg.addTimeBaseUnit("s")
+  ureg.addUnit("m = [L]")
+  ureg.addUnit("g = [M]")
+  ureg.addUnit("s = [T]")
 
   ureg.addUnit("1 in = 2.54 cm")
   ureg.addUnit("1 ft = 12 in")
@@ -193,7 +199,7 @@ def test_speed_medium():
 
   pureg = pint.UnitRegistry()
 
-  q = ureg.makeQuantity(100,'W')
+  q = ureg.makeQuantity('100 W')
 
   pq = pureg.Quantity(100, 'W')
 
