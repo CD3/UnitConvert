@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #define UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE
 #include "../UnitConvert.hpp"
+#include "../UnitConvert/GlobalUnitRegistry.hpp"
 
 PYBIND11_MODULE(pyUnitConvert,m){
   m.doc() = "A C++ library for doing runtime unit conversions.";
@@ -14,6 +15,9 @@ PYBIND11_MODULE(pyUnitConvert,m){
     .def("addUnit",(void(UnitConvert::UnitRegistry::*)(std::string))&UnitConvert::UnitRegistry::addUnit)
     .def("makeQuantity",(UnitConvert::Quantity<double> (UnitConvert::UnitRegistry::*)(std::string) const)&UnitConvert::UnitRegistry::makeQuantity)
     ;
+
+  m.def("getGlobalUnitRegistry", &UnitConvert::getGlobalUnitRegistry, "Get a reference to the global unit registry.", pybind11::return_value_policy::reference, pybind11::arg("loadUnits") = true);
+
 }
 
 
