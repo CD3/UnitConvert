@@ -32,3 +32,19 @@ def test_registry():
   q2 = q.to("m/s")
 
   assert q2.value() == Approx(44.704)
+
+def test_global_registry():
+  ureg = uc.getGlobalUnitRegistry()
+
+  q = ureg.makeQuantity('1 m')
+  print(type(q))
+  q2 = q.to("cm")
+  print(type(q2))
+
+  assert q2.value() == Approx(100)
+
+
+  q = ureg.makeQuantity('100 mph')
+  q2 = q.to("m/s")
+
+  assert q2.value() == Approx(44.704)

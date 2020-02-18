@@ -41,19 +41,7 @@ def test_stats():
   assert s.stddev == Approx(  (sum( [ (x - 5./4)**2 for x in [1,2,2,0] ] ) / 4)**0.5 )
 
 def test_speed_simple():
-  ureg = uc.UnitRegistry()
-
-  ureg.addUnit("m = [L]")
-  ureg.addUnit("g = [M]")
-  ureg.addUnit("s = [T]")
-
-  ureg.addUnit("1 in = 2.54 cm")
-  ureg.addUnit("1 ft = 12 in")
-  ureg.addUnit("1 mile = 5280 ft")
-  ureg.addUnit("1 min = 60 s")
-  ureg.addUnit("1 hour = 60 min")
-
-
+  ureg = uc.getGlobalUnitRegistry()
   q = ureg.makeQuantity('100 mile/hour')
 
   pureg = pint.UnitRegistry()
@@ -76,21 +64,7 @@ def test_speed_simple():
 
 def test_speed_medium():
   print()
-  ureg = uc.UnitRegistry()
-
-  ureg.addUnit("m = [L]")
-  ureg.addUnit("g = [M]")
-  ureg.addUnit("s = [T]")
-
-  ureg.addUnit("1 in = 2.54 cm")
-  ureg.addUnit("1 ft = 12 in")
-  ureg.addUnit("1 mile = 5280 ft")
-  ureg.addUnit("1 min = 60 s")
-  ureg.addUnit("1 hour = 60 min")
-  ureg.addUnit("1 J = kg m^2 / s^2")
-  ureg.addUnit("1 W = J / s")
-
-
+  ureg = uc.getGlobalUnitRegistry()
   q = ureg.makeQuantity('100 W')
 
   pureg = pint.UnitRegistry()
@@ -113,25 +87,38 @@ def test_speed_medium():
 
 def test_speed_parse_and_convert():
   print()
-  ureg = uc.UnitRegistry()
 
-  ureg.addUnit("m = [L]")
-  ureg.addUnit("g = [M]")
-  ureg.addUnit("s = [T]")
-
-  ureg.addUnit("1 in = 2.54 cm")
-  ureg.addUnit("1 ft = 12 in")
-  ureg.addUnit("1 mile = 5280 ft")
-  ureg.addUnit("1 min = 60 s")
-  ureg.addUnit("1 hour = 60 min")
-  ureg.addUnit("1 J = kg m^2 / s^2")
-  ureg.addUnit("1 W = J / s")
-
-
+  ureg = uc.getGlobalUnitRegistry()
   q = ureg.makeQuantity('100 W')
 
   pureg = pint.UnitRegistry()
   pq = pureg.Quantity(100, 'W')
+
+
+
+
+
+
+
+  bm = Benchmark()
+  bm.run( lambda : pureg.Quantity("100 m").to("cm") )
+  pint_runtime = bm.measurement
+
+  bm.run( lambda : ureg.makeQuantity("100 m").to("cm") )
+  uc_runtime = bm.measurement
+
+  print("parse and convert: 100 m -> cm")
+  print("Pint",pint_runtime)
+  print("UnitConvert",uc_runtime)
+  print("Speedup",Speedup(pint_runtime,uc_runtime))
+
+
+  print()
+  print()
+
+
+
+
 
 
   bm = Benchmark()
@@ -147,4 +134,26 @@ def test_speed_parse_and_convert():
   print("Speedup",Speedup(pint_runtime,uc_runtime))
 
 
+
+def test_pint_calc_with_uc_conversion():
+  print()
+  ureg = uc.getGlobalUnitRegistry()
+  pureg = pint.UnitRegistry()
+
+  l = pureg.Quantity(100,'in')
+  w = pureg.Quantity(100,'cm')
+
+  A = l*w
+
+  bm = Benchmark()
+  bm.run( lambda : A.to("acre") )
+  pint_runtime = bm.measurement
+
+  bm.run( lambda : pureg.Quantity(ureg.makeQuantity(str(A)).to("acre").value(),"acre" ))
+  uc_runtime = bm.measurement
+
+  print("pint calc with uc conversion")
+  print("Pint",pint_runtime)
+  print("UnitConvert",uc_runtime)
+  print("Speedup",Speedup(pint_runtime,uc_runtime))
 
