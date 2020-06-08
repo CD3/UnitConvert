@@ -36,14 +36,14 @@ Dimension::ArrayType Dimension::powers() const { return m_Powers; }
 Dimension Dimension::operator*(const Dimension& other) const
 {
   Dimension result;
-  for (int i = 0; i < result.m_Powers.size(); ++i)
+  for (size_t i = 0; i < result.m_Powers.size(); ++i)
     result.m_Powers[i] = this->m_Powers[i] + other.m_Powers[i];
   return result;
 }
 
 Dimension& Dimension::operator*=(const Dimension& other)
 {
-  for (int i = 0; i < this->m_Powers.size(); ++i)
+  for (size_t i = 0; i < this->m_Powers.size(); ++i)
     this->m_Powers[i] += other.m_Powers[i];
   return *this;
 }
@@ -51,13 +51,13 @@ Dimension& Dimension::operator*=(const Dimension& other)
 Dimension Dimension::operator/(const Dimension& other) const
 {
   Dimension result;
-  for (int i = 0; i < result.m_Powers.size(); ++i)
+  for (size_t i = 0; i < result.m_Powers.size(); ++i)
     result.m_Powers[i] = this->m_Powers[i] - other.m_Powers[i];
   return result;
 }
 Dimension& Dimension::operator/=(const Dimension& other)
 {
-  for (int i = 0; i < this->m_Powers.size(); ++i)
+  for (size_t i = 0; i < this->m_Powers.size(); ++i)
     this->m_Powers[i] -= other.m_Powers[i];
   return *this;
 }

@@ -9,7 +9,7 @@
 
 namespace UnitConvert {
 
-int UnitRegistry::size() const
+size_t UnitRegistry::size() const
 {
   return m_UnitStore.size();
 }

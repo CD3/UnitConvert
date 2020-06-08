@@ -45,7 +45,7 @@ class UnitRegistry
    * prefixed versions of all units that are implicitly defined, only prefixed
    * versions that have been explicitly added.
    */
-  int size() const;
+  size_t size() const;
 
   /**
    * Add a base unit for a given dimension to the registry. Base units have a
