@@ -22,6 +22,7 @@ trap error_exit ERR
 
 mkdir $bindir
 cd $bindir
+conan install ..
 cmake .. -DCMAKE_INSTALL_PREFIX=$bindir/install
 cmake --build .
 cmake --build . --target test
