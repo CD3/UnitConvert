@@ -23,6 +23,9 @@ target_link_libraries(${testName} Catch)
 target_link_libraries(${testName} UnitConvert::UnitConvert)
 target_include_directories( ${testName} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 target_compile_definitions( ${testName} PUBLIC UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE)
+target_compile_options( ${testName} PRIVATE
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Werror -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>: /W4>)
 set_target_properties(${testName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${binDir})
 set_target_properties(${testName} PROPERTIES CXX_STANDARD 11)
 

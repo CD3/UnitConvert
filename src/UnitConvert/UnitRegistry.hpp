@@ -256,6 +256,13 @@ Quantity<T> UnitRegistry::makeQuantity(std::string a_quantity) const
   auto it = a_quantity.begin();
   auto r = qi::parse(it, a_quantity.end(),
                      -qi::double_ >> qi::as_string[+qi::char_], value, unit);
+  if(!r)
+  {
+    throw std::runtime_error(
+        "ERROR: Could not parse string to form a quantity: "+ a_quantity+
+        "\nQuantity strings should be a numerical value followed by a valid unit string..");
+
+  }
   return Quantity<T>(static_cast<T>(value), makeUnit(unit), this);
 }
 }  // namespace UnitConvert

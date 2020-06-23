@@ -239,24 +239,24 @@ struct Benchmark {
   }
 };
 
-// function to escape the optimizer
-static void escape(void* p)
-{
-#if defined(_MSC_VER)
-// TODO: find an implementation for VS
-#else
-  asm volatile("" : : "g"(p) : "memory");
-#endif
-}
+/* // function to escape the optimizer */
+/* static void escape(void* p) */
+/* { */
+/* #if defined(_MSC_VER) */
+/* // TODO: find an implementation for VS */
+/* #else */
+/*   asm volatile("" : : "g"(p) : "memory"); */
+/* #endif */
+/* } */
 
-static void clobber()
-{
-#if defined(_MSC_VER)
-// TODO: find an implementation for VS
-#else
-  asm volatile("" : : : "memory");
-#endif
-}
+/* static void clobber() */
+/* { */
+/* #if defined(_MSC_VER) */
+/* // TODO: find an implementation for VS */
+/* #else */
+/*   asm volatile("" : : : "memory"); */
+/* #endif */
+/* } */
 
 /**
  * A class for comparing benchmarks

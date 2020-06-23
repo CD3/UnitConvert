@@ -13,9 +13,9 @@ namespace UnitConvert {
 
 
 
-Unit::Unit(double s, const Dimension& d) : m_Scale(s), m_Dimension(d) {}
+Unit::Unit(double s, const Dimension& d) : m_Dimension(d),m_Scale(s)  {}
 Unit::Unit(double s, double o, const Dimension& d)
-    : m_Scale(s), m_Offset(o), m_Dimension(d)
+    : m_Dimension(d), m_Scale(s), m_Offset(o)
 {
 }
 

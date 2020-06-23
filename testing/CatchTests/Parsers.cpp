@@ -14,9 +14,9 @@ TEST_CASE("Spirit Testing")
     double      val  = 0;
 
     auto it = text.begin();
-    bool r =
-        qi::parse(it, text.end(), qi::double_[qi::_val = qi::_1 + 10], val);
+    bool r = qi::parse(it, text.end(), qi::double_[qi::_val = qi::_1 + 10], val);
 
+    CHECK(r);
     CHECK(val == Approx(11.3));
   }
 
