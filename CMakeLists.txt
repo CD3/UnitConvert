@@ -63,7 +63,7 @@ target_link_libraries(${LIB_NAME}
 target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
 set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
 
-configure_file("${CMAKE_SOURCE_DIR}/data/unit_definitions.txt" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY )
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/data/unit_definitions.txt" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY )
 
 if( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} AND BUILD_UNIT_TESTS)
 enable_testing()
