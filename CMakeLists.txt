@@ -6,7 +6,7 @@ endif( TARGET UnitConvert )
 
 OPTION( BUILD_UNIT_TESTS "Build unit tests for the library" ON )
 OPTION( BUILD_SWIG_BINDINGS "Build bindings for other languages using SWIG" OFF )
-OPTION( BUILD_PYBIND11_BINDINGS "Build bindings python using pybind11" ON )
+OPTION( BUILD_PYBIND11_BINDINGS "Build bindings python using pybind11" OFF )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
@@ -23,12 +23,16 @@ configure_file( "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
 
 
+if( NOT TARGET CONAN_PKG::boost ) # protect against being included
 if( EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake" )
   include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-  conan_basic_setup()
+  conan_basic_setup(TARGETS)
+endif()
 endif()
 
+if( NOT TARGET CONAN_PKG::boost )
 find_package( Boost COMPONENTS filesystem REQUIRED )
+endif()
 
 string( REGEX REPLACE "^lib" "" LIB_NAME ${PROJECT_NAME} )
 add_library( ${LIB_NAME} )
@@ -56,9 +60,10 @@ target_include_directories( ${LIB_NAME} INTERFACE
 )
 target_link_libraries(${LIB_NAME}
                         PUBLIC
-                        Boost::boost
-                        Boost::filesystem
-                        Boost::disable_autolinking
+                        $<$<TARGET_EXISTS:CONAN_PKG::boost>:CONAN_PKG::boost>
+                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::boost>
+                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::filesystem>
+                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::disable_autolinking>
                      )
 target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
 set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )

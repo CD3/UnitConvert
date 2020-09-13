@@ -56,7 +56,7 @@ int main(int argc, const char** argv)
   try{
     auto qt = qf.to( vm["to-unit"].as<std::string>() );
     std::cout << qt.value();
-    if( ! vm.count("value-only") ) std::cout << vm["to-unit"].as<std::string>();
+    if( ! vm.count("value-only") ) std::cout << " " << vm["to-unit"].as<std::string>();
     std::cout << std::endl;
 
 

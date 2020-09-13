@@ -7,10 +7,15 @@ if( EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake" )
   conan_basic_setup(TARGETS)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS program_options)
+if( NOT TARGET CONAN_PKG::boost )
+find_package( Boost COMPONENTS filesystem REQUIRED )
+endif()
 
 add_subdirectory( .. UnitConvert)
 
 add_executable( uc uc.cpp )
-target_link_libraries( uc UnitConvert::UnitConvert Boost::program_options)
+target_link_libraries( uc UnitConvert::UnitConvert
+                        $<$<TARGET_EXISTS:CONAN_PKG::boost>:CONAN_PKG::boost>
+                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::program_options>
+  )
 
