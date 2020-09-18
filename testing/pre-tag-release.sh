@@ -65,7 +65,8 @@ EOF
 
 mkdir build1
 cd build1
-cmake .. -DUnitConvert_DIR=${bindir}/install/cmake/
+conan install ${root} --build missing
+veval cmake .. -DUnitConvert_DIR=${bindir}/install/cmake/
 ret=$(cmake --build . > /dev/null 2>&1; echo $?)
 echo $ret
 test "$ret" -ne 0
@@ -85,7 +86,8 @@ int main()
 EOF
 
 cd build1
-cmake .. -DUnitConvert_DIR=${bindir}/install/cmake/
+conan install ${root} --build missing
+veval cmake .. -DUnitConvert_DIR=${bindir}/install/cmake/
 cmake --build .
 ./main
 
@@ -132,7 +134,8 @@ EOF
 
 mkdir build1
 cd build1
-cmake .. -DUnitConvert_DIR=${bindir}/install/kmake/
+conan install ${root} --build missing
+veval cmake .. -DUnitConvert_DIR=${bindir}/install/kmake/
 cmake --build .
 ./main
 
@@ -140,7 +143,8 @@ cd ..
 
 mkdir build2
 cd build2
-cmake ..
+conan install ${root} --build missing
+veval cmake ..
 cmake --build .
 ./main
 
