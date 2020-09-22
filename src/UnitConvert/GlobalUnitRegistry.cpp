@@ -15,6 +15,9 @@ UnitRegistry& getGlobalUnitRegistry(bool loadUnits)
     instance.addUnit("mol = [N]");
     instance.addUnit("K = [THETA]");
     instance.addUnit("rad = [1]");
+    instance.addUnit("dimless = [1]");
+    instance.addUnit("dimensionless = [1]");
+    instance.addUnit("unitless = [1]");
     instance.addUnit("bit = [1]");
     instance.addUnit("count = [1]");
     instance.addUnit("fine_structure_constant = [1]");
