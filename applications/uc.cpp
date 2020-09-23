@@ -33,7 +33,6 @@ int main(int argc, const char** argv)
 
   // tell boost how to translate positional options to named options
   po::positional_options_description args;
-  args.add("config-files", -1);
 
   po::variables_map vm;
   po::store(po::command_line_parser(argc, argv)
