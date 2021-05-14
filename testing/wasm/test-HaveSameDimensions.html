@@ -1,0 +1,15 @@
+<html>
+  HI
+  <script src="./WasmUnitConvert.js">
+  </script>
+  <script>
+WasmUnitConvert().then(
+function(Module) {
+console.log("Loaded");
+console.log( Module.HaveSameDimensions("3 ft","m") );
+console.log( Module.HaveSameDimensions("3 ft","s") );
+console.log( Module.HaveSameDimensions("J","kg m**2 / s**2") );
+});
+  </script>
+  Done
+</html>
