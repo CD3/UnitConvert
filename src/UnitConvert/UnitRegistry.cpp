@@ -3,7 +3,7 @@
 
 #include <fstream>
 #include <exception>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include "./detail//functions.hpp"
 
@@ -78,7 +78,7 @@ void UnitRegistry::loadUnits(std::istream& in)
 
 void UnitRegistry::loadUnits(std::string filename)
 {
-  if(!boost::filesystem::exists(filename))
+  if(!std::filesystem::exists(filename))
   {
     throw std::runtime_error("Attempting to load units from file '"+filename+"', but the file does not exists.");
   }

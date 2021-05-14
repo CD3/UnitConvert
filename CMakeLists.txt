@@ -31,7 +31,7 @@ endif()
 endif()
 
 if( NOT TARGET CONAN_PKG::boost )
-find_package( Boost COMPONENTS filesystem REQUIRED )
+find_package( Boost REQUIRED )
 endif()
 
 string( REGEX REPLACE "^lib" "" LIB_NAME ${PROJECT_NAME} )
@@ -62,10 +62,9 @@ target_link_libraries(${LIB_NAME}
                         PUBLIC
                         $<$<TARGET_EXISTS:CONAN_PKG::boost>:CONAN_PKG::boost>
                         $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::boost>
-                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::filesystem>
                         $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::disable_autolinking>
                      )
-target_compile_features( ${LIB_NAME} PUBLIC cxx_std_11 )
+target_compile_features( ${LIB_NAME} PUBLIC cxx_std_17 )
 set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/data/unit_definitions.txt" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY )
@@ -116,7 +115,7 @@ install(EXPORT ${PROJECT_NAME}Targets
 )
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
 "include(CMakeFindDependencyMacro)
-find_dependency(Boost COMPONENTS filesystem)
+find_dependency(Boost)
 include(\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake)
 "
   )

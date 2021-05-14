@@ -248,7 +248,7 @@ Quantity<T> UnitRegistry::makeQuantity(const T& val,
 template <typename T>
 Quantity<T> UnitRegistry::makeQuantity(std::string a_quantity) const
 {
-  double value;
+  double value = 0;
   std::string unit;
   // parse quantity string
   // a quantity should have a numerical value and a unit that makeUnit will

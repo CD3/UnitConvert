@@ -27,7 +27,7 @@ target_compile_options( ${testName} PRIVATE
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Werror -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>: /W4>)
 set_target_properties(${testName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${binDir})
-set_target_properties(${testName} PROPERTIES CXX_STANDARD 11)
+set_target_properties(${testName} PROPERTIES CXX_STANDARD 17)
 
 add_test(NAME ${testName} 
          WORKING_DIRECTORY ${buildDir}
