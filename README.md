@@ -4,6 +4,9 @@ A small C++ library, inspired by [`pint`](https://pint.readthedocs.io/en/latest/
 
 A few examples are given below. You can also go to the [tutorial](doc/Tutorial.md) for a more detailed description of how to use the library.
 
+**New Feature** UnitConvert now provides Wasm bindings so that you do unit conversions in the browser with JavaScript, which is useful
+when building web apps that deal with physical quantities.
+
 ## Description
 
 `UnitConvert` provides **runtime** unit conversions. This is necessary when, for example, you want to perform a unit conversion based on user input. The library
@@ -17,7 +20,7 @@ provides a `UnitRegistry` class (similar to [`pint`](https://pint.readthedocs.io
 `UnitConvert` needs to be compiled and installed in a place that your project can find it. Builds are managed by CMake, and you need to have boost installed.
 
 ```bash
-$ cd /path/to/UnitConvert/source
+$ cd /path/to/UnitConvert/project
 $ mkdir build
 $ cd build
 $ cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -50,6 +53,40 @@ UnitConvert/0.5.2@cd3/devel
 ```
 The Conan packages set the `UnitConvert_DIR` environment variable to point at the directory containing the CMake `*Config.cmake` file,
 so you do not need to make any changes to your CMakeLists.txt file. Just use the `virtualenv` generator and `find_package` will work.
+
+
+### WASM Module
+
+To build the WebAssymbly module, you need to have [emscripten](https://emscripten.org/docs/getting_started/downloads.html) installed.
+Then, using the emscripten cmake and make wrappers, point CMake at the `wasm/WasmUnitConvert` directory.
+```bash
+$ cd /path/to/UnitConvert/project
+$ mkdir build
+$ cd build
+$ emcmake cmake ../wasm/WasmUnitConvert
+$ emmake cmake --build .
+```
+This will create two files, `WasmUnitConvert.js` and `WasmUnitConvert.wasm`. Copy these two files to a directory in your web app project
+and load the JavaScript file in a script tag. Then call the `WasmUnitConvert()` factory function to initialize the module.
+```html
+<script str="./WasmUnitConvert.js"></script>
+<script>
+var UC = null;
+WasmUnitConvert().then( module => { UC = module; });
+</script>
+```
+The module provides four functions:
+
+```javascript
+<script>
+var length_1 = UC.UnitConvertString("10 ft","m"); // returns *string* "3.048 m"
+var length_2 = UC.GetMagnitudeInUnit("10 ft","m"); // returns *float* 3.045
+var check_1  = UC.HaveSameDimensions("10 ft","m"); // returns true
+var check_2  = UC.HaveSameDimensions("10 ft","s"); // returns false
+UC.AddUnitDefinition("football_field = 100 yd"); // 'football_field' is not a unit that can be used
+var length_3 = UC.UnitConvertString("150 ft","football_field"); // returns *string* "0.5 football_field"
+</script>
+```
 
 ### Using
 

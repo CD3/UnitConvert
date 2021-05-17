@@ -34,3 +34,4 @@ add_test(NAME ${testName}
          COMMAND ${binDir}/${testName} )
 
 file(COPY PythonTests DESTINATION ${binDir})
+

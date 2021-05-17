@@ -27,6 +27,13 @@ bool HaveSameDimensions(std::string u1, std::string u2)
   return q1.unit().dimension() == q2.unit().dimension();
 }
 
+bool AddUnitDefinition(std::string def)
+{
+  static UnitConvert::UnitRegistry& ureg = UnitConvert::getGlobalUnitRegistry();
+  ureg.addUnit(def);
+  return true;
+}
+
 
 
 EMSCRIPTEN_BINDINGS(WasmUnitConver)
@@ -34,5 +41,6 @@ EMSCRIPTEN_BINDINGS(WasmUnitConver)
   emscripten::function("UnitConvertString",&UnitConvertString);
   emscripten::function("GetMagnitudeInUnit",&GetMagnitudeInUnit);
   emscripten::function("HaveSameDimensions",&HaveSameDimensions);
+  emscripten::function("AddUnitDefinition",&AddUnitDefinition);
 }
 

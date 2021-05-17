@@ -3,6 +3,8 @@ cmake_minimum_required( VERSION 3.1 )
 project(UnitConvertWasm)
 
 add_subdirectory( ../.. UnitConvert)
+file(COPY ../../testing/JestTests/jest.config.js DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ../../testing/JestTests/WasmUnitConvert.test.js DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable( WasmUnitConvert WasmUnitConvert.cpp )
 # set_target_properties( WasmUnitConvert PROPERTIES
