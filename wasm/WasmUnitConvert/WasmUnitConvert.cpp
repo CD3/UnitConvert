@@ -1,46 +1,13 @@
-#define UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE
-#include <UnitConvert.hpp>
-#include <UnitConvert/GlobalUnitRegistry.hpp>
-#include <string>
+#include <UnitConvert/HighLevelFunctions.hpp>
 #include <emscripten/bind.h>
-
-
-
-double GetMagnitudeInUnit(std::string input, std::string new_unit)
-{
-  static UnitConvert::UnitRegistry& ureg = UnitConvert::getGlobalUnitRegistry();
-  auto quant = ureg.makeQuantity<double>(input);
-  double new_val = quant.to(new_unit).value();
-  return new_val;
-}
-
-std::string UnitConvertString(std::string input, std::string new_unit)
-{
-  return std::to_string(GetMagnitudeInUnit(input,new_unit)) + " " + new_unit;
-}
-
-bool HaveSameDimensions(std::string u1, std::string u2)
-{
-  static UnitConvert::UnitRegistry& ureg = UnitConvert::getGlobalUnitRegistry();
-  auto q1 = ureg.makeQuantity<double>(u1);
-  auto q2 = ureg.makeQuantity<double>(u2);
-  return q1.unit().dimension() == q2.unit().dimension();
-}
-
-bool AddUnitDefinition(std::string def)
-{
-  static UnitConvert::UnitRegistry& ureg = UnitConvert::getGlobalUnitRegistry();
-  ureg.addUnit(def);
-  return true;
-}
 
 
 
 EMSCRIPTEN_BINDINGS(WasmUnitConver)
 {
-  emscripten::function("UnitConvertString",&UnitConvertString);
-  emscripten::function("GetMagnitudeInUnit",&GetMagnitudeInUnit);
-  emscripten::function("HaveSameDimensions",&HaveSameDimensions);
-  emscripten::function("AddUnitDefinition",&AddUnitDefinition);
+  emscripten::function("UnitConvertString",&UnitConvert::UnitConvertString);
+  emscripten::function("GetMagnitudeInUnit",&UnitConvert::GetMagnitudeInUnit);
+  emscripten::function("HaveSameDimensions",&UnitConvert::HaveSameDimensions);
+  emscripten::function("AddUnitDefinition",&UnitConvert::AddUnitDefinition);
 }
 
