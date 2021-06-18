@@ -136,6 +136,8 @@ TEST_CASE("UnitRegisty Tests")
     CHECK_THROWS(ureg.makeUnit("m"));
     CHECK_THROWS(ureg.getUnit("[L]"));
     CHECK_NOTHROW(ureg.makeUnit("[L]"));
+    CHECK_THROWS(ureg.makeQuantity<double>("10"));
+
   }
 }
 
