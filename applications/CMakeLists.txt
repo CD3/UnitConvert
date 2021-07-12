@@ -8,7 +8,7 @@ if( EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake" )
 endif()
 
 if( NOT TARGET CONAN_PKG::boost )
-find_package( Boost COMPONENTS filesystem REQUIRED )
+find_package( Boost REQUIRED )
 endif()
 
 add_subdirectory( .. UnitConvert)
