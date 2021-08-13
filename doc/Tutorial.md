@@ -1,4 +1,4 @@
-# `UnitConver` Tutorial
+# `UnitConvert` Tutorial
 
 ## Basics
 
