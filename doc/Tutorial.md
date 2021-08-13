@@ -41,7 +41,7 @@ for this. It takes a template parameter for the type used to store the units num
 ```cpp
 Quantity<double> L = ureg.makeQuantity<double>(200, "m");
 ```
-Here we have create a quantity for length, it is 200 meters. The `UnitRegistry`
+Here we have created a quantity for length, it is 200 meters. The `UnitRegistry`
 class knows about [all 20 SI prefixes](https://physics.nist.gov/cuu/Units/prefixes.html), so we can perform
 unit conversions between different unit prefixes. Unit conversions are performed with the `.to` method.
 ```cpp
