@@ -37,6 +37,7 @@ under `/usr/local`. You can change the default install location by passing the
 $ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install/dir
 ```
 
+<!---
 ### Conan Install
 
 `UnitConvert` releases are also provided as [Conan](https://conan.io) packages. To install via Conan, you need to add a remote
@@ -53,9 +54,10 @@ UnitConvert/0.5.2@cd3/devel
 ```
 The Conan packages set the `UnitConvert_DIR` environment variable to point at the directory containing the CMake `*Config.cmake` file,
 so you do not need to make any changes to your CMakeLists.txt file. Just use the `virtualenv` generator and `find_package` will work.
+--->
 
 
-### WASM Module
+#### WASM Module
 
 To build the WebAssymbly module, you need to have [emscripten](https://emscripten.org/docs/getting_started/downloads.html) installed.
 Then, using the emscripten cmake and make wrappers, point CMake at the `wasm/WasmUnitConvert` directory.
@@ -108,6 +110,7 @@ If you get an error when running CMake that says
 ```
 Then you need to upgrade your CMake version.
 
+<!---
 If you're using conan, use the `virtualenv` generator and run CMake inside the
 virtual environment. This will point CMake at the correct configuration file.
 For example, create a file named conanfile.txt next to your CMakeLists.txt with the following
@@ -123,6 +126,7 @@ $ conan install ..
 $ source ./activate.sh
 $ cmake ..
 ```
+-->
 
 In your code, include the header `UnitConvert.hpp`.
 Then create a unit registry, and add
