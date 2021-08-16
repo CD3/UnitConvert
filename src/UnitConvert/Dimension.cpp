@@ -1,4 +1,5 @@
 #include "./Dimension.hpp"
+#include <algorithm>
 
 namespace UnitConvert {
 
@@ -16,13 +17,12 @@ std::ostream& operator<<(std::ostream& out, const Dimension& dim)
 
 Dimension::Dimension()
 {
-  for (int i = 0; i < N; ++i) m_Powers[i] = 0;
+  m_Powers.fill(0);
 }
 
 Dimension::Dimension(Name dim)
 {
-  for (int i = 0; i < N; ++i) m_Powers[i] = 0;
-
+  m_Powers.fill(0);
   m_Powers[int(dim)] = 1;
 }
 
@@ -35,39 +35,31 @@ Dimension::ArrayType Dimension::powers() const { return m_Powers; }
 
 Dimension Dimension::operator*(const Dimension& other) const
 {
-  Dimension result;
-  for (size_t i = 0; i < result.m_Powers.size(); ++i)
-    result.m_Powers[i] = this->m_Powers[i] + other.m_Powers[i];
-  return result;
+  Dimension result = *this;
+  return result *= other;
 }
 
 Dimension& Dimension::operator*=(const Dimension& other)
 {
-  for (size_t i = 0; i < this->m_Powers.size(); ++i)
-    this->m_Powers[i] += other.m_Powers[i];
+  // no raw loops...
+  std::transform(this->m_Powers.begin(), this->m_Powers.end(), other.m_Powers.begin(), this->m_Powers.begin(), std::plus<int>{});
   return *this;
 }
 
 Dimension Dimension::operator/(const Dimension& other) const
 {
-  Dimension result;
-  for (size_t i = 0; i < result.m_Powers.size(); ++i)
-    result.m_Powers[i] = this->m_Powers[i] - other.m_Powers[i];
-  return result;
+  Dimension result = *this;
+  return result /= other;
 }
 Dimension& Dimension::operator/=(const Dimension& other)
 {
-  for (size_t i = 0; i < this->m_Powers.size(); ++i)
-    this->m_Powers[i] -= other.m_Powers[i];
+  std::transform(this->m_Powers.begin(), this->m_Powers.end(), other.m_Powers.begin(), this->m_Powers.begin(), std::minus<int>{});
   return *this;
 }
 
 bool Dimension::operator==(const Dimension& other) const
 {
-  for (size_t i = 0; i < this->N; ++i) {
-    if (m_Powers[i] != other.m_Powers[i]) return false;
-  }
-  return true;
+  return m_Powers == other.m_Powers;
 }
 
 bool Dimension::operator!=(const Dimension& other) const
