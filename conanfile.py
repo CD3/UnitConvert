@@ -3,7 +3,7 @@ import os
 
 class UnitConvertConan(ConanFile):
     generators = "cmake", "virtualenv"
-    requires = 'boost/1.69.0','pybind11/2.3.0@conan/stable'
+    requires = 'boost/1.72.0','pybind11/2.3.0@conan/stable'
     default_options = {
         'boost:header_only': True,
         }
