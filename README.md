@@ -42,7 +42,7 @@ $ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install/di
 
 `UnitConvert` releases are also provided as [Conan](https://conan.io) packages. To install via Conan, you need to add a remote
 ```
-$ conan remote add cd3 https://api.bintray.com/conan/cd3/conan-devel
+$ conan remote add cd3 https://cdc3.jfrog.io/artifactory/api/conan/default-conan
 ```
 Use `conan search` to find the latest release. For example
 ```
@@ -85,7 +85,7 @@ var length_1 = UC.UnitConvertString("10 ft","m"); // returns *string* "3.048 m"
 var length_2 = UC.GetMagnitudeInUnit("10 ft","m"); // returns *float* 3.045
 var check_1  = UC.HaveSameDimensions("10 ft","m"); // returns true
 var check_2  = UC.HaveSameDimensions("10 ft","s"); // returns false
-UC.AddUnitDefinition("football_field = 100 yd"); // 'football_field' is not a unit that can be used
+UC.AddUnitDefinition("football_field = 100 yd"); // 'football_field' is now a unit that can be used
 var length_3 = UC.UnitConvertString("150 ft","football_field"); // returns *string* "0.5 football_field"
 </script>
 ```
