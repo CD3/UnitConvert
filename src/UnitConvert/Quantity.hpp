@@ -173,6 +173,48 @@ Quantity<T> Quantity<T>::to_base_units() const
   else
     return Quantity<T>(value, this->m_Unit / this->m_Unit.scale());
 }
+
+
+template<typename T1, typename T2>
+Quantity<T1> operator+(const Quantity<T1>& a_q1, const Quantity<T2>& a_q2) {
+  return Quantity<T1>(a_q1.value()+a_q2.to(a_q1.unit()).value(), a_q1.unit());
 }
+
+template<typename T1, typename T2>
+Quantity<T1> operator-(const Quantity<T1>& a_q1, const Quantity<T2>& a_q2) {
+  return Quantity<T1>(a_q1.value()-a_q2.to(a_q1.unit()).value(), a_q1.unit());
+}
+
+template<typename T1, typename T2>
+Quantity<T1> operator*(const Quantity<T1>& a_q1, const Quantity<T2>& a_q2) {
+  return Quantity<T1>(a_q1.value()*a_q2.value(), a_q1.unit()*a_q2.unit());
+}
+
+template<typename T, typename S>
+Quantity<T> operator*(S a_s, const Quantity<T>& a_q) {
+  return Quantity<T>(a_s*a_q.value(), a_q.unit());
+}
+
+template<typename T, typename S>
+Quantity<T> operator*(const Quantity<T>& a_q, S a_s) {
+  return a_s*a_q;
+}
+
+template<typename T1, typename T2>
+Quantity<T1> operator/(const Quantity<T1>& a_q1, const Quantity<T2>& a_q2) {
+  return Quantity<T1>(a_q1.value()/a_q2.value(), a_q1.unit()/a_q2.unit());
+}
+
+template<typename T, typename S>
+Quantity<T> operator/(const Quantity<T>& a_q, S a_s) {
+  return Quantity<T>(a_q.value()/a_s, a_q.unit());
+}
+
+
+
+
+}
+
+
 
 #endif  // include protector
