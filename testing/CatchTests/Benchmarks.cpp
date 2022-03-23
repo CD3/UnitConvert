@@ -4,7 +4,7 @@
 
 #include <UnitConvert.hpp>
 
-TEST_CASE("Building unit from string", "[performance]")
+TEST_CASE("Building unit from string", "[.][performance]")
 {
   // using namespace UnitConvert;
   // UnitRegistry ureg;
@@ -125,7 +125,7 @@ TEST_CASE("Building unit from string", "[performance]")
 
 }
 
-TEST_CASE("Dimensions Performance", "[benchmarks]")
+TEST_CASE("Dimensions Performance", "[.][benchmarks]")
 {
   using namespace UnitConvert;
   BaseDimension<Dimension::Name::Length>            L;

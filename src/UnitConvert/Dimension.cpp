@@ -31,7 +31,7 @@ int Dimension::operator[](Name dim) const
   return m_Powers[static_cast<int>(dim)];
 }
 
-Dimension::ArrayType Dimension::powers() const { return m_Powers; }
+Dimension::array_type Dimension::powers() const { return m_Powers; }
 
 Dimension Dimension::operator*(const Dimension& other) const
 {
