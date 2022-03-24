@@ -10,7 +10,7 @@
 #include <sstream>
 #include <boost/units/io.hpp>
 
-namespace UnitConvert {
+namespace unit_convert {
 namespace detail {
 
 template <typename T>
@@ -58,11 +58,13 @@ str(const T& t, boost::units::format_mode mode)
   {
     return ltrim(rtrim(s));
   }
-
-
-
+}
 
 }
+namespace UnitConvert {
+  namespace detail {
+    using namespace unit_convert::detail;
+  }
 }
 
 

@@ -1,27 +1,24 @@
 #include "./Unit.hpp"
 
-namespace UnitConvert {
+namespace UnitConvert
+{
+std::ostream& operator<<(std::ostream& out, const Unit& unit)
+{
+  out << unit.m_Scale << " ";
+  out << unit.m_Dimension << " ";
+  if (unit.m_Offset) out << " + " << unit.m_Offset.get();
+  return out;
+}
 
-  std::ostream&
-  operator<<(std::ostream& out, const Unit& unit)
-  {
-    out << unit.m_Scale << " ";
-    out << unit.m_Dimension << " ";
-    if (unit.m_Offset) out << " + " << unit.m_Offset.get();
-    return out;
-  }
-
-
-
-Unit::Unit(double s, const Dimension& d) : m_Dimension(d),m_Scale(s)  {}
+Unit::Unit(double s, const Dimension& d) : m_Dimension(d), m_Scale(s) {}
 Unit::Unit(double s, double o, const Dimension& d)
     : m_Dimension(d), m_Scale(s), m_Offset(o)
 {
 }
 
-double    Unit::scale() const { return m_Scale; }
+double Unit::scale() const { return m_Scale; }
 const Dimension& Unit::dimension() const { return m_Dimension; }
-double     Unit::offset() const
+double Unit::offset() const
 {
   if (m_Offset)
     return m_Offset.get();
@@ -53,104 +50,83 @@ Unit Unit::operator*(const double& scale) const
     return Unit(this->m_Scale * scale, this->m_Dimension);
 }
 
-
-  Unit&
-Unit::operator*=(const Unit& other)
-  {
-    if (this->is_offset() || other.is_offset())
-      throw std::runtime_error(
-          "Error: cannot multiply offset units by another unit. You should use "
-          "a delta unit.");
-    this->m_Scale *= other.m_Scale;
-    this->m_Dimension *= other.m_Dimension;
-    return *this;
-  }
-
-
-  Unit&
-Unit::operator*=(const double& scale)
-  {
-    this->m_Scale *= scale;
-
-    if (this->is_offset()) this->m_Offset = this->m_Offset.get() / scale;
-
-    return *this;
-  }
-
-
-  Unit
-  Unit::operator/(const Unit& other) const
-  {
-    if (this->is_offset() || other.is_offset())
-      throw std::runtime_error(
-          "Error: cannot divide offset units by another unit. You should use a "
-          "delta unit.");
-    return Unit(this->m_Scale / other.m_Scale,
-                this->m_Dimension / other.m_Dimension);
-  }
-
-
-
-  Unit
-Unit::operator/(const double& scale) const
-  {
-    return (*this) * (1. / scale);
-  }
-  Unit&
-Unit::operator/=(const Unit& other)
-  {
-    if (this->is_offset() || other.is_offset())
-      throw std::runtime_error(
-          "Error: cannot divide offset units by another unit. You should use a "
-          "delta unit.");
-    this->m_Scale /= other.m_Scale;
-    this->m_Dimension /= other.m_Dimension;
-	return *this;
-  }
-  Unit&
-Unit::operator/=(const double& scale)
-  {
-    this->m_Scale /= scale;
-
-    if (this->is_offset()) this->m_Offset = this->m_Offset.get() * scale;
-
-    return *this;
-  }
-
-
-  Unit
-Unit::operator+(const double& offset) const
-  {
-    // offset specifies the value that must be subtraced
-    // to get an absolute unit.
-    return Unit(this->m_Scale, this->offset() + offset, this->m_Dimension);
-  }
-
-  Unit&
-Unit::operator+=(const double& offset)
-  {
-    if(!this->m_Offset)
-      this->m_Offset = 0;
-
-    this->m_Offset.get() += offset;
-
-    return *this;
-  }
-
-  Unit
-  Unit::operator-(const double& offset) const
-  {
-    return *this + (-offset);
-  }
-
-  Unit&
-Unit::operator-=(const double& offset)
-  {
-    if(!this->m_Offset)
-      this->m_Offset = 0;
-
-    this->m_Offset.get() -= offset;
-
-    return *this;
-  }
+Unit& Unit::operator*=(const Unit& other)
+{
+  if (this->is_offset() || other.is_offset())
+    throw std::runtime_error(
+        "Error: cannot multiply offset units by another unit. You should use "
+        "a delta unit.");
+  this->m_Scale *= other.m_Scale;
+  this->m_Dimension *= other.m_Dimension;
+  return *this;
 }
+
+Unit& Unit::operator*=(const double& scale)
+{
+  this->m_Scale *= scale;
+
+  if (this->is_offset()) this->m_Offset = this->m_Offset.get() / scale;
+
+  return *this;
+}
+
+Unit Unit::operator/(const Unit& other) const
+{
+  if (this->is_offset() || other.is_offset())
+    throw std::runtime_error(
+        "Error: cannot divide offset units by another unit. You should use a "
+        "delta unit.");
+  return Unit(this->m_Scale / other.m_Scale,
+              this->m_Dimension / other.m_Dimension);
+}
+
+Unit Unit::operator/(const double& scale) const
+{
+  return (*this) * (1. / scale);
+}
+Unit& Unit::operator/=(const Unit& other)
+{
+  if (this->is_offset() || other.is_offset())
+    throw std::runtime_error(
+        "Error: cannot divide offset units by another unit. You should use a "
+        "delta unit.");
+  this->m_Scale /= other.m_Scale;
+  this->m_Dimension /= other.m_Dimension;
+  return *this;
+}
+Unit& Unit::operator/=(const double& scale)
+{
+  this->m_Scale /= scale;
+
+  if (this->is_offset()) this->m_Offset = this->m_Offset.get() * scale;
+
+  return *this;
+}
+
+Unit Unit::operator+(const double& offset) const
+{
+  // offset specifies the value that must be subtraced
+  // to get an absolute unit.
+  return Unit(this->m_Scale, this->offset() + offset, this->m_Dimension);
+}
+
+Unit& Unit::operator+=(const double& offset)
+{
+  if (!this->m_Offset) this->m_Offset = 0;
+
+  this->m_Offset.get() += offset;
+
+  return *this;
+}
+
+Unit Unit::operator-(const double& offset) const { return *this + (-offset); }
+
+Unit& Unit::operator-=(const double& offset)
+{
+  if (!this->m_Offset) this->m_Offset = 0;
+
+  this->m_Offset.get() -= offset;
+
+  return *this;
+}
+}  // namespace UnitConvert

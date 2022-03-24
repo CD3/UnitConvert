@@ -13,96 +13,11 @@
 #include <array>
 #include <ostream>
 
+#include "./basic_dimension.hpp"
+
 namespace UnitConvert
 {
 
-namespace v1
-{
-  /**
-   * @brief A class representing a physical dimension.
-   */
-template <size_t SIZE, typename EXPONENT_TYPE = int>
-class Dimension
-{
- public:
-  static const size_t N = SIZE;
-  using exponent_type = EXPONENT_TYPE;
-  using array_type = std::array<exponent_type, N>;
-  Dimension() { m_Powers.fill(0); }
-  Dimension(size_t i)
-  {
-    m_Powers.fill(0);
-    m_Powers[i] = 1;
-  }
-
-  Dimension(const Dimension&) = default;
-  Dimension(Dimension&&) = default;
-  Dimension& operator=(const Dimension&) = default;
-  Dimension& operator=(Dimension&&) = default;
-
-  bool is_base() const
-  {
-    return std::accumulate(m_Powers.begin(), m_Powers.end(), 0, [](exponent_type sum, exponent_type power){ return std::move(sum) + abs(power); }) == 1;
-  }
-  bool is_derived() const
-  {
-    return !this->is_base();
-  }
-  
-
-  int operator[](size_t dim) const { return m_Powers[dim]; }
-
-  Dimension operator*(const Dimension& other) const
-  {
-    Dimension result = *this;
-    return result *= other;
-  }
-
-  Dimension& operator*=(const Dimension& other)
-  {
-    // no raw loops...
-    std::transform(this->m_Powers.begin(), this->m_Powers.end(),
-                   other.m_Powers.begin(), this->m_Powers.begin(),
-                   std::plus<exponent_type>{});
-    return *this;
-  }
-
-  Dimension operator/(const Dimension& other) const
-  {
-    Dimension result = *this;
-    return result /= other;
-  }
-
-  Dimension& operator/=(const Dimension& other)
-  {
-    std::transform(this->m_Powers.begin(), this->m_Powers.end(),
-                   other.m_Powers.begin(), this->m_Powers.begin(),
-                   std::minus<exponent_type>{});
-    return *this;
-  }
-
-  bool operator==(const Dimension& other) const
-  {
-    return m_Powers == other.m_Powers;
-  }
-  bool operator!=(const Dimension& other) const
-  {
-    return m_Powers != other.m_Powers;
-  }
-
-  friend std::ostream& operator<<(std::ostream& out,
-                                  const Dimension<SIZE, EXPONENT_TYPE>& dim)
-  {
-    for (size_t i = 0; i < dim.m_Powers.size(); ++i) {
-      out << " [" << i << "]^" << dim.m_Powers[i];
-    }
-    return out;
-  }
-
- protected:
-  array_type m_Powers;
-};
-}  // namespace v1
 
 /**
  * A class representing a physical dimension. A physicsl dimension
@@ -119,7 +34,7 @@ class Dimension
  *
  * @todo Use expression templates to improve dimension algebra performance
  */
-class Dimension : v1::Dimension<8>
+class Dimension : ::unit_convert::basic_dimension<8>
 {
  public:
   enum class Name {

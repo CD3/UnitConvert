@@ -15,7 +15,4 @@ UnitRegistry& getGlobalUnitRegistry(bool loadUnits = true);
 }
 
 
-#ifndef UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE
 using UnitConvert::getGlobalUnitRegistry;
-#pragma message ( "WARNING: the UnitConvert library is now under the 'UnitConvert' namespace. To maintain backward compatibility, UnitConvert::getGlobalUnitRegistry is being imported into the global namespace. To disable this, define UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE before including 'UnitConvert/GlobalUnitRegistry.hpp' and use UnitConvert::getGlobalUnitRegistry()" )
-#endif
