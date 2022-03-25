@@ -1,0 +1,149 @@
+25 Mar 2022 17:52:48.677 INFO  - Welcome to arara 4.0 (revision 2)!
+25 Mar 2022 17:52:48.679 INFO  - -----------------------------------------------------------------
+25 Mar 2022 17:52:48.682 INFO  - ::: arara @ /usr/share/texlive/texmf-dist/scripts/arara
+25 Mar 2022 17:52:48.682 INFO  - ::: Java 11.0.14, Ubuntu
+25 Mar 2022 17:52:48.682 INFO  - ::: /usr/lib/jvm/java-11-openjdk-amd64
+25 Mar 2022 17:52:48.682 INFO  - ::: Linux, amd64, 5.13.0-27-generic
+25 Mar 2022 17:52:48.682 INFO  - ::: user.home @ /home/cclark
+25 Mar 2022 17:52:48.682 INFO  - ::: user.dir @ /home/cclark/Code/sync/projects/UnitConvert/doc/writeups/OffsetUnitConversions
+25 Mar 2022 17:52:48.683 INFO  - ::: CF @ [none]
+25 Mar 2022 17:52:48.683 INFO  - -----------------------------------------------------------------
+25 Mar 2022 17:52:48.683 INFO  - Processing 'main.tex' (size: 9 KB, last modified: 03/25/2022 17:52:47), please wait.
+25 Mar 2022 17:52:48.688 INFO  - I found a potential pattern in line 1: pdflatex
+25 Mar 2022 17:52:48.688 INFO  - I found a potential pattern in line 2: pdflatex
+25 Mar 2022 17:52:48.692 INFO  - I found a potential directive: Directive: { identifier: pdflatex, parameters: {}, conditional: { NONE }, lines: [1] }
+25 Mar 2022 17:52:48.692 INFO  - I found a potential directive: Directive: { identifier: pdflatex, parameters: {}, conditional: { NONE }, lines: [2] }
+25 Mar 2022 17:52:48.692 INFO  - All directives were validated. We are good to go.
+25 Mar 2022 17:52:48.692 INFO  - -------------------------- DIRECTIVES ---------------------------
+25 Mar 2022 17:52:48.692 INFO  - Directive: { identifier: pdflatex, parameters: {reference=/home/cclark/Code/sync/projects/UnitConvert/doc/writeups/OffsetUnitConversions/main.tex, file=main.tex}, conditional: { NONE }, lines: [1] }
+25 Mar 2022 17:52:48.692 INFO  - Directive: { identifier: pdflatex, parameters: {reference=/home/cclark/Code/sync/projects/UnitConvert/doc/writeups/OffsetUnitConversions/main.tex, file=main.tex}, conditional: { NONE }, lines: [2] }
+25 Mar 2022 17:52:48.692 INFO  - -----------------------------------------------------------------
+25 Mar 2022 17:52:48.693 INFO  - I am ready to interpret rule 'pdflatex'.
+25 Mar 2022 17:52:48.695 INFO  - Rule location: '/usr/share/texlive/texmf-dist/scripts/arara/rules'
+25 Mar 2022 17:52:48.828 INFO  - I am ready to interpret task 'PDFLaTeX engine' from rule 'PDFLaTeX'.
+25 Mar 2022 17:52:48.828 INFO  - System command: [ pdflatex, main.tex ]
+25 Mar 2022 17:52:49.168 INFO  - ---------------------- BEGIN OUTPUT BUFFER ----------------------
+25 Mar 2022 17:52:49.169 INFO  - This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./main.tex
+LaTeX2e <2020-02-02> patch level 2
+L3 programming layer <2020-02-14>
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def)))
+(/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def))
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/xparse/xparse.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/translator/translator.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/physics/physics.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty))) (./main.aux)
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+(/usr/share/texlive/texmf-dist/tex/latex/translator/translator-basic-dictionary
+-English.dict)
+(/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx-abbreviations.cfg)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd) [1{/var/lib/texmf/fo
+nts/map/pdftex/updmap/pdftex.map}] [2] [3] (./main.aux) )</usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/font
+s/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
+msy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.p
+fb>
+Output written on main.pdf (3 pages, 92799 bytes).
+Transcript written on main.log.
+
+25 Mar 2022 17:52:49.169 INFO  - ----------------------- END OUTPUT BUFFER -----------------------
+25 Mar 2022 17:52:49.176 INFO  - Task result: SUCCESS
+25 Mar 2022 17:52:49.177 INFO  - I am ready to interpret rule 'pdflatex'.
+25 Mar 2022 17:52:49.177 INFO  - Rule location: '/usr/share/texlive/texmf-dist/scripts/arara/rules'
+25 Mar 2022 17:52:49.189 INFO  - I am ready to interpret task 'PDFLaTeX engine' from rule 'PDFLaTeX'.
+25 Mar 2022 17:52:49.189 INFO  - System command: [ pdflatex, main.tex ]
+25 Mar 2022 17:52:49.574 INFO  - ---------------------- BEGIN OUTPUT BUFFER ----------------------
+25 Mar 2022 17:52:49.575 INFO  - This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./main.tex
+LaTeX2e <2020-02-02> patch level 2
+L3 programming layer <2020-02-14>
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def)))
+(/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def))
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/xparse/xparse.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/translator/translator.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/physics/physics.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty))) (./main.aux)
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+(/usr/share/texlive/texmf-dist/tex/latex/translator/translator-basic-dictionary
+-English.dict)
+(/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx-abbreviations.cfg)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd) [1{/var/lib/texmf/fo
+nts/map/pdftex/updmap/pdftex.map}] [2] [3] (./main.aux) )</usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/font
+s/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
+msy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.p
+fb>
+Output written on main.pdf (3 pages, 92799 bytes).
+Transcript written on main.log.
+
+25 Mar 2022 17:52:49.575 INFO  - ----------------------- END OUTPUT BUFFER -----------------------
+25 Mar 2022 17:52:49.576 INFO  - Task result: SUCCESS
+25 Mar 2022 17:52:49.580 INFO  - Total: 0.88 seconds

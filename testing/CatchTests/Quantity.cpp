@@ -64,20 +64,21 @@ TEST_CASE("basic_quantity Class")
   basic_dimension<3> THETA(2);
   basic_unit<basic_dimension<3>> meter(L);
   basic_unit<basic_dimension<3>> second(T);
-  // basic_unit<basic_dimension<3>> kelvin(THETA);
+  basic_unit<basic_dimension<3>> kelvin(THETA);
 
   auto centimeter = meter/100;
   auto kilometer = 1000*meter;
   auto minute = 60*second;
   auto hour = 60*minute;
-  // auto celsius = kelvin - 273.15;
+  auto celsius = kelvin + 273.15;
+  auto fahrenheit = (5./9)*celsius - (5./9)*32; // note that F = 9/5 C + 32 is for the *components*
   // auto rankine = (9./5)*kelvin;
-  // auto fahrenheit = (9./5)*celsius + 32;
   // auto fahrenheit = rankine - 459.67;
 
-  // CHECK(celsius.scale() == Approx(1));
-  // CHECK(fahrenheit.scale() == Approx(9./5));
-  // CHECK(fahrenheit.offset() == Approx(-459.67));
+  CHECK(celsius.scale() == Approx(1));
+  CHECK(celsius.offset() == Approx(273.15));
+  CHECK(fahrenheit.scale() == Approx(5./9));
+  CHECK(fahrenheit.offset() == Approx(255.37));
 
 
 
@@ -85,12 +86,12 @@ TEST_CASE("basic_quantity Class")
   {
     basic_quantity<basic_unit<basic_dimension<3>>> distance(2, kilometer);;
     basic_quantity<basic_unit<basic_dimension<3>>> time(0.5,hour );;
-    // basic_quantity<basic_unit<basic_dimension<3>>> temperature(0,celsius);;
+    basic_quantity<basic_unit<basic_dimension<3>>> temperature(100,celsius);;
 
     CHECK(distance.to(centimeter).value() == Approx(200000));
     CHECK(time.to(minute).value() == Approx(30));
     CHECK(time.to(second).value() == Approx(3600/2));
-    // CHECK(temperature.to(fahrenheit).value() == Approx(32));
+    CHECK(temperature.to(fahrenheit).value() == Approx(212));
 
     // temperature = basic_quantity<basic_unit<basic_dimension<3>>>(100,celsius);;
     // CHECK(temperature.to(fahrenheit).value() == Approx(212));

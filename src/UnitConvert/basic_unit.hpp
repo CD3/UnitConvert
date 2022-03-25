@@ -19,10 +19,10 @@ namespace unit_convert
  * dimension, or a non-unity scale.
  *
  * Optionally, units may have an offest. The offset specifies how
- * far the unit's "zero" is from absolute zero. The offset is expressed
- * in the unit's own scale.
- * For example, Celsius has an offest of 273.15, because -273.15 is C is
- * absolute zero. Fahrenheight has an offset of 459.67 F.
+ * far the unit's "zero" is from absolute zero, expressed in **base units**.
+ *
+ * For example, using Kelvin as the base unit, Celsius has an offest of +273.15, because 0 C is
+ * 273.15 K. Fahrenheight has an offset of 255.37, because 0 F is 255.37 K.
  *
  * Physicsl units can be multiplied and devided, so the `operator*(...)` and
  * `operator/(...)` functions are implemented. The compound assignment versions,
@@ -104,7 +104,6 @@ class basic_unit
   basic_unit& operator*=(numeric_type scale)
   {
     this->m_Scale *= scale;
-    if (this->is_offset()) this->m_Offset = this->m_Offset.value() / scale;
     return *this;
   }
 
@@ -137,9 +136,6 @@ class basic_unit
   basic_unit& operator/=(numeric_type scale)
   {
     this->m_Scale /= scale;
-
-    if (this->is_offset()) this->m_Offset = this->m_Offset.value() * scale;
-
     return *this;
   }
 
@@ -173,7 +169,6 @@ class basic_unit
   basic_unit& operator-=(numeric_type offset)
   {
     if (!this->m_Offset) this->m_Offset = 0;
-    // CAREFUL:
     this->m_Offset.value() -= offset;
     return *this;
   }

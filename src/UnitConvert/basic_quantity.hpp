@@ -43,17 +43,8 @@ class basic_quantity
           UnitConvert::detail::str(this->m_Unit.dimension()) + " to " +
           UnitConvert::detail::str(unit.dimension()));
     }
-    value_type value = this->m_Value;
-    // if current unit has an offset, we need subtract it before
-    // we scale the value
-    if (this->m_Unit.is_offset()) value -= this->m_Unit.offset();
-
-    // now scale the value.
-    value *= this->m_Unit.scale() / unit.scale();
-
-    // if the new unit has an offset, we need to add it
-    if (unit.is_offset()) value += unit.offset();
-
+    // see writup in doc directory...
+    value_type value = (this->m_Unit.scale()*this->m_Value + this->m_Unit.offset() - unit.offset())/unit.scale();
     return {value, unit};
   }
 
