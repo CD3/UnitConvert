@@ -11,15 +11,10 @@
 #include <optional>
 
 #include "./Dimension.hpp"
-#include "./basic_unit.hpp"
+#include "../basic_unit.hpp"
 
 namespace UnitConvert
 {
-namespace v1
-{
-template <typename D, typename N = double>
-using Unit = ::unit_convert::basic_unit<D, N>;
-}  // namespace v1
 /**
  * A class representing a unit. A unit has a dimension, a scale, and possibly an
  * offset.

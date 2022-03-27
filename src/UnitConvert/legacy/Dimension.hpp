@@ -13,7 +13,7 @@
 #include <array>
 #include <ostream>
 
-#include "./basic_dimension.hpp"
+#include "../basic_dimension.hpp"
 
 namespace UnitConvert
 {

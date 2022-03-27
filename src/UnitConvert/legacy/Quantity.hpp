@@ -9,7 +9,7 @@
 
 #include <utility>
 #include "./UnitRegistry.hpp"
-#include "./detail/functions.hpp"
+#include "../detail/functions.hpp"
 #include "./Unit.hpp"
 
 namespace UnitConvert
