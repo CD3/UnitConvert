@@ -179,9 +179,8 @@ class basic_unit
     return result -= offset;
   }
 
-  template <typename D, typename N>
   friend std::ostream& operator<<(std::ostream& out,
-                                  const basic_unit<D, N>& unit)
+                                  const basic_unit<dimension_type, numeric_type>& unit)
   {
     out << unit.m_Scale << " ";
     out << unit.m_Dimension;

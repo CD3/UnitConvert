@@ -1,11 +1,30 @@
 # UnitConvert
 
-A small C++ library, inspired by [`pint`](https://pint.readthedocs.io/en/latest/), for doing runtime unit conversions that interoperates with the `Boost.Units` library.
+A small C++ library, inspired by [`pint`](https://pint.readthedocs.io/en/latest/), for doing runtime string parsing and unit conversions that interoperates with the `Boost.Units` library.
 
 A few examples are given below. You can also go to the [tutorial](doc/Tutorial.md) for a more detailed description of how to use the library.
 
 **New Feature** UnitConvert now provides Wasm bindings so that you do unit conversions in the browser with JavaScript, which is useful
 when building web apps that deal with physical quantities.
+
+## Features
+
+- Parses strings to quantity types. So you can support unit conversions on user input.
+- New units can be defined at runtime using strings. You can load custom unit definitions from a plain text file.
+- Small and simple, only depends on `boost` (or is that a limitation?)
+- Can perform arbitrary linear unit conversions, including conversions between offset units.
+- Dimensions of unit conversions are checked. An exception is thrown if the dimensions don't match.
+- Unit string parsing uses Boost.Spirit which is fast, flexible, and robust. 
+- Supports the Boost.Unit library. It's easy to construct a Boost.Unit quantity from user input with support for arbitrary unit conversions.
+
+## Limitation
+
+- Calculations involving `Quantity` objects are not supported. This library is intended for unit conversion, not quantity calculations.
+  `Boost.Units` is a great unit library that supports calculations with quantities. If you need to do quantity calculations with
+  input from a user, use `UnitConvert` to convert the user's input to the unit you want to use internally and create a `Boost.Units` `quantity`. `UnitConvert` supports creating `Boost.Units` `quantity` instances from `Quantity` objects.
+- No output formatting. The `UnitRegistry` can parse unit strings, but it does not format. If you print a unit to the screen, it will show the saling factor and dimension powers.
+- Only units with a linear scale and offset are supported. It's not possible to represent wire gauge for example.
+
 
 ## Description
 
@@ -351,22 +370,4 @@ TEST_CASE("Global Unit Registry Tests")
 
 Note that the unit registry is created as a static variable in the `getGlobalUnitRegistry()` function,
 so it will not be created until the first call to `getGlobalUnitRegistry()`.
-
-
-## Features
-
-- Small and simple library that only depends on `boost` (or is that a limitation?)
-- Can perform arbitrary linear unit conversions, including conversions between offset units.
-- Dimensions of unit conversions are checked. An exception is thrown if the dimensions don't match.
-- Units can be given as strings, so they can easily be specified at runtime.
-- Unit string parsing uses Boost.Spirit which is fast, flexible, and robust. 
-- Quantity class can build a Boost.Unit quantity, so it's easy to construct a Boost.Unit quantity from user input with support for arbitrary unit conversions.
-
-## Limitation
-
-- Calculations involving `Quantity` objects are not supported. This library is intended for unit conversion, not quantity calculations.
-  `Boost.Units` is a great unit library that supports calculations with quantities. If you need to do quantity calculations with
-  input from a user, use `UnitConvert` to convert the user's input to the unit you want to use internally and create a `Boost.Units` `quantity`. `UnitConvert` supports creating `Boost.Units` `quantity` instances from `Quantity` objects.
-- No output formatting. The `UnitRegistry` can parse unit strings, but it does not format. If you print a unit to the screen, it will show the saling factor and dimension powers.
-- Only units with a linear scale and offset are supported. It's not possible to represent wire gauge for example.
 

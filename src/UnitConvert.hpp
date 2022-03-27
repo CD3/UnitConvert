@@ -1,5 +1,4 @@
-#ifndef UnitConvert_hpp
-#define UnitConvert_hpp
+#pragma once
 
 /** @file UnitConvert.hpp
   * @brief 
@@ -7,11 +6,11 @@
   * @date 09/02/18
   */
 
-#include "UnitConvert/Dimension.hpp"
-#include "UnitConvert/Unit.hpp"
-#include "UnitConvert/Quantity.hpp"
-#include "UnitConvert/UnitRegistry.hpp"
-#include "UnitConvert/BoostUnitRegistry.hpp"
+#include "UnitConvert/legacy/Dimension.hpp"
+#include "UnitConvert/legacy/Unit.hpp"
+#include "UnitConvert/legacy/Quantity.hpp"
+#include "UnitConvert/legacy/UnitRegistry.hpp"
+#include "UnitConvert/legacy/BoostUnitRegistry.hpp"
 
 #ifndef UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE
 using namespace UnitConvert;
@@ -19,4 +18,3 @@ using namespace UnitConvert;
 #endif
 
 
-#endif // include protector

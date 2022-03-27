@@ -72,6 +72,10 @@ class basic_dimension
   {
     return !this->is_base();
   }
+  bool is_dimensionless() const
+  {
+    return !std::any_of(m_Powers.begin(), m_Powers.end(), [](exponent_type p){return p != 0; } );
+  }
   
 
   int operator[](size_t dim) const { return m_Powers[dim]; }

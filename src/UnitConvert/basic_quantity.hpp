@@ -48,6 +48,7 @@ class basic_quantity
     return {value, unit};
   }
 
+
  protected:
   unit_type m_Unit;
   value_type m_Value;
