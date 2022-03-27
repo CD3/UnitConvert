@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 /** @file basic_quantity.hpp
  * @brief
  * @author C.D. Clark III
@@ -35,17 +37,53 @@ class basic_quantity
 
   basic_quantity() : m_Unit(), m_Value(0) {}
 
-  basic_quantity to(const unit_type& unit)
+  basic_quantity to(const unit_type& a_unit) const
   {
-    if (this->m_Unit.dimension() != unit.dimension()) {
-      throw std::runtime_error(
-          "Dimension Error: Cannot convert from " +
-          UnitConvert::detail::str(this->m_Unit.dimension()) + " to " +
-          UnitConvert::detail::str(unit.dimension()));
+    if (this->m_Unit.dimension() != a_unit.dimension()) {
+      std::stringstream msg;
+      msg << "Dimension Error: Cannot convert from"
+          << this->m_Unit.dimension()
+          << " to "
+          << a_unit.dimension();
     }
     // see writup in doc directory...
-    value_type value = (this->m_Unit.scale()*this->m_Value + this->m_Unit.offset() - unit.offset())/unit.scale();
-    return {value, unit};
+    value_type value = (this->m_Unit.scale()*this->m_Value + this->m_Unit.offset() - a_unit.offset())/a_unit.scale();
+    return {value, a_unit};
+  }
+
+  basic_quantity operator+(const basic_quantity& a_other) const
+  {
+    if (this->m_Unit.dimension() != a_other.m_Unit.dimension()) {
+      std::stringstream msg;
+      msg << "Dimension Error: Cannot add quantities with different dimensions. Attempted "
+          << this->m_Unit.dimension()
+          << " + "
+          << a_other.m_Unit.dimension();
+
+      throw std::runtime_error( msg.str() );
+    }
+
+    basic_quantity ret = *this;
+    ret.m_Value += a_other.to(ret.m_Unit).value();
+    return ret;
+  }
+
+
+  basic_quantity operator-(const basic_quantity& a_other) const
+  {
+    if (this->m_Unit.dimension() != a_other.m_Unit.dimension()) {
+      std::stringstream msg;
+      msg << "Dimension Error: Cannot add quantities with different dimensions. Attempted "
+          << this->m_Unit.dimension()
+          << " - "
+          << a_other.m_Unit.dimension();
+
+      throw std::runtime_error( msg.str() );
+    }
+
+    basic_quantity ret = *this;
+    ret.m_Value -= a_other.to(ret.m_Unit).value();
+    return ret;
   }
 
 
@@ -53,5 +91,11 @@ class basic_quantity
   unit_type m_Unit;
   value_type m_Value;
 };
+
+template<typename T, typename U>
+basic_quantity<U,T> make_quantity(T a_val, U a_unit)
+{
+  return {std::move(a_val),std::move(a_unit)};
+}
 
 }  // namespace unit_convert

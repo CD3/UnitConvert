@@ -211,6 +211,16 @@ TEST_CASE("Unit class tests")
     out.str("");
 
   }
+  SECTION("Equality")
+  {
+    CHECK( meter != centimeter );
+    CHECK( meter == meter );
+
+    auto fahrenheit = (5./9)*celsius - (5./9)*32;
+    CHECK( celsius == celsius );
+    CHECK( fahrenheit != celsius );
+    
+  }
 }
 TEST_CASE("si_unit class")
 {

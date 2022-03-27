@@ -188,6 +188,15 @@ class basic_unit
     return out;
   }
 
+  bool operator==(const basic_unit& a_other) const
+  {
+    return (this->m_Dimension == a_other.m_Dimension) && (this->m_Scale == a_other.m_Scale) && (this->m_Offset == a_other.m_Offset);
+  }
+  bool operator!=(const basic_unit& a_other) const
+  {
+    return !(*this==a_other);
+  }
+
  protected:
   dimension_type m_Dimension;
   numeric_type m_Scale;

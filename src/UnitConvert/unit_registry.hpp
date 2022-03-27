@@ -5,15 +5,9 @@
  * @date 03/27/22
  */
 
-#include <boost/spirit/include/phoenix_bind.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/qi.hpp>
 #include <iostream>
 #include <map>
 #include "./basic_quantity.hpp"
-namespace spt = boost::spirit;
-namespace qi = boost::spirit::qi;
-namespace phx = boost::phoenix;
 
 namespace unit_convert
 {
