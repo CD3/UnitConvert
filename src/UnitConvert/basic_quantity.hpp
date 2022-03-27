@@ -45,6 +45,7 @@ class basic_quantity
           << this->m_Unit.dimension()
           << " to "
           << a_unit.dimension();
+      throw std::runtime_error( msg.str() );
     }
     // see writup in doc directory...
     value_type value = (this->m_Unit.scale()*this->m_Value + this->m_Unit.offset() - a_unit.offset())/a_unit.scale();

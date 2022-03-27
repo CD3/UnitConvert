@@ -194,6 +194,35 @@ TEST_CASE("Unit class tests")
     CHECK(celsius_2.is_base());
   }
 
+  SECTION("Powers")
+  {
+    auto my_unit = meter;
+    my_unit ^= 2;
+
+    CHECK( my_unit == meter*meter );
+
+    my_unit = second^3;
+
+    CHECK( my_unit == second*second*second);
+
+    my_unit = meter^-1;
+
+    CHECK( my_unit == radian/meter );
+    CHECK( my_unit == meter/meter/meter );
+
+    my_unit = meter^-2;
+
+    CHECK( my_unit == radian/meter/meter );
+    CHECK( my_unit == meter/meter/meter/meter );
+
+    // WARNING: ^ has a lower precident than *!!
+    my_unit = (meter^-2)*2;
+
+    CHECK( my_unit.dimension() == (radian/meter/meter).dimension() );
+    CHECK( my_unit.scale() == Approx(2) );
+
+  }
+
   SECTION("ostream")
   {
     std::stringstream out;

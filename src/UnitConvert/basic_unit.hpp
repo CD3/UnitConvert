@@ -21,8 +21,9 @@ namespace unit_convert
  * Optionally, units may have an offest. The offset specifies how
  * far the unit's "zero" is from absolute zero, expressed in **base units**.
  *
- * For example, using Kelvin as the base unit, Celsius has an offest of +273.15, because 0 C is
- * 273.15 K. Fahrenheight has an offset of 255.37, because 0 F is 255.37 K.
+ * For example, using Kelvin as the base unit, Celsius has an offest of +273.15,
+ * because 0 C is 273.15 K. Fahrenheight has an offset of 255.37, because 0 F is
+ * 255.37 K.
  *
  * Physicsl units can be multiplied and devided, so the `operator*(...)` and
  * `operator/(...)` functions are implemented. The compound assignment versions,
@@ -179,8 +180,30 @@ class basic_unit
     return result -= offset;
   }
 
-  friend std::ostream& operator<<(std::ostream& out,
-                                  const basic_unit<dimension_type, numeric_type>& unit)
+  basic_unit& operator^=(int a_power)
+  {
+    auto b = *this;
+    if (a_power > 0) {
+      for (int i = 0; i < abs(a_power) - 1; i++) {
+        *this *= b;
+      }
+    } else {
+      for (int i = 0; i < abs(a_power) + 1; i++) {
+        *this /= b;
+      }
+    }
+
+    return *this;
+  }
+
+  basic_unit operator^(int power) const
+  {
+    auto r = *this;
+    return r ^= power;
+  }
+
+  friend std::ostream& operator<<(
+      std::ostream& out, const basic_unit<dimension_type, numeric_type>& unit)
   {
     out << unit.m_Scale << " ";
     out << unit.m_Dimension;
@@ -190,11 +213,13 @@ class basic_unit
 
   bool operator==(const basic_unit& a_other) const
   {
-    return (this->m_Dimension == a_other.m_Dimension) && (this->m_Scale == a_other.m_Scale) && (this->m_Offset == a_other.m_Offset);
+    return (this->m_Dimension == a_other.m_Dimension) &&
+           (this->m_Scale == a_other.m_Scale) &&
+           (this->m_Offset == a_other.m_Offset);
   }
   bool operator!=(const basic_unit& a_other) const
   {
-    return !(*this==a_other);
+    return !(*this == a_other);
   }
 
  protected:

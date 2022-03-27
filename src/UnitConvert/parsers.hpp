@@ -33,11 +33,12 @@ struct unit_parser {
   /**
    * A Boost.Spirit grammar for parsing unit strings.
    */
-  struct UnitParser : spt::qi::grammar<std::string::iterator, Unit()> {
+  template<typename unit_type>
+  struct UnitParser : spt::qi::grammar<std::string::iterator, unit_type()> {
     using Iterator = std::string::iterator;
     using ThisType = UnitParser;
 
-    qi::rule<Iterator, Unit()> named_unit, factor, term, group, scale, expression, unit;
+    qi::rule<Iterator, unit_type()> named_unit, factor, term, group, scale, expression, unit;
     qi::rule<Iterator, double()> offset;
     qi::rule<Iterator, int()> exponent;
     qi::rule<Iterator> mul, div, pow, add, sub;
@@ -48,12 +49,12 @@ struct unit_parser {
     /**
      * compute a unit raised to an integer power)
      */
-    Unit exponentiate(const Unit& b, const int e);
+    unit_type exponentiate(const unit_type& b, const int e);
 
     /**
      * retrieve a named unit from the registry
      */
-    Unit getUnitFromRegistry(const std::string& unit);
+    unit_type getUnitFromRegistry(const std::string& unit);
 
     UnitParser(const UnitRegistry& registry);
   };

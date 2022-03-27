@@ -73,9 +73,7 @@ TEST_CASE("basic_quantity Class")
   SECTION("Conversions")
   {
     basic_quantity<basic_unit<basic_dimension<3>>> distance(2, kilometer);
-    ;
     basic_quantity<basic_unit<basic_dimension<3>>> time(0.5, hour);
-    ;
 
     CHECK(distance.to(centimeter).value() == Approx(200000));
     CHECK(time.to(minute).value() == Approx(30));
