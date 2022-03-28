@@ -48,9 +48,9 @@ template <size_t SIZE, typename EXPONENT_TYPE = int>
 class basic_dimension
 {
  public:
-  static const size_t N = SIZE;
+  static const size_t size = SIZE;
   using exponent_type = EXPONENT_TYPE;
-  using array_type = std::array<exponent_type, N>;
+  using array_type = std::array<exponent_type, size>;
   basic_dimension() { m_Powers.fill(0); }
   basic_dimension(size_t i)
   {
@@ -109,10 +109,34 @@ class basic_dimension
     return *this;
   }
 
+  basic_dimension& operator^=(int a_power)
+  {
+    auto b = *this;
+    if (a_power > 0) {
+      for (int i = 0; i < abs(a_power) - 1; i++) {
+        *this *= b;
+      }
+    } else {
+      for (int i = 0; i < abs(a_power) + 1; i++) {
+        *this /= b;
+      }
+    }
+
+    return *this;
+  }
+
+  basic_dimension operator^(int power) const
+  {
+    auto r = *this;
+    return r ^= power;
+  }
+
+
   bool operator==(const basic_dimension& other) const
   {
     return m_Powers == other.m_Powers;
   }
+
   bool operator!=(const basic_dimension& other) const
   {
     return m_Powers != other.m_Powers;

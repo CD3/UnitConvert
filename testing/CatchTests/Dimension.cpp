@@ -67,6 +67,18 @@ TEST_CASE("basic_dimension class tests")
 
         CHECK(dim1 == dim2);
       }
+      SECTION("exponent")
+      {
+        auto area = length^2;
+
+        CHECK(area[0] == 2);
+        CHECK(area[1] == 0);
+
+        area ^= 2;
+
+        CHECK(area[0] == 4);
+        CHECK(area[1] == 0);
+      }
 
       SECTION("Base vs Derived")
       {
