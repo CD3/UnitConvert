@@ -1,6 +1,6 @@
 #pragma once
 
-/** @file unit_registry.hpp
+/** @file basic_unit_registry.hpp
  * @author C.D. Clark III
  * @date 03/27/22
  */
@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include "./basic_quantity.hpp"
+#include "./parsers.hpp"
 
 namespace unit_convert
 {
@@ -15,7 +16,7 @@ namespace unit_convert
  * @brief A class to store unit definitions.
  */
 template <typename UNIT_TYPE>
-class unit_registry
+class basic_unit_registry
 {
  public:
   using unit_type = UNIT_TYPE;
@@ -53,6 +54,13 @@ class unit_registry
 
   size_t size() const { return m_UnitStore.size(); }
 
+  /**
+   * Retrieves a unit from the store given its name/symbol.
+   *
+   * @param a_symbol the unit's name as stored in the registry
+   *
+   * Throws an exception if the unit is not found.
+   */
   const unit_type& get(std::string a_symbol) const
   {
     return this->m_UnitStore.at(a_symbol);

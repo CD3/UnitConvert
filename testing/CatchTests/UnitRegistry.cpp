@@ -5,11 +5,11 @@
 #include <boost/units/systems/si.hpp>
 
 #include <UnitConvert.hpp>
-#include <UnitConvert/legacy/GlobalUnitRegistry.hpp>
-#include <UnitConvert/unit_registry.hpp>
-#include <UnitConvert/si_unit.hpp>
 #include <UnitConvert/basic_quantity.hpp>
-
+#include <UnitConvert/basic_unit_registry.hpp>
+#include <UnitConvert/legacy/GlobalUnitRegistry.hpp>
+#include <UnitConvert/si_unit.hpp>
+#include <UnitConvert/si_unit_registry.hpp>
 
 TEST_CASE("UnitRegisty Tests")
 {
@@ -140,7 +140,6 @@ TEST_CASE("UnitRegisty Tests")
     CHECK_THROWS(ureg.getUnit("[L]"));
     CHECK_NOTHROW(ureg.makeUnit("[L]"));
     CHECK_THROWS(ureg.makeQuantity<double>("10"));
-
   }
 }
 
@@ -165,7 +164,6 @@ TEST_CASE("Global Unit Registry Tests")
     CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
           Approx(2. * 100 * 100));
     CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() == Approx(32));
-
   }
 
   SECTION("Obscure conversions")
@@ -181,9 +179,7 @@ TEST_CASE("Global Unit Registry Tests")
     CHECK(q.to("grain").value() == Approx(14000.0));
     CHECK(q.to("oz").value() == Approx(32));
     CHECK(q.to("short_ton").value() == Approx(0.001));
-
   }
-
 }
 
 TEST_CASE("UnitRegisty Adding Unit Tests")
@@ -211,59 +207,87 @@ TEST_CASE("UnitRegisty Adding Unit Tests")
   ureg.existing_unit_policy = UnitRegistry::EXISTING_UNIT_POLICY::Overwrite;
   ureg.addUnit("cm = 10 m");
   CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(0.2));
-
-
-
-
-
-
 }
 
-TEST_CASE("unit_registry class")
+TEST_CASE("basic_unit_registry class")
 {
   SECTION("Simple system")
   {
-
     using namespace unit_convert;
     using dim_type = basic_dimension<3>;
-    using unit_type = basic_unit<dim_type,double>;
-    unit_registry<unit_type> ureg;
+    using unit_type = basic_unit<dim_type, double>;
+    basic_unit_registry<unit_type> ureg;
     CHECK(ureg.size() == 0);
 
-    ureg.add_unit("m",basic_dimension<3>(0));
-    ureg.add_unit("s",basic_dimension<3>(1));
-    ureg.add_unit("K",basic_dimension<3>(2));
+    ureg.add_unit("m", basic_dimension<3>(0));
+    ureg.add_unit("s", basic_dimension<3>(1));
+    ureg.add_unit("K", basic_dimension<3>(2));
 
     CHECK(ureg.size() == 3);
 
-
-    ureg.add_unit("cm", ureg.get("m")/100 );
-    ureg.add_unit("in", 2.54*ureg.get("cm") );
-    ureg.add_unit("ft", 12*ureg.get("in") );
+    ureg.add_unit("cm", ureg.get("m") / 100);
+    ureg.add_unit("in", 2.54 * ureg.get("cm"));
+    ureg.add_unit("ft", 12 * ureg.get("in"));
 
     CHECK(ureg.size() == 6);
 
-    ureg.add_unit("min", 60*ureg.get("s") );
-    ureg.add_unit("hr", 60*ureg.get("min") );
-    ureg.add_unit("R", (5./9)*ureg.get("K") );
+    ureg.add_unit("min", 60 * ureg.get("s"));
+    ureg.add_unit("hr", 60 * ureg.get("min"));
+    ureg.add_unit("R", (5. / 9) * ureg.get("K"));
 
-    auto x = ureg.make_quantity< basic_quantity<unit_type,double> >(10,"ft");
+    auto x = ureg.make_quantity<basic_quantity<unit_type, double>>(10, "ft");
+    auto t = ureg.make_quantity<double>(10, "hr");
+    auto T = ureg.make_quantity(310., "K");
+
+    CHECK(x.to(ureg.get("m")).value() == Approx(3.048));
+    CHECK(t.to(ureg.get("s")).value() == Approx(36000));
+    CHECK(T.to(ureg.get("R")).value() == Approx(310 * 9. / 5));
+  }
+
+  SECTION("SI Unit Registry")
+  {
+    using namespace unit_convert;
+    basic_unit_registry<si_unit<double>> ureg;
+    CHECK(ureg.size() == 0);
+  }
+}
+
+TEST_CASE("si_unit_registry class")
+{
+  SECTION("simple")
+  {
+    using namespace unit_convert;
+    si_unit_registry ureg;
+    CHECK(ureg.size() == 0);
+
+    ureg.add_unit("m", si_dimension(si_dimension::name::Length));
+    ureg.add_unit("s", si_dimension(si_dimension::name::Time));
+    ureg.add_unit("K", si_dimension(si_dimension::name::Temperature));
+
+    CHECK(ureg.size() == 3);
+
+    ureg.add_unit("in", 2.54 * ureg.get("cm"));
+    ureg.add_unit("ft", 12 * ureg.get("in"));
+
+    ureg.add_unit("min", 60 * ureg.get("s"));
+    ureg.add_unit("hr", 60 * ureg.get("min"));
+    ureg.add_unit("R", (5. / 9) * ureg.get("K"));
+
+    CHECK_THROWS(ureg.get("cm",false));
+
+    auto x = ureg.make_quantity<double>(10,"ft");
     auto t = ureg.make_quantity<double>(10,"hr");
     auto T = ureg.make_quantity(310.,"K");
 
     CHECK(x.to( ureg.get("m") ).value() == Approx(3.048) );
     CHECK(t.to( ureg.get("s") ).value() == Approx(36000) );
     CHECK(T.to( ureg.get("R") ).value() == Approx(310*9./5) );
-
-
-
   }
 
   SECTION("SI Unit Registry")
   {
-  using namespace unit_convert;
-  unit_registry<si_unit<double>> ureg;
-  CHECK(ureg.size() == 0);
-
+    using namespace unit_convert;
+    basic_unit_registry<si_unit<double>> ureg;
+    CHECK(ureg.size() == 0);
   }
 }

@@ -110,31 +110,27 @@ struct dimension_expression_parser
 /**
  * A Boost.Spirit grammar for parsing unit strings.
  */
-// template <typename unit_type>
-// struct UnitParser : spt::qi::grammar<std::string::iterator, unit_type()> {
-//   using Iterator = std::string::iterator;
-//   using ThisType = UnitParser;
+template <typename UNIT_TYPE>
+struct UnitParser : spt::qi::grammar<std::string::iterator, UNIT_TYPE()> {
+  using iterator = std::string::iterator;
+  using unit_type = UNIT_TYPE;
 
-//   qi::rule<Iterator, unit_type()> named_unit, factor, term, group, scale,
-//       expression, unit;
-//   qi::rule<Iterator, double()> offset;
-//   qi::rule<Iterator, int()> exponent;
-//   qi::rule<Iterator> mul, div, pow, add, sub;
-//   qi::rule<Iterator, char()> unit_name_begin_chars, unit_name_other_chars;
+  qi::rule<iterator, unit_type()> named_unit, factor, term, group, scale,
+      expression, unit;
+  qi::rule<iterator, double()> offset;
+  qi::rule<iterator, int()> exponent;
+  qi::rule<iterator> mul, div, pow, add, sub;
+  qi::rule<iterator, char()> unit_name_begin_chars, unit_name_other_chars;
 
-//   const UnitRegistry& ureg;
+  // const UnitRegistry& ureg;
 
-//   /**
-//    * compute a unit raised to an integer power)
-//    */
-//   unit_type exponentiate(const unit_type& b, const int e);
+  unit_type getUnitFromRegistry(const std::string& unit)
+  {
+  }
 
-//   /**
-//    * retrieve a named unit from the registry
-//    */
-//   unit_type getUnitFromRegistry(const std::string& unit);
-
-//   UnitParser(const UnitRegistry& registry);
-// };
+  // UnitParser(const UnitRegistry& registry)
+  // {
+  // }
+};
 
 }  // namespace unit_convert
