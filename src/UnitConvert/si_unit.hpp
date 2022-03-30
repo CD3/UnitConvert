@@ -11,7 +11,7 @@
 namespace unit_convert
 {
 
-template <typename NUMERIC_TYPE>
+template <typename NUMERIC_TYPE = double>
 class si_unit : public basic_unit<si_dimension, NUMERIC_TYPE>
 {
  public:

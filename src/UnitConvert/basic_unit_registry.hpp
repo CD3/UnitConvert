@@ -11,25 +11,31 @@
 #include "./parsers.hpp"
 #include "./registered_quantity.hpp"
 
+#define UNIT_CONVERT_ADD_MAKE_QUANTITY_METHODS_FOR_UNIT_REGISTRY \
+
+
 namespace unit_convert
 {
 /**
  * @brief A class to store unit definitions.
  */
-template <typename UNIT_TYPE, typename VALUE_TYPE = double>
+template <typename UNIT_TYPE>
 class basic_unit_registry
 {
  public:
   using unit_type = UNIT_TYPE;
-  using value_type = VALUE_TYPE;
   using dimension_type = typename unit_type::dimension_type;
-  using quantity = registered_quantity<basic_unit_registry,
-                                       basic_quantity<unit_type, value_type>>;
+  template<typename T>
+  using base_quantity_type = basic_quantity<unit_type, T>;
+  template<typename T>
+  using registered_quantity_type = registered_quantity<basic_unit_registry, base_quantity_type<T>>;
+
+  template<typename T>
+  using quantity = registered_quantity_type<T>;
 
   enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore, Overwrite };
   EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
 
-  void add_unit(std::string a_unit_def) {}
   void add_unit(std::string a_symbol, unit_type a_unit)
   {
     auto ptr = m_UnitStore.insert(pair_type{a_symbol, a_unit});
@@ -78,18 +84,19 @@ class basic_unit_registry
     return this->get_unit(a_symbol);
   }
 
-  quantity make_quantity() const { return quantity(*this); }
+  template<typename T>
+  registered_quantity_type<T> make_quantity() const { return registered_quantity_type<T>(*this); }
 
   template <typename T>
-  quantity make_quantity(T a_val, const unit_type& a_unit) const
+  registered_quantity_type<T> make_quantity(T a_val, const unit_type& a_unit) const
   {
-    return quantity(*this, typename quantity::base_type(a_val, a_unit));
+    return registered_quantity_type<T>(*this, base_quantity_type<T>(a_val, a_unit));
   }
 
   template <typename T>
-  quantity make_quantity(T a_val, const std::string& a_unit) const
+  registered_quantity_type<T> make_quantity(T a_val, const std::string& a_unit) const
   {
-    return this->make_quantity(a_val, this->get_unit(a_unit));
+    return this->make_quantity<T>(a_val, this->get_unit(a_unit));
   }
 
   basic_unit_registry() = default;

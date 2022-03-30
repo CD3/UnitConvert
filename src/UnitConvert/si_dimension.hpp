@@ -49,6 +49,7 @@ class si_dimension : public basic_dimension<7>
 template <si_dimension::name DIM>
 class si_base_dimension : public si_dimension
 {
+  public:
   si_base_dimension():si_dimension(DIM){}
 };
 
