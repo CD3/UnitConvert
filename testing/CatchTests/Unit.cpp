@@ -4,6 +4,7 @@
 
 #include <UnitConvert/basic_unit.hpp>
 #include <UnitConvert/si_unit.hpp>
+#include <UnitConvert/io.hpp>
 
 using namespace unit_convert;
 TEST_CASE("Unit class tests")

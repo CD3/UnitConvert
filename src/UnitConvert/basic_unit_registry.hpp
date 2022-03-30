@@ -9,18 +9,22 @@
 #include <map>
 #include "./basic_quantity.hpp"
 #include "./parsers.hpp"
+#include "./registered_quantity.hpp"
 
 namespace unit_convert
 {
 /**
  * @brief A class to store unit definitions.
  */
-template <typename UNIT_TYPE>
+template <typename UNIT_TYPE, typename VALUE_TYPE = double>
 class basic_unit_registry
 {
  public:
   using unit_type = UNIT_TYPE;
+  using value_type = VALUE_TYPE;
   using dimension_type = typename unit_type::dimension_type;
+  using quantity = registered_quantity<basic_unit_registry,
+                                       basic_quantity<unit_type, value_type>>;
 
   enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore, Overwrite };
   EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
@@ -61,26 +65,34 @@ class basic_unit_registry
    *
    * Throws an exception if the unit is not found.
    */
-  const unit_type& get(std::string a_symbol) const
+  const unit_type& get_unit(std::string a_symbol) const
   {
-    return this->m_UnitStore.at(a_symbol);
+    try {
+      return this->m_UnitStore.at(a_symbol);
+    } catch (...) {
+        throw std::runtime_error("Key Error: Could not find symbol "+a_symbol+" in the unit registry.");
+    }
   }
   const unit_type& operator[](std::string a_symbol) const
   {
-    return this->get(a_symbol);
+    return this->get_unit(a_symbol);
   }
 
-  template <typename Q, typename T>
-  auto make_quantity(T a_val, const std::string& a_unit) const -> decltype(Q(a_val, this->get(a_unit)))
+  quantity make_quantity() const { return quantity(*this); }
+
+  template <typename T>
+  quantity make_quantity(T a_val, const unit_type& a_unit) const
   {
-    return Q(a_val, this->get(a_unit));
+    return quantity(*this, typename quantity::base_type(a_val, a_unit));
   }
 
   template <typename T>
-  basic_quantity<unit_type, T> make_quantity(T a_val, const std::string& a_unit) const
+  quantity make_quantity(T a_val, const std::string& a_unit) const
   {
-    return basic_quantity<unit_type, T>(a_val, this->get(a_unit));
+    return this->make_quantity(a_val, this->get_unit(a_unit));
   }
+
+  basic_unit_registry() = default;
 
  protected:
   using pair_type = std::pair<std::string, unit_type>;

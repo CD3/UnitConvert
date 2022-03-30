@@ -1,4 +1,3 @@
-#include <catch.hpp>
 
 #include <sstream>
 
@@ -7,10 +6,14 @@
 #include <UnitConvert.hpp>
 #include <UnitConvert/basic_quantity.hpp>
 #include <UnitConvert/basic_unit_registry.hpp>
+#include <UnitConvert/io.hpp>
 #include <UnitConvert/legacy/GlobalUnitRegistry.hpp>
+#include <UnitConvert/registered_quantity.hpp>
 #include <UnitConvert/si_unit.hpp>
 #include <UnitConvert/si_unit_registry.hpp>
+#include <UnitConvert/add_unit_expression_parser.hpp>
 
+#include <catch.hpp>
 TEST_CASE("UnitRegisty Tests")
 {
   using namespace UnitConvert;
@@ -225,23 +228,42 @@ TEST_CASE("basic_unit_registry class")
 
     CHECK(ureg.size() == 3);
 
-    ureg.add_unit("cm", ureg.get("m") / 100);
-    ureg.add_unit("in", 2.54 * ureg.get("cm"));
-    ureg.add_unit("ft", 12 * ureg.get("in"));
+    ureg.add_unit("cm", ureg.get_unit("m") / 100);
+    ureg.add_unit("in", 2.54 * ureg.get_unit("cm"));
+    ureg.add_unit("ft", 12 * ureg.get_unit("in"));
 
     CHECK(ureg.size() == 6);
 
-    ureg.add_unit("min", 60 * ureg.get("s"));
-    ureg.add_unit("hr", 60 * ureg.get("min"));
-    ureg.add_unit("R", (5. / 9) * ureg.get("K"));
+    ureg.add_unit("min", 60 * ureg.get_unit("s"));
+    ureg.add_unit("hr", 60 * ureg.get_unit("min"));
+    ureg.add_unit("R", (5. / 9) * ureg.get_unit("K"));
 
-    auto x = ureg.make_quantity<basic_quantity<unit_type, double>>(10, "ft");
+    auto x = basic_quantity<basic_unit<dim_type, double>, double>(
+        10, ureg.get_unit("ft"));
     auto t = ureg.make_quantity<double>(10, "hr");
     auto T = ureg.make_quantity(310., "K");
 
-    CHECK(x.to(ureg.get("m")).value() == Approx(3.048));
-    CHECK(t.to(ureg.get("s")).value() == Approx(36000));
-    CHECK(T.to(ureg.get("R")).value() == Approx(310 * 9. / 5));
+    CHECK(x.to(ureg.get_unit("m")).value() == Approx(3.048));
+    CHECK(t.to(ureg.get_unit("s")).value() == Approx(36000));
+    CHECK(T.to(ureg.get_unit("R")).value() == Approx(310 * 9. / 5));
+
+    basic_unit_registry<unit_type>::quantity y(ureg);
+    y = x;
+
+    CHECK(y.to(ureg.get_unit("m")).value() == Approx(3.048));
+    CHECK(y.to("m").value() == Approx(3.048));
+
+    auto z = ureg.make_quantity();
+    z = x;
+
+    CHECK(z.to(ureg.get_unit("m")).value() == Approx(3.048));
+    CHECK(z.to("m").value() == Approx(3.048));
+
+    CHECK_THROWS(ureg.make_quantity(10, "m/s**2"));
+
+//     CHECK(a.to("ft/min**2").value() == Approx(10 * 3.28084 * 60 * 60));
+
+//     CHECK_THROWS(a.to("km/s**2"));
   }
 
   SECTION("SI Unit Registry")
@@ -266,28 +288,67 @@ TEST_CASE("si_unit_registry class")
 
     CHECK(ureg.size() == 3);
 
-    ureg.add_unit("in", 2.54 * ureg.get("cm"));
-    ureg.add_unit("ft", 12 * ureg.get("in"));
+    ureg.add_unit("in", 2.54 * ureg.get_unit("cm"));
+    ureg.add_unit("ft", 12 * ureg.get_unit("in"));
 
-    ureg.add_unit("min", 60 * ureg.get("s"));
-    ureg.add_unit("hr", 60 * ureg.get("min"));
-    ureg.add_unit("R", (5. / 9) * ureg.get("K"));
+    ureg.add_unit("min", 60 * ureg.get_unit("s"));
+    ureg.add_unit("hr", 60 * ureg.get_unit("min"));
+    ureg.add_unit("R", (5. / 9) * ureg.get_unit("K"));
 
-    CHECK_THROWS(ureg.get("cm",false));
+    CHECK_THROWS(ureg.get_unit("cm", false));
+    CHECK(ureg.get_unit("cm", true) == ureg.get_unit("m",false)/100);
 
-    auto x = ureg.make_quantity<double>(10,"ft");
-    auto t = ureg.make_quantity<double>(10,"hr");
-    auto T = ureg.make_quantity(310.,"K");
+    auto x = ureg.make_quantity<double>(10, "ft");
+    auto t = ureg.make_quantity<double>(10, "hr");
+    auto T = ureg.make_quantity(310., "K");
 
-    CHECK(x.to( ureg.get("m") ).value() == Approx(3.048) );
-    CHECK(t.to( ureg.get("s") ).value() == Approx(36000) );
-    CHECK(T.to( ureg.get("R") ).value() == Approx(310*9./5) );
+    CHECK(x.to(ureg.get_unit("m")).value() == Approx(3.048));
+    CHECK(t.to(ureg.get_unit("s")).value() == Approx(36000));
+    CHECK(T.to(ureg.get_unit("R")).value() == Approx(310 * 9. / 5));
+
+    si_unit_registry<double>::quantity y(ureg);
+    y = x;
+    CHECK(y.to("m").value() == Approx(3.048));
   }
+}
 
-  SECTION("SI Unit Registry")
+TEST_CASE("add_unit_expression_parser")
+{
+  SECTION("basic registry")
   {
     using namespace unit_convert;
-    basic_unit_registry<si_unit<double>> ureg;
-    CHECK(ureg.size() == 0);
+
+    add_unit_expression_parser<basic_unit_registry<basic_unit<basic_dimension<3>,double>>> ureg;
+
+    ureg.add_unit("m", basic_dimension<3>(0));
+    ureg.add_unit("s", basic_dimension<3>(1));
+    ureg.add_unit("K", basic_dimension<3>(2));
+    ureg.add_unit("cm", ureg.get_unit("m")/100);
+    ureg.add_unit("in", 2.54 * ureg.get_unit("cm"));
+    ureg.add_unit("ft", 12 * ureg.get_unit("in"));
+    ureg.add_unit("min", 60 * ureg.get_unit("s"));
+    ureg.add_unit("hr", 60 * ureg.get_unit("min"));
+    ureg.add_unit("R", (5. / 9) * ureg.get_unit("K"));
+
+    auto x = ureg.make_quantity(10, "m**2");
+
+    CHECK(x.to("ft^2").value() == Approx(10*3.28084*3.28084) );
+
+
+
+
+
+
   }
+
+    // CHECK(ureg.make_unit("m**2") == (ureg.get_unit("m") ^ 2));
+    // CHECK(ureg.make_unit("(m/s)**2") ==
+    //       (ureg.get_unit("m") * ureg.get_unit("m") / ureg.get_unit("s") /
+    //        ureg.get_unit("s")));
+    // CHECK_THROWS(ureg.make_quantity(10, "m/s**2"));
+
+//     CHECK(a.to("ft/min**2").value() == Approx(10 * 3.28084 * 60 * 60));
+
+//     CHECK_THROWS(a.to("km/s**2"));
+
 }

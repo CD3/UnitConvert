@@ -40,12 +40,11 @@ struct dimension_symbol_parser : qi::symbols<char, DIMENSION_TYPE> {
   using dimension_type = DIMENSION_TYPE;
   using base_type = qi::symbols<char, DIMENSION_TYPE>;
   dimension_symbol_parser() = default;
-  template<typename INDEX_TYPE>
+  template <typename INDEX_TYPE>
   void add_dimension(std::string a_symbol, INDEX_TYPE a_index)
   {
-    this->add(std::move(a_symbol), dimension_type(a_index) );
+    this->add(std::move(a_symbol), dimension_type(a_index));
   }
-
 };
 
 struct si_dimension_symbol_parser : dimension_symbol_parser<si_dimension> {
@@ -68,7 +67,9 @@ struct si_dimension_symbol_parser : dimension_symbol_parser<si_dimension> {
  */
 template <typename DIMENSION_SYMBOL_PARSER_TYPE>
 struct dimension_expression_parser
-    : spt::qi::grammar<std::string::iterator, typename DIMENSION_SYMBOL_PARSER_TYPE::dimension_type()> {
+    : spt::qi::grammar<
+          std::string::iterator,
+          typename DIMENSION_SYMBOL_PARSER_TYPE::dimension_type()> {
   using iterator = std::string::iterator;
   using dimension_symbol_parser_type = DIMENSION_SYMBOL_PARSER_TYPE;
   using dimension_type = typename dimension_symbol_parser_type::dimension_type;
@@ -78,7 +79,8 @@ struct dimension_expression_parser
   qi::rule<iterator, int()> exponent;
   qi::rule<iterator> mul, div, pow, add, sub;
 
-  dimension_expression_parser() : dimension_expression_parser::base_type(dimension)
+  dimension_expression_parser()
+      : dimension_expression_parser::base_type(dimension)
   {
     exponent = qi::int_;
     auto space = qi::lit(" ");
@@ -101,19 +103,21 @@ struct dimension_expression_parser
     group = '(' >> term[qi::_val = qi::_1] >> ')';
 
     // a dimension is a term wrapped in square brackets
-    dimension = qi::lit("[") >> *space >> term[qi::_val = qi::_1] >> *space
-    >>
+    dimension = qi::lit("[") >> *space >> term[qi::_val = qi::_1] >> *space >>
                 qi::lit("]");
   }
 };
 
 /**
- * A Boost.Spirit grammar for parsing unit strings.
+ * A Boost.Spirit grammar to parse unit strings for a unit registry.
  */
-template <typename UNIT_TYPE>
-struct UnitParser : spt::qi::grammar<std::string::iterator, UNIT_TYPE()> {
+template <typename UNIT_REGISTRY_TYPE>
+struct unit_registry_parser
+    : spt::qi::grammar<std::string::iterator,
+                       typename UNIT_REGISTRY_TYPE::unit_type()> {
   using iterator = std::string::iterator;
-  using unit_type = UNIT_TYPE;
+  using unit_registry_type = UNIT_REGISTRY_TYPE;
+  using unit_type = typename unit_registry_type::unit_type;
 
   qi::rule<iterator, unit_type()> named_unit, factor, term, group, scale,
       expression, unit;
@@ -122,15 +126,47 @@ struct UnitParser : spt::qi::grammar<std::string::iterator, UNIT_TYPE()> {
   qi::rule<iterator> mul, div, pow, add, sub;
   qi::rule<iterator, char()> unit_name_begin_chars, unit_name_other_chars;
 
-  // const UnitRegistry& ureg;
-
-  unit_type getUnitFromRegistry(const std::string& unit)
+  unit_registry_parser(const unit_registry_type& a_reg)
+      : unit_registry_parser::base_type(unit), m_unit_registry(a_reg)
   {
+    offset = qi::double_;
+    exponent = qi::int_;
+
+    scale = qi::double_[qi::_val *= qi::_1];
+
+    auto space = qi::lit(" ");
+
+    mul = *space >> "*" >> *space | +space;
+    div = *space >> "/" >> *space;
+    pow = *space >> (qi::lit("^") | qi::lit("**")) >> *space;
+    add = *space >> "+" >> *space;
+    sub = *space >> "-" >> *space;
+
+    unit_name_begin_chars = qi::char_("a-zA-Z");
+    unit_name_other_chars = qi::char_("a-zA-Z_0-9");
+    named_unit =
+        spt::as_string[+unit_name_begin_chars >> *unit_name_other_chars]
+                      [qi::_val = phx::bind(&unit_registry_type::get_unit,
+                                            &m_unit_registry, qi::_1)];
+
+    factor = (named_unit | scale | group)[qi::_val = qi::_1] >>
+             *(pow >> exponent[qi::_val ^= qi::_1 ]);
+
+    term = factor[qi::_val = qi::_1] >> *(mul >> factor[qi::_val *= qi::_1] |
+                                          div >> factor[qi::_val /= qi::_1]);
+
+    group = '(' >> term[qi::_val = qi::_1] >> ')';
+
+    expression = *space >> term[qi::_val = qi::_1] >>
+                 *(add >> offset[qi::_val += qi::_1] |
+                   sub >> offset[qi::_val -= qi::_1]) >>
+                 *space;
+
+    unit = expression;
   }
 
-  // UnitParser(const UnitRegistry& registry)
-  // {
-  // }
+ protected:
+  const unit_registry_type& m_unit_registry;
 };
 
 }  // namespace unit_convert

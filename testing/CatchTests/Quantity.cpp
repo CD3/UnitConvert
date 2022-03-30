@@ -151,8 +151,9 @@ TEST_CASE("si_quantity Class")
   CHECK(std::is_same<decltype(hour), si_unit<double>>::value);
 }
 
-TEST_CASE("runtime_quantity")
+TEST_CASE("registered_quantity")
 {
-  // runtime_quantity<double> x = "2 m";
+  // registered_quantity<double> x = "2 m";
   // x.to("ft");
 }
+

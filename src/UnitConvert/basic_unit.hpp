@@ -202,15 +202,6 @@ class basic_unit
     return r ^= power;
   }
 
-  friend std::ostream& operator<<(
-      std::ostream& out, const basic_unit<dimension_type, numeric_type>& unit)
-  {
-    out << unit.m_Scale << " ";
-    out << unit.m_Dimension;
-    if (unit.m_Offset) out << " + " << unit.m_Offset.value();
-    return out;
-  }
-
   bool operator==(const basic_unit& a_other) const
   {
     return (this->m_Dimension == a_other.m_Dimension) &&

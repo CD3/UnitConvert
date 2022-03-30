@@ -1,5 +1,6 @@
 #include <UnitConvert/basic_dimension.hpp>
 #include <UnitConvert/si_dimension.hpp>
+#include <UnitConvert/io.hpp>
 #include <catch.hpp>
 #include <sstream>
 

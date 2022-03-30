@@ -40,28 +40,19 @@ class basic_quantity
   basic_quantity to(const unit_type& a_unit) const
   {
     if (this->m_Unit.dimension() != a_unit.dimension()) {
-      std::stringstream msg;
-      msg << "Dimension Error: Cannot convert from"
-          << this->m_Unit.dimension()
-          << " to "
-          << a_unit.dimension();
-      throw std::runtime_error( msg.str() );
+      throw std::runtime_error("Dimension Error: cannot convert units with different dimensions.");
     }
     // see writup in doc directory...
-    value_type value = (this->m_Unit.scale()*this->m_Value + this->m_Unit.offset() - a_unit.offset())/a_unit.scale();
+    value_type value = (this->m_Unit.scale() * this->m_Value +
+                        this->m_Unit.offset() - a_unit.offset()) /
+                       a_unit.scale();
     return {value, a_unit};
   }
 
   basic_quantity operator+(const basic_quantity& a_other) const
   {
     if (this->m_Unit.dimension() != a_other.m_Unit.dimension()) {
-      std::stringstream msg;
-      msg << "Dimension Error: Cannot add quantities with different dimensions. Attempted "
-          << this->m_Unit.dimension()
-          << " + "
-          << a_other.m_Unit.dimension();
-
-      throw std::runtime_error( msg.str() );
+      throw std::runtime_error("Dimension Error: cannot add quantities with different dimensions.");
     }
 
     basic_quantity ret = *this;
@@ -69,17 +60,10 @@ class basic_quantity
     return ret;
   }
 
-
   basic_quantity operator-(const basic_quantity& a_other) const
   {
     if (this->m_Unit.dimension() != a_other.m_Unit.dimension()) {
-      std::stringstream msg;
-      msg << "Dimension Error: Cannot add quantities with different dimensions. Attempted "
-          << this->m_Unit.dimension()
-          << " - "
-          << a_other.m_Unit.dimension();
-
-      throw std::runtime_error( msg.str() );
+      throw std::runtime_error("Dimension Error: Cannot subtract quantities with different dimensions.");
     }
 
     basic_quantity ret = *this;
@@ -87,16 +71,17 @@ class basic_quantity
     return ret;
   }
 
+  basic_quantity& operator=(const basic_quantity& other) = default;
 
  protected:
   unit_type m_Unit;
   value_type m_Value;
 };
 
-template<typename T, typename U>
-basic_quantity<U,T> make_quantity(T a_val, U a_unit)
+template <typename T, typename U>
+basic_quantity<U, T> make_quantity(T a_val, U a_unit)
 {
-  return {std::move(a_val),std::move(a_unit)};
+  return {std::move(a_val), std::move(a_unit)};
 }
 
 }  // namespace unit_convert

@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include <UnitConvert.hpp>
+#include <UnitConvert/basic_unit_registry.hpp>
 #include <UnitConvert/parsers.hpp>
 #include <numeric>
 
@@ -961,10 +962,42 @@ TEST_CASE("1.0 Parsers")
 
         dim_str = "[M (L/T)**2]";
         CHECK(qi::parse(dim_str.begin(), dim_str.end(), parser, dim));
-        CHECK(dim == M*L*L/T/T);
-
-
+        CHECK(dim == M * L * L / T / T);
       }
     }
   }
+}
+TEST_CASE("unit_registry_parser")
+{
+  using namespace unit_convert;
+  using dim_type = basic_dimension<3>;
+  using unit_type = basic_unit<dim_type, double>;
+  basic_unit_registry<unit_type> ureg;
+  unit_registry_parser<basic_unit_registry<unit_type>> parser(ureg);
+  CHECK(ureg.size() == 0);
+
+  unit_type meter(0);
+  unit_type second(1);
+  unit_type kelvin(2);
+  ureg.add_unit("m", basic_dimension<3>(0));
+  ureg.add_unit("s", basic_dimension<3>(1));
+  ureg.add_unit("K", basic_dimension<3>(2));
+
+  unit_type unit;
+  std::string unit_str = "m";
+
+  CHECK(qi::parse(unit_str.begin(), unit_str.end(), parser, unit));
+  CHECK(unit == meter);
+
+  unit_str = "m**2";
+  CHECK(qi::parse(unit_str.begin(), unit_str.end(), parser, unit));
+  CHECK(unit == meter*meter);
+
+  unit_str = "(m/s)**2";
+  CHECK(qi::parse(unit_str.begin(), unit_str.end(), parser, unit));
+  CHECK(unit == meter*meter/second/second);
+
+  unit_str = "(km/s)**2";
+  CHECK_THROWS(qi::parse(unit_str.begin(), unit_str.end(), parser, unit));
+
 }
