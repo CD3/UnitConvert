@@ -5,13 +5,7 @@
  * @date 03/27/22
  */
 
-#include <iostream>
-#include <map>
-#include "./basic_quantity.hpp"
-#include "./parsers.hpp"
-#include "./registered_quantity.hpp"
-
-#define UNIT_CONVERT_ADD_MAKE_QUANTITY_METHODS_FOR_UNIT_REGISTRY \
+#include "./unit_registry_base.hpp"
 
 
 namespace unit_convert
@@ -20,91 +14,15 @@ namespace unit_convert
  * @brief A class to store unit definitions.
  */
 template <typename UNIT_TYPE>
-class basic_unit_registry
+class basic_unit_registry: public unit_registry_base<UNIT_TYPE>
 {
  public:
-  using unit_type = UNIT_TYPE;
-  using dimension_type = typename unit_type::dimension_type;
+  using base_type = unit_registry_base<UNIT_TYPE>;
+  using unit_type = typename base_type::unit_type;
+  using dimension_type = typename base_type::dimension_type;
   template<typename T>
-  using base_quantity_type = basic_quantity<unit_type, T>;
+  using base_quantity_type = typename base_type::template base_quantity_type<T>;
   template<typename T>
-  using registered_quantity_type = registered_quantity<basic_unit_registry, base_quantity_type<T>>;
-
-  template<typename T>
-  using quantity = registered_quantity_type<T>;
-
-  enum class EXISTING_UNIT_POLICY { Warn, Throw, Ignore, Overwrite };
-  EXISTING_UNIT_POLICY existing_unit_policy = EXISTING_UNIT_POLICY::Throw;
-
-  void add_unit(std::string a_symbol, unit_type a_unit)
-  {
-    auto ptr = m_UnitStore.insert(pair_type{a_symbol, a_unit});
-    if (!ptr.second) {  // unit was already in registry
-      if (existing_unit_policy == EXISTING_UNIT_POLICY::Throw) {
-        throw std::runtime_error("ERROR: unit '" + a_symbol +
-                                 "' already exists in the unit registry.");
-      }
-      if (existing_unit_policy == EXISTING_UNIT_POLICY::Warn) {
-        std::cerr << "Warning: '" + a_symbol +
-                         "' was already in the unit registry and has been "
-                         "overwritten.\n";
-      }
-      if (existing_unit_policy == EXISTING_UNIT_POLICY::Ignore) {
-      }
-      if (existing_unit_policy == EXISTING_UNIT_POLICY::Overwrite) {
-        m_UnitStore[a_symbol] = a_unit;
-      }
-    }
-  }
-  void add_unit(std::string a_symbol, dimension_type a_dim)
-  {
-    unit_type unit(std::move(a_dim));
-    this->add_unit(std::move(a_symbol), std::move(unit));
-  }
-
-  size_t size() const { return m_UnitStore.size(); }
-
-  /**
-   * Retrieves a unit from the store given its name/symbol.
-   *
-   * @param a_symbol the unit's name as stored in the registry
-   *
-   * Throws an exception if the unit is not found.
-   */
-  const unit_type& get_unit(std::string a_symbol) const
-  {
-    try {
-      return this->m_UnitStore.at(a_symbol);
-    } catch (...) {
-        throw std::runtime_error("Key Error: Could not find symbol "+a_symbol+" in the unit registry.");
-    }
-  }
-  const unit_type& operator[](std::string a_symbol) const
-  {
-    return this->get_unit(a_symbol);
-  }
-
-  template<typename T>
-  registered_quantity_type<T> make_quantity() const { return registered_quantity_type<T>(*this); }
-
-  template <typename T>
-  registered_quantity_type<T> make_quantity(T a_val, const unit_type& a_unit) const
-  {
-    return registered_quantity_type<T>(*this, base_quantity_type<T>(a_val, a_unit));
-  }
-
-  template <typename T>
-  registered_quantity_type<T> make_quantity(T a_val, const std::string& a_unit) const
-  {
-    return this->make_quantity<T>(a_val, this->get_unit(a_unit));
-  }
-
-  basic_unit_registry() = default;
-
- protected:
-  using pair_type = std::pair<std::string, unit_type>;
-  using store_type = std::map<std::string, unit_type>;
-
-  store_type m_UnitStore;
+  using registered_quantity_type = typename base_type::template registered_quantity_type<T>;
 };
 }  // namespace unit_convert

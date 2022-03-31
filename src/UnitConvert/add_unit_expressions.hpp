@@ -4,6 +4,7 @@
  * @author C.D. Clark III
  * @date 03/29/22
  */
+#include "./detail/macros.hpp"
 
 namespace unit_convert
 {
@@ -56,14 +57,9 @@ class add_unit_expression_parser : public BASE
     return ret_unit;
   }
 
-  /**
-   * Override the make_quantity(...) method to add unit expressions
-   */
-  template <typename T>
-  quantity make_quantity(T a_val, const std::string& a_unit_expression) const
-  {
-    return BASE::make_quantity(a_val, this->make_unit(a_unit_expression));
-  }
+
+  UNIT_CONVERT_ADD_MAKE_QUANTITY_METHODS_FOR_UNIT_REGISTRY
+
 
 
  protected:

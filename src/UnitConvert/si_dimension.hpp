@@ -33,17 +33,6 @@ class si_dimension : public basic_dimension<7>
   si_dimension& operator=(const si_dimension&) = default;
   si_dimension& operator=(si_dimension&&) = default;
 
-  friend std::ostream& operator<<(std::ostream& out, const si_dimension& dim)
-  {
-    out << "[L]^" << dim.m_Powers[0];
-    out << " [M]^" << dim.m_Powers[1];
-    out << " [T]^" << dim.m_Powers[2];
-    out << " [I]^" << dim.m_Powers[3];
-    out << " [THETA]^" << dim.m_Powers[4];
-    out << " [N]^" << dim.m_Powers[5];
-    out << " [J]^" << dim.m_Powers[6];
-    return out;
-  }
 };
 
 template <si_dimension::name DIM>

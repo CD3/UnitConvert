@@ -11,6 +11,7 @@ namespace unit_convert
   class basic_dimension;
   template<typename, typename>
   class basic_unit;
+  class si_dimension;
 
   template<size_t SIZE, typename EXPONENT_TYPE>
   std::ostream& operator<<(std::ostream& out, const basic_dimension<SIZE, EXPONENT_TYPE>& dim)
@@ -30,6 +31,19 @@ namespace unit_convert
     out << unit.scale() << " ";
     out << unit.dimension();
     if (unit.is_offset()) out << " + " << unit.offset();
+    return out;
+  }
+
+  inline
+  std::ostream& operator<<(std::ostream& out, const si_dimension& dim)
+  {
+    out << "[L]^" << dim.powers()[0];
+    out << " [M]^" << dim.powers()[1];
+    out << " [T]^" << dim.powers()[2];
+    out << " [I]^" << dim.powers()[3];
+    out << " [THETA]^" << dim.powers()[4];
+    out << " [N]^" << dim.powers()[5];
+    out << " [J]^" << dim.powers()[6];
     return out;
   }
 

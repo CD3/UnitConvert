@@ -7,9 +7,13 @@
 
 #include "./basic_unit_registry.hpp"
 #include "./si_unit.hpp"
+#include "./detail/macros.hpp"
 
 namespace unit_convert
 {
+  /**
+   * A unit registry for SI units that is pre-loaded with SI base units.
+   */
 template <typename NUMERIC_TYPE = double>
 class si_unit_registry : public basic_unit_registry<si_unit<NUMERIC_TYPE>>
 {
@@ -36,20 +40,7 @@ class si_unit_registry : public basic_unit_registry<si_unit<NUMERIC_TYPE>>
 
 
 
-  template<typename T>
-  registered_quantity_type<T> make_quantity() const { return registered_quantity_type<T>(*this); }
-
-  template <typename T>
-  registered_quantity_type<T> make_quantity(T a_val, const unit_type& a_unit) const
-  {
-    return registered_quantity_type<T>(*this, base_quantity_type<T>(a_val, a_unit));
-  }
-
-  template <typename T>
-  registered_quantity_type<T> make_quantity(T a_val, const std::string& a_unit) const
-  {
-    return this->make_quantity<T>(a_val, this->get_unit(a_unit));
-  }
+  UNIT_CONVERT_ADD_MAKE_QUANTITY_METHODS_FOR_UNIT_REGISTRY
 
 };
 }  // namespace unit_convert

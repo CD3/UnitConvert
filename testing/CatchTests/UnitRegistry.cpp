@@ -9,7 +9,7 @@
 #include <UnitConvert/basic_unit_registry.hpp>
 #include <UnitConvert/io.hpp>
 #include <UnitConvert/legacy/GlobalUnitRegistry.hpp>
-#include <UnitConvert/registered_quantity.hpp>
+#include <UnitConvert/add_registry.hpp>
 #include <UnitConvert/si_unit.hpp>
 #include <UnitConvert/si_unit_registry.hpp>
 
