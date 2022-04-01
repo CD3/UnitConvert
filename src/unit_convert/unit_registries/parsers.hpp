@@ -3,7 +3,8 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <string>
-#include "./si_dimension.hpp"
+#include "../dimensions/basic_dimension.hpp"
+#include "../dimensions/si_dimension.hpp"
 
 /** @file parsers.hpp
  * @author C.D. Clark III

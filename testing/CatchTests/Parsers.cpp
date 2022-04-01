@@ -1,8 +1,9 @@
 #include "catch.hpp"
 
 #include <UnitConvert.hpp>
-#include <UnitConvert/basic_unit_registry.hpp>
-#include <UnitConvert/parsers.hpp>
+#include <unit_convert/unit_registries//basic_unit_registry.hpp>
+#include <unit_convert/unit_registries/parsers.hpp>
+#include <unit_convert/units/basic_unit.hpp>
 #include <numeric>
 
 TEST_CASE("Spirit Testing")

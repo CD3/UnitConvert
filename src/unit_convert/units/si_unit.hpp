@@ -6,7 +6,7 @@
  * @date 03/25/22
  */
 #include "./basic_unit.hpp"
-#include "./si_dimension.hpp"
+#include "../dimensions/si_dimension.hpp"
 
 namespace unit_convert
 {

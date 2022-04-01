@@ -4,14 +4,14 @@
 #include <boost/units/systems/si.hpp>
 
 #include <UnitConvert.hpp>
-#include <UnitConvert/add_si_prefixes.hpp>
-#include <UnitConvert/basic_quantity.hpp>
-#include <UnitConvert/basic_unit_registry.hpp>
-#include <UnitConvert/io.hpp>
-#include <UnitConvert/legacy/GlobalUnitRegistry.hpp>
-#include <UnitConvert/add_registry.hpp>
-#include <UnitConvert/si_unit.hpp>
-#include <UnitConvert/si_unit_registry.hpp>
+#include <UnitConvert/GlobalUnitRegistry.hpp>
+#include <unit_convert/units/si_unit.hpp>
+#include <unit_convert/quantities/basic_quantity.hpp>
+#include <unit_convert/quantities/add_registry.hpp>
+#include <unit_convert/io.hpp>
+#include <unit_convert/unit_registries/basic_unit_registry.hpp>
+#include <unit_convert/unit_registries/si_unit_registry.hpp>
+#include <unit_convert/unit_registries/add_si_prefixes.hpp>
 
 #include <catch.hpp>
 TEST_CASE("UnitRegisty Tests")

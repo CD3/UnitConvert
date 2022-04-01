@@ -1,7 +1,6 @@
 #include <UnitConvert.hpp>
-#include <UnitConvert/basic_quantity.hpp>
-#include <UnitConvert/legacy/Quantity.hpp>
-#include <UnitConvert/si_quantity.hpp>
+#include <unit_convert/quantities/basic_quantity.hpp>
+#include <unit_convert/quantities/si_quantity.hpp>
 #include <catch.hpp>
 
 TEST_CASE("Quantity Class Tests")

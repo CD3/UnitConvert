@@ -5,7 +5,7 @@
 #include <exception>
 #include <filesystem>
 
-#include "../detail//functions.hpp"
+#include "./detail//functions.hpp"
 
 namespace UnitConvert {
 

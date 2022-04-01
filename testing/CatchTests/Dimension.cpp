@@ -1,6 +1,6 @@
-#include <UnitConvert/basic_dimension.hpp>
-#include <UnitConvert/si_dimension.hpp>
-#include <UnitConvert/io.hpp>
+#include <unit_convert/dimensions/basic_dimension.hpp>
+#include <unit_convert/dimensions/si_dimension.hpp>
+#include <unit_convert/io.hpp>
 #include <catch.hpp>
 #include <sstream>
 

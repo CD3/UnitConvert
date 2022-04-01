@@ -8,8 +8,8 @@
 #include <map>
 #include <string>
 #include <utility>
-#include "./add_registry.hpp"
-#include "./basic_quantity.hpp"
+#include "../quantities/basic_quantity.hpp"
+#include "../quantities/add_registry.hpp"
 
 namespace unit_convert
 {

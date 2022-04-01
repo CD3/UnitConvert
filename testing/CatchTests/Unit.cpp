@@ -1,10 +1,10 @@
-#include <UnitConvert/legacy/Unit.hpp>
+#include <UnitConvert/Unit.hpp>
 #include <catch.hpp>
 #include <sstream>
 
-#include <UnitConvert/basic_unit.hpp>
-#include <UnitConvert/si_unit.hpp>
-#include <UnitConvert/io.hpp>
+#include <unit_convert/units/basic_unit.hpp>
+#include <unit_convert/units/si_unit.hpp>
+#include <unit_convert/io.hpp>
 
 using namespace unit_convert;
 TEST_CASE("Unit class tests")

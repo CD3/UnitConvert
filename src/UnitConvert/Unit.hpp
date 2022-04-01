@@ -8,10 +8,8 @@
  */
 
 #include <boost/optional.hpp>
-#include <optional>
 
 #include "./Dimension.hpp"
-#include "../basic_unit.hpp"
 
 namespace UnitConvert
 {

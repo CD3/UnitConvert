@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
 #include <UnitConvert.hpp>
-#include <UnitConvert/legacy/GlobalUnitRegistry.hpp>
+#include <UnitConvert/GlobalUnitRegistry.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/units/systems/cgs.hpp>

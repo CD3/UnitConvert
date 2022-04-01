@@ -6,8 +6,9 @@
  */
 
 #include "./basic_unit_registry.hpp"
-#include "./si_unit.hpp"
-#include "./detail/macros.hpp"
+#include "./add_si_prefixes.hpp"
+#include "../units/si_unit.hpp"
+#include "../detail/macros.hpp"
 
 namespace unit_convert
 {

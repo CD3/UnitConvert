@@ -7,8 +7,8 @@
 
 #include "./basic_unit_registry.hpp"
 #include "./parsers.hpp"
-#include "./si_unit.hpp"
-#include "./detail/macros.hpp"
+#include "../units//si_unit.hpp"
+#include "../detail/macros.hpp"
 
 namespace unit_convert
 {
