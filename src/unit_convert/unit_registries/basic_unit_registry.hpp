@@ -19,10 +19,16 @@ class basic_unit_registry: public unit_registry_base<UNIT_TYPE>
  public:
   using base_type = unit_registry_base<UNIT_TYPE>;
   using unit_type = typename base_type::unit_type;
+  using key_type = typename base_type::key_type;
   using dimension_type = typename base_type::dimension_type;
   template<typename T>
   using base_quantity_type = typename base_type::template base_quantity_type<T>;
   template<typename T>
   using registered_quantity_type = typename base_type::template registered_quantity_type<T>;
+
+  unit_type get_single_unit(const key_type& a_key) const
+  {
+    return this->get_unit(a_key);
+  }
 };
 }  // namespace unit_convert

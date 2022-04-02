@@ -6,6 +6,8 @@
  * @date 03/24/22
  */
 
+#include <optional>
+
 namespace unit_convert
 {
 /**

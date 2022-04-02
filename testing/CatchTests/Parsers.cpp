@@ -974,7 +974,7 @@ TEST_CASE("unit_registry_parser")
   using dim_type = basic_dimension<3>;
   using unit_type = basic_unit<dim_type, double>;
   basic_unit_registry<unit_type> ureg;
-  unit_registry_parser<basic_unit_registry<unit_type>> parser(ureg);
+  unit_expression_parser<basic_unit_registry<unit_type>> parser(ureg);
   CHECK(ureg.size() == 0);
 
   unit_type meter(0);

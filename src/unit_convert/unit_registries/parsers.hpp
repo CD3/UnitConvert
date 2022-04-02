@@ -113,7 +113,7 @@ struct dimension_expression_parser
  * A Boost.Spirit grammar to parse unit strings for a unit registry.
  */
 template <typename UNIT_REGISTRY_TYPE>
-struct unit_registry_parser
+struct unit_expression_parser
     : spt::qi::grammar<std::string::iterator,
                        typename UNIT_REGISTRY_TYPE::unit_type()> {
   using iterator = std::string::iterator;
@@ -127,8 +127,8 @@ struct unit_registry_parser
   qi::rule<iterator> mul, div, pow, add, sub;
   qi::rule<iterator, char()> unit_name_begin_chars, unit_name_other_chars;
 
-  unit_registry_parser(const unit_registry_type& a_reg)
-      : unit_registry_parser::base_type(unit), m_unit_registry(a_reg)
+  unit_expression_parser(const unit_registry_type& a_reg)
+      : unit_expression_parser::base_type(unit), m_unit_registry(a_reg)
   {
     offset = qi::double_;
     exponent = qi::int_;
@@ -147,7 +147,7 @@ struct unit_registry_parser
     unit_name_other_chars = qi::char_("a-zA-Z_0-9");
     named_unit =
         spt::as_string[+unit_name_begin_chars >> *unit_name_other_chars]
-                      [qi::_val = phx::bind(&unit_registry_type::get_unit,
+                      [qi::_val = phx::bind(&unit_registry_type::get_single_unit,
                                             &m_unit_registry, qi::_1)];
 
     factor = (named_unit | scale | group)[qi::_val = qi::_1] >>

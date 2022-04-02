@@ -33,7 +33,7 @@ class unit_registry_base
   virtual void add_unit(const key_type& a_key, dimension_type a_dimension);
   virtual void add_unit(const key_type& a_key, unit_type a_unit);
   virtual size_t size() const { return m_UnitStore.size(); }
-  virtual const unit_type& get_unit(const key_type& a_key) const;
+  virtual unit_type get_unit(const key_type& a_key) const;
 
   template <typename T>
   registered_quantity_type<T> make_quantity() const;
@@ -80,7 +80,7 @@ void unit_registry_base<UNIT_TYPE, KEY_TYPE>::add_unit(const key_type& a_key,
 }
 
 template <typename UNIT_TYPE, typename KEY_TYPE>
-const typename unit_registry_base<UNIT_TYPE, KEY_TYPE>::unit_type&
+typename unit_registry_base<UNIT_TYPE, KEY_TYPE>::unit_type
 unit_registry_base<UNIT_TYPE, KEY_TYPE>::get_unit(const key_type& a_key) const
 {
   try {

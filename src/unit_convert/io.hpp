@@ -5,6 +5,8 @@
   * @date 03/28/22
   */
 
+#include "./dimensions/si_dimension.hpp"
+
 namespace unit_convert
 {
   template<size_t, typename>
