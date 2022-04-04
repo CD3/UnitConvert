@@ -26,7 +26,7 @@ class basic_unit_registry: public unit_registry_base<UNIT_TYPE>
   template<typename T>
   using registered_quantity_type = typename base_type::template registered_quantity_type<T>;
 
-  unit_type get_single_unit(const key_type& a_key) const
+  unit_type get_named_unit(const key_type& a_key) const
   {
     return this->get_unit(a_key);
   }

@@ -147,7 +147,7 @@ struct unit_expression_parser
     unit_name_other_chars = qi::char_("a-zA-Z_0-9");
     named_unit =
         spt::as_string[+unit_name_begin_chars >> *unit_name_other_chars]
-                      [qi::_val = phx::bind(&unit_registry_type::get_single_unit,
+                      [qi::_val = phx::bind(&unit_registry_type::get_named_unit,
                                             &m_unit_registry, qi::_1)];
 
     factor = (named_unit | scale | group)[qi::_val = qi::_1] >>

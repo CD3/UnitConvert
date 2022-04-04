@@ -8,10 +8,10 @@
 #include <unit_convert/io.hpp>
 #include <unit_convert/quantities/add_registry.hpp>
 #include <unit_convert/quantities/basic_quantity.hpp>
-#include <unit_convert/unit_registries/add_si_prefixes.hpp>
 #include <unit_convert/unit_registries/basic_unit_registry.hpp>
 #include <unit_convert/unit_registries/si_unit_registry.hpp>
 #include <unit_convert/unit_registries/expression_unit_registry.hpp>
+#include <unit_convert/unit_registries/si_expression_unit_registry.hpp>
 #include <unit_convert/units/si_unit.hpp>
 
 #include <catch.hpp>
@@ -279,7 +279,6 @@ TEST_CASE("v1 unit registry classes")
     ureg.add_unit("m", basic_dimension<3>(0));
     ureg.add_unit("s", basic_dimension<3>(1));
     ureg.add_unit("K", basic_dimension<3>(2));
-    ureg.add_unit("cm", ureg.get_unit("m") / 100);
     ureg.add_unit("in", 2.54 * ureg.get_unit("cm"));
     ureg.add_unit("ft", 12 * ureg.get_unit("in"));
     ureg.add_unit("mi", 5280 * ureg.get_unit("ft"));
@@ -292,6 +291,19 @@ TEST_CASE("v1 unit registry classes")
 
     CHECK(v.to("mi/hr").value() == Approx(22.369363));
     CHECK(r.to("R/s").value() == Approx(5*(9./5)/60));
+
+    v = ureg.make_quantity<double>(10, "mm/ms");
+    CHECK(v.to("m/s").value() == Approx(10));
+    CHECK(v.to("cm/cs").value() == Approx(10));
+    CHECK(v.to("km/ks").value() == Approx(10));
+
+    auto g = ureg.make_quantity<double>(9.80665, "m/s^2");
+
+    CHECK( g.to("ft/s^2").value() == Approx(32.1741));
+    CHECK( g.to("ft/min^2").value() == Approx(32.1741*60*60));
+
+
+    
   }
   SECTION("si_unit_registry class")
   {
@@ -310,5 +322,36 @@ TEST_CASE("v1 unit registry classes")
 
       CHECK_THROWS(ureg.get_unit("cm"));
     }
+  }
+  SECTION("si_expression_unit_registry")
+  {
+    si_expression_unit_registry<double> ureg;
+
+    // si base units and prefixed versions are already in the registry
+    ureg.add_unit("in", 2.54 * ureg.get_unit("cm"));
+    ureg.add_unit("ft", 12 * ureg.get_unit("in"));
+    ureg.add_unit("mi", 5280 * ureg.get_unit("ft"));
+    ureg.add_unit("min", 60 * ureg.get_unit("s"));
+    ureg.add_unit("hr", 60 * ureg.get_unit("min"));
+    ureg.add_unit("R", (5. / 9) * ureg.get_unit("K"));
+
+    auto v = ureg.make_quantity<double>(10, "m/s");
+    auto r = ureg.make_quantity<double>(5, "K/min");
+
+    CHECK(v.to("mi/hr").value() == Approx(22.369363));
+    CHECK(r.to("R/s").value() == Approx(5*(9./5)/60));
+
+    v = ureg.make_quantity<double>(10, "mm/ms");
+    CHECK(v.to("m/s").value() == Approx(10));
+    CHECK(v.to("cm/cs").value() == Approx(10));
+    CHECK(v.to("km/ks").value() == Approx(10));
+
+    auto g = ureg.make_quantity<double>(9.80665, "m/s^2");
+
+    CHECK( g.to("ft/s^2").value() == Approx(32.1741));
+    CHECK( g.to("ft/min^2").value() == Approx(32.1741*60*60));
+
+
+    
   }
 }

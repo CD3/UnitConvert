@@ -32,7 +32,7 @@ class unit_registry_base
   virtual ~unit_registry_base() = default;
   virtual void add_unit(const key_type& a_key, dimension_type a_dimension);
   virtual void add_unit(const key_type& a_key, unit_type a_unit);
-  virtual size_t size() const { return m_UnitStore.size(); }
+  virtual size_t size() const { return m_unit_store.size(); }
   virtual unit_type get_unit(const key_type& a_key) const;
 
   template <typename T>
@@ -45,7 +45,7 @@ class unit_registry_base
   using pair_type = std::pair<key_type, unit_type>;
   using store_type = std::map<key_type, unit_type>;
 
-  store_type m_UnitStore;
+  store_type m_unit_store;
 };
 
 template <typename UNIT_TYPE, typename KEY_TYPE>
@@ -60,7 +60,7 @@ template <typename UNIT_TYPE, typename KEY_TYPE>
 void unit_registry_base<UNIT_TYPE, KEY_TYPE>::add_unit(const key_type& a_key,
                                                        unit_type a_unit)
 {
-  auto ptr = m_UnitStore.insert(pair_type{a_key, a_unit});
+  auto ptr = m_unit_store.insert(pair_type{a_key, a_unit});
   if (!ptr.second) {  // unit was already in registry
     if (existing_unit_policy == EXISTING_UNIT_POLICY::Throw) {
       throw std::runtime_error("ERROR: unit '" + a_key +
@@ -74,7 +74,7 @@ void unit_registry_base<UNIT_TYPE, KEY_TYPE>::add_unit(const key_type& a_key,
     if (existing_unit_policy == EXISTING_UNIT_POLICY::Ignore) {
     }
     if (existing_unit_policy == EXISTING_UNIT_POLICY::Overwrite) {
-      m_UnitStore[a_key] = a_unit;
+      m_unit_store[a_key] = a_unit;
     }
   }
 }
@@ -84,7 +84,7 @@ typename unit_registry_base<UNIT_TYPE, KEY_TYPE>::unit_type
 unit_registry_base<UNIT_TYPE, KEY_TYPE>::get_unit(const key_type& a_key) const
 {
   try {
-    return this->m_UnitStore.at(a_key);
+    return this->m_unit_store.at(a_key);
   } catch (...) {
     throw std::runtime_error("Key Error: Could not find symbol " + a_key +
                              " in the unit registry.");

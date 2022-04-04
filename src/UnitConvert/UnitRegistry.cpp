@@ -1,18 +1,15 @@
 
 #include "./UnitRegistry.hpp"
 
-#include <fstream>
 #include <exception>
 #include <filesystem>
+#include <fstream>
 
 #include "./detail//functions.hpp"
 
-namespace UnitConvert {
-
-size_t UnitRegistry::size() const
+namespace UnitConvert
 {
-  return m_UnitStore.size();
-}
+size_t UnitRegistry::size() const { return m_UnitStore.size(); }
 
 void UnitRegistry::addUnit(const std::string& k, const Unit& v)
 {
@@ -40,15 +37,15 @@ void UnitRegistry::addUnit(std::string unit_equation)
   auto it = unit_equation.begin();
 
   boost::optional<double> scale;
-  std::string             LHS, RHS;
+  std::string LHS, RHS;
 
   // parse unit equation
   // LHS should be a new named unit (no derived units) with an optional scale.
   // RHS can be an arbitrary string that makeUnit will parse
   // examples: 1 J = 1 kg * m^2 / s^s
   //           100 cm = 1 m
-  auto space  = qi::lit(" ");
-  auto eq     = qi::lit("=");
+  auto space = qi::lit(" ");
+  auto eq = qi::lit("=");
   auto uchars = qi::char_("a-zA-Z_/*+-^");
   auto r =
       qi::parse(it, unit_equation.end(),
@@ -78,9 +75,9 @@ void UnitRegistry::loadUnits(std::istream& in)
 
 void UnitRegistry::loadUnits(std::string filename)
 {
-  if(!std::filesystem::exists(filename))
-  {
-    throw std::runtime_error("Attempting to load units from file '"+filename+"', but the file does not exists.");
+  if (!std::filesystem::exists(filename)) {
+    throw std::runtime_error("Attempting to load units from file '" + filename +
+                             "', but the file does not exists.");
   }
   std::ifstream in(filename.c_str());
   this->loadUnits(in);
@@ -108,8 +105,8 @@ Unit UnitRegistry::getUnit(std::string a_unit, bool a_trySIPrefix) const
     if (a_trySIPrefix) {
       // check if the unit is an SI prefix'ed version of
       // a unit in the store.
-      auto it    = a_unit.begin();
-      int  power = 0;
+      auto it = a_unit.begin();
+      int power = 0;
       if (qi::parse(it, a_unit.end(), m_SIPrefixParser, power) &&
           it != a_unit.end()) {
         std::string unit(it, a_unit.end());
@@ -128,14 +125,14 @@ Unit UnitRegistry::getUnit(std::string a_unit, bool a_trySIPrefix) const
 
 Unit UnitRegistry::makeUnit(std::string a_unit) const
 {
-  auto it     = a_unit.begin();
+  auto it = a_unit.begin();
   Unit r_unit = BaseUnit<Dimension::Name::Dimensionless>();
-  auto r      = qi::parse(it, a_unit.end(), m_UnitParser, r_unit);
+  auto r = qi::parse(it, a_unit.end(), m_UnitParser, r_unit);
   if (!r || it != a_unit.end()) {
     // try to parse as a dimension
     Dimension r_dim;
     it = a_unit.begin();
-    r  = qi::parse(it, a_unit.end(), m_DimensionParser, r_dim);
+    r = qi::parse(it, a_unit.end(), m_DimensionParser, r_dim);
     if (!r || it != a_unit.end()) {
       throw std::runtime_error(
           "There was an error parsing unit in UnitRegistry::makeUnit: " +
@@ -179,7 +176,7 @@ Unit UnitRegistry::UnitParser::getUnitFromRegistry(const std::string& unit)
 UnitRegistry::UnitParser::UnitParser(const UnitRegistry& registry)
     : UnitRegistry::UnitParser::base_type(unit), ureg(registry)
 {
-  offset   = qi::double_;
+  offset = qi::double_;
   exponent = qi::int_;
 
   scale = qi::double_[qi::_val *= qi::_1];
@@ -222,7 +219,7 @@ UnitRegistry::UnitParser::UnitParser(const UnitRegistry& registry)
 UnitRegistry::DimensionParser::DimensionParser()
     : UnitRegistry::DimensionParser::base_type(dimension)
 {
-  exponent   = qi::int_;
+  exponent = qi::int_;
   auto space = qi::lit(" ");
 
   mul = *space >> "*" >> *space | +space;
@@ -249,7 +246,7 @@ UnitRegistry::DimensionParser::DimensionParser()
 }
 
 Dimension UnitRegistry::DimensionParser::exponentiate(const Dimension& b,
-                                                      const int        e)
+                                                      const int e)
 {
   Dimension r;
   for (int i = 0; i < abs(e); i++) {
@@ -258,4 +255,4 @@ Dimension UnitRegistry::DimensionParser::exponentiate(const Dimension& b,
   }
   return r;
 }
-}
+}  // namespace UnitConvert
