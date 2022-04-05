@@ -276,15 +276,21 @@ TEST_CASE("v1 unit registry classes")
   {
     expression_unit_registry<basic_unit<basic_dimension<3>, double>> ureg;
 
-    ureg.add_unit("m", basic_dimension<3>(0));
-    ureg.add_unit("s", basic_dimension<3>(1));
-    ureg.add_unit("K", basic_dimension<3>(2));
-    ureg.add_unit("in", 2.54 * ureg.get_unit("cm"));
-    ureg.add_unit("ft", 12 * ureg.get_unit("in"));
-    ureg.add_unit("mi", 5280 * ureg.get_unit("ft"));
-    ureg.add_unit("min", 60 * ureg.get_unit("s"));
-    ureg.add_unit("hr", 60 * ureg.get_unit("min"));
-    ureg.add_unit("R", (5. / 9) * ureg.get_unit("K"));
+    ureg.add_dimension_symbol("1", basic_dimension<3>());
+    ureg.add_dimension_symbol("L", basic_dimension<3>(0));
+    ureg.add_dimension_symbol("T", basic_dimension<3>(1));
+    ureg.add_dimension_symbol("THETA",  basic_dimension<3>(3));
+
+    ureg.add_unit("m = [L]");
+    ureg.add_unit("s = [T]");
+    ureg.add_unit("K = [THETA]");
+
+    ureg.add_unit("in = 2.54 * cm");
+    ureg.add_unit("ft = 12 in");
+    ureg.add_unit("mi = 5280 ft");
+    ureg.add_unit("min = 60 s");
+    ureg.add_unit("hr = 60 min");
+    ureg.add_unit("R = 5*K/9");
 
     auto v = ureg.make_quantity<double>(10, "m/s");
     auto r = ureg.make_quantity<double>(5, "K/min");

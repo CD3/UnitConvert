@@ -75,7 +75,7 @@ struct dimension_expression_parser
   using dimension_symbol_parser_type = DIMENSION_SYMBOL_PARSER_TYPE;
   using dimension_type = typename dimension_symbol_parser_type::dimension_type;
 
-  dimension_symbol_parser_type dimension_symbol;
+  dimension_symbol_parser_type dimension_symbol_parser;
   qi::rule<iterator, dimension_type()> factor, term, group, dimension;
   qi::rule<iterator, int()> exponent;
   qi::rule<iterator> mul, div, pow, add, sub;
@@ -93,7 +93,7 @@ struct dimension_expression_parser
     sub = *space >> "-" >> *space;
 
     // a factor is a dimension symbol or a group, possibly raised to an
-    factor = (dimension_symbol | group)[qi::_val = qi::_1] >>
+    factor = (dimension_symbol_parser | group)[qi::_val = qi::_1] >>
              *(pow >> exponent)[qi::_val ^= qi::_1];
 
     // a term is a factor, possibly multiplied or divided by another factor

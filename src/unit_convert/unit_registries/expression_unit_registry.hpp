@@ -4,6 +4,7 @@
  * @author C.D. Clark III
  * @date 04/02/22
  */
+#include <optional>
 #include "./parsers.hpp"
 #include "./unit_registry_base.hpp"
 
@@ -24,8 +25,17 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
   using registered_quantity_type =
       typename base_type::template registered_quantity_type<T>;
 
-  expression_unit_registry() : m_si_prefix_parser(), m_expression_parser(*this)
+  expression_unit_registry()
+      : m_si_prefix_parser(),
+        m_unit_expression_parser(*this),
+        m_dimension_expression_parser()
   {
+  }
+
+  void add_dimension_symbol(const std::string& a_symbol, dimension_type a_dim)
+  {
+    m_dimension_expression_parser.dimension_symbol_parser.add(a_symbol,
+                                                              std::move(a_dim));
   }
 
   /**
@@ -53,7 +63,7 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
           return ptr->second * pow(10, power);
         }
       }
-      // can't find the unit in the store.
+      // well, can't find the unit in the store.
       // throw an exception.
       throw std::runtime_error("Error: unit '" + a_key +
                                "' does not exist in the registry.");
@@ -61,6 +71,9 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
     return this->base_type::get_unit(a_key);
   }
 
+  /**
+   * Return a unit specified by a name or unit expression.
+   */
   unit_type get_unit(const key_type& a_unit_expr) const
   {
     unit_type ret_unit;
@@ -71,8 +84,9 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
       key_type unit_expr(a_unit_expr);
       auto it = unit_expr.begin();
       bool sucess =
-          qi::parse(it, unit_expr.end(), m_expression_parser, ret_unit);
-      if (!sucess or it != unit_expr.end()) {
+          qi::parse(it, unit_expr.end(), m_unit_expression_parser, ret_unit);
+      if (sucess and it == unit_expr.end()) {
+      } else {
         throw std::runtime_error("Parsing Error: Cannot parse unit string '" +
                                  a_unit_expr + "'.");
       }
@@ -80,10 +94,60 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
     return ret_unit;
   }
 
+  using base_type::add_unit;
+  /**
+   * Parse a unit equation and add the defined unit to the registry.
+   */
+  void add_unit(const key_type& a_unit_equation)
+  {
+    auto it = a_unit_equation.begin();
+
+    std::optional<double> scale;
+    key_type LHS, RHS;
+
+    // parse unit equation
+    // LHS should be a new named unit (no derived units) with an optional scale.
+    // RHS can be an arbitrary expression of units or dimensions.
+    // examples: 1 J = 1 kg * m^2 / s^s
+    //           100 cm = 1 m
+    //           kg = [M]
+    auto space = qi::lit(" ");
+    auto eq = qi::lit("=");
+    auto uchars = qi::char_("a-zA-Z_/*+-^");
+    auto r =
+        qi::parse(it, a_unit_equation.end(),
+                  -qi::double_ >> *space >> qi::as_string[+uchars] >> *space >>
+                      eq >> *space >> qi::as_string[+qi::char_] >> *space,
+                  scale, LHS, RHS);
+    if (r) {
+      if (!scale) scale = 1;
+
+      auto it = RHS.begin();
+      if (qi::parse(it, RHS.end(), m_unit_expression_parser) &&
+          it == RHS.end()) {
+        this->add_unit(LHS, get_unit(RHS) / scale.value());
+      }
+
+      it = RHS.begin();
+      if (qi::parse(it, RHS.end(), m_dimension_expression_parser) &&
+          it == RHS.end()) {
+        dimension_type dim;
+        qi::parse(RHS.begin(), RHS.end(), m_dimension_expression_parser, dim);
+        this->add_unit(LHS, unit_type(1, dim) / scale.value());
+      }
+
+    } else {
+      throw std::runtime_error("Could not parse unit equation: " +
+                               a_unit_equation);
+    }
+  }
+
  protected:
   using expression_parser_type = unit_expression_parser<this_type>;
   si_prefix_parser m_si_prefix_parser;
-  expression_parser_type m_expression_parser;
+  expression_parser_type m_unit_expression_parser;
+  dimension_expression_parser<dimension_symbol_parser<dimension_type>>
+      m_dimension_expression_parser;
 };
 
 }  // namespace unit_convert
