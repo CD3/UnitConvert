@@ -11,10 +11,8 @@ namespace unit_convert
 {
 class si_dimension : public basic_dimension<7>
 {
- private:
-  using base_type = basic_dimension<7>;
-
  public:
+  using base_type = basic_dimension<7>;
   enum class name {
     Length = 0,
     Mass,

@@ -6,6 +6,8 @@
  */
 
 #include <map>
+#include <iostream>
+#include <iterator>
 #include <string>
 #include <utility>
 #include "../quantities/basic_quantity.hpp"
@@ -40,6 +42,14 @@ class unit_registry_base
   template <typename T>
   registered_quantity_type<T> make_quantity(T a_val,
                                             const key_type& a_key) const;
+
+  std::vector<key_type> get_unit_symbols() const
+  {
+    std::vector<key_type> keys;
+
+    std::transform(m_unit_store.begin(), m_unit_store.end(), std::back_inserter(keys), [](auto& p)->key_type{return p.first;});
+    return keys;
+  }
 
  protected:
   using pair_type = std::pair<key_type, unit_type>;

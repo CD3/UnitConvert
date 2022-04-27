@@ -20,7 +20,7 @@ set( testName ${PROJECT_NAME}_CatchTests )
 add_executable(${testName} ${unitTest_SOURCES})
 target_compile_definitions( ${testName} PRIVATE -DTESTING )
 target_link_libraries(${testName} Catch)
-target_link_libraries(${testName} UnitConvert::UnitConvert)
+target_link_libraries(${testName} UnitConvert::UnitConvert unit_convert::unit_convert)
 target_include_directories( ${testName} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 target_compile_definitions( ${testName} PUBLIC UNITCONVERT_NO_BACKWARD_COMPATIBLE_NAMESPACE)
 target_compile_options( ${testName} PRIVATE

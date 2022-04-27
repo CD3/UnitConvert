@@ -1,17 +1,20 @@
 
 #include <sstream>
+#include <iostream>
+#include <iterator>
 
 #include <boost/units/systems/si.hpp>
 
 #include <UnitConvert.hpp>
 #include <UnitConvert/GlobalUnitRegistry.hpp>
+#include <unit_convert/unit_registries/global_unit_registry.hpp>
 #include <unit_convert/io.hpp>
 #include <unit_convert/quantities/add_registry.hpp>
 #include <unit_convert/quantities/basic_quantity.hpp>
 #include <unit_convert/unit_registries/basic_unit_registry.hpp>
-#include <unit_convert/unit_registries/si_unit_registry.hpp>
 #include <unit_convert/unit_registries/expression_unit_registry.hpp>
 #include <unit_convert/unit_registries/si_expression_unit_registry.hpp>
+#include <unit_convert/unit_registries/si_unit_registry.hpp>
 #include <unit_convert/units/si_unit.hpp>
 
 #include <catch.hpp>
@@ -149,40 +152,108 @@ TEST_CASE("UnitRegisty Tests")
 
 TEST_CASE("Global Unit Registry Tests")
 {
-  using namespace UnitConvert;
-  SECTION("First Usage")
+  SECTION("Legacy")
   {
-    UnitRegistry& ureg = getGlobalUnitRegistry();
+    using namespace UnitConvert;
+    SECTION("First Usage")
+    {
+      UnitRegistry& ureg = getGlobalUnitRegistry();
 
-    CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
-    CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
-          Approx(2. * 100 * 100));
-    CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() == Approx(32));
+      CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+      CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+            Approx(2. * 100 * 100));
+      CHECK(ureg.makeQuantity<float>("0 K").to("degR").value() ==
+            Approx(0).scale(1));
+      CHECK(ureg.makeQuantity<float>("10 K").to("degR").value() ==
+            Approx(18));
+      CHECK(ureg.makeQuantity<float>("100 K").to("degR").value() ==
+            Approx(180));
+
+      CHECK(ureg.makeQuantity<float>("0 degC").to("degK").value() ==
+            Approx(273.15));
+      CHECK(ureg.makeQuantity<float>("0 degF").to("degR").value() ==
+            Approx(459.67));
+
+      CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() ==
+            Approx(32));
+      CHECK(ureg.makeQuantity<float>("100 degC").to("degF").value() ==
+            Approx(212));
+    }
+
+    SECTION("Second Usage")
+    {
+      UnitRegistry& ureg = getGlobalUnitRegistry();
+
+      CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
+      CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+            Approx(2. * 100 * 100));
+      CHECK(ureg.makeQuantity<float>("0 K").to("degR").value() ==
+            Approx(0).scale(1));
+      CHECK(ureg.makeQuantity<float>("10 K").to("degR").value() ==
+            Approx(18));
+      CHECK(ureg.makeQuantity<float>("100 K").to("degR").value() ==
+            Approx(180));
+      CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() ==
+            Approx(32));
+    }
+
+    SECTION("Obscure conversions")
+    {
+      UnitRegistry& ureg = getGlobalUnitRegistry();
+
+      auto q = ureg.makeQuantity<float>("2 pound");
+      CHECK(q.to("kg").value() == Approx(0.90718474));
+      CHECK(q.to("electron_mass").value() == Approx(9.95879467317e+29));
+      CHECK(q.to("carat").value() == Approx(4535.9237));
+      CHECK(q.to("metric_ton").value() == Approx(0.00090718474));
+      CHECK(q.to("bag").value() == Approx(0.0212765957447));
+      CHECK(q.to("grain").value() == Approx(14000.0));
+      CHECK(q.to("oz").value() == Approx(32));
+      CHECK(q.to("short_ton").value() == Approx(0.001));
+    }
   }
-
-  SECTION("Second Usage")
+  SECTION("1.0") 
   {
-    UnitRegistry& ureg = getGlobalUnitRegistry();
+    using namespace unit_convert;
+    SECTION("First Usage")
+    {
+      si_expression_unit_registry<double>& ureg = get_global_unit_registry();
+      auto keys = ureg.get_unit_symbols();
+    
+      // std::copy( keys.begin(), keys.end(), std::ostream_iterator<std::string>(std::cout,"\n"));
 
-    CHECK(ureg.makeQuantity<double>("2 m").to("cm").value() == Approx(200));
-    CHECK(ureg.makeQuantity<double>("2 J").to("kg cm^2 / s^2").value() ==
-          Approx(2. * 100 * 100));
-    CHECK(ureg.makeQuantity<float>("0 degC").to("degF").value() == Approx(32));
-  }
+      CHECK(ureg.make_quantity<double>("2 m").to("cm").value() == Approx(200));
+      CHECK(ureg.make_quantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+            Approx(2. * 100 * 100));
+      CHECK(ureg.make_quantity<float>("0 degC").to("degF").value() ==
+            Approx(32));
+    }
 
-  SECTION("Obscure conversions")
-  {
-    UnitRegistry& ureg = getGlobalUnitRegistry();
+    SECTION("Second Usage")
+    {
+      auto& ureg = get_global_unit_registry();
 
-    auto q = ureg.makeQuantity<float>("2 pound");
-    CHECK(q.to("kg").value() == Approx(0.90718474));
-    CHECK(q.to("electron_mass").value() == Approx(9.95879467317e+29));
-    CHECK(q.to("carat").value() == Approx(4535.9237));
-    CHECK(q.to("metric_ton").value() == Approx(0.00090718474));
-    CHECK(q.to("bag").value() == Approx(0.0212765957447));
-    CHECK(q.to("grain").value() == Approx(14000.0));
-    CHECK(q.to("oz").value() == Approx(32));
-    CHECK(q.to("short_ton").value() == Approx(0.001));
+      CHECK(ureg.make_quantity<double>("2 m").to("cm").value() == Approx(200));
+      CHECK(ureg.make_quantity<double>("2 J").to("kg cm^2 / s^2").value() ==
+            Approx(2. * 100 * 100));
+      CHECK(ureg.make_quantity<float>("0 degC").to("degF").value() ==
+            Approx(32));
+    }
+
+    SECTION("Obscure conversions")
+    {
+      auto& ureg = get_global_unit_registry();
+
+      auto q = ureg.make_quantity<float>("2 pound");
+      CHECK(q.to("kg").value() == Approx(0.90718474));
+      CHECK(q.to("electron_mass").value() == Approx(9.95879467317e+29));
+      CHECK(q.to("carat").value() == Approx(4535.9237));
+      CHECK(q.to("metric_ton").value() == Approx(0.00090718474));
+      CHECK(q.to("bag").value() == Approx(0.0212765957447));
+      CHECK(q.to("grain").value() == Approx(14000.0));
+      CHECK(q.to("oz").value() == Approx(32));
+      CHECK(q.to("short_ton").value() == Approx(0.001));
+    }
   }
 }
 
@@ -279,7 +350,7 @@ TEST_CASE("v1 unit registry classes")
     ureg.add_dimension_symbol("1", basic_dimension<3>());
     ureg.add_dimension_symbol("L", basic_dimension<3>(0));
     ureg.add_dimension_symbol("T", basic_dimension<3>(1));
-    ureg.add_dimension_symbol("THETA",  basic_dimension<3>(3));
+    ureg.add_dimension_symbol("THETA", basic_dimension<3>(3));
 
     ureg.add_unit("m = [L]");
     ureg.add_unit("s = [T]");
@@ -296,7 +367,7 @@ TEST_CASE("v1 unit registry classes")
     auto r = ureg.make_quantity<double>(5, "K/min");
 
     CHECK(v.to("mi/hr").value() == Approx(22.369363));
-    CHECK(r.to("R/s").value() == Approx(5*(9./5)/60));
+    CHECK(r.to("R/s").value() == Approx(5 * (9. / 5) / 60));
 
     v = ureg.make_quantity<double>(10, "mm/ms");
     CHECK(v.to("m/s").value() == Approx(10));
@@ -305,11 +376,8 @@ TEST_CASE("v1 unit registry classes")
 
     auto g = ureg.make_quantity<double>(9.80665, "m/s^2");
 
-    CHECK( g.to("ft/s^2").value() == Approx(32.1741));
-    CHECK( g.to("ft/min^2").value() == Approx(32.1741*60*60));
-
-
-    
+    CHECK(g.to("ft/s^2").value() == Approx(32.1741));
+    CHECK(g.to("ft/min^2").value() == Approx(32.1741 * 60 * 60));
   }
   SECTION("si_unit_registry class")
   {
@@ -345,7 +413,7 @@ TEST_CASE("v1 unit registry classes")
     auto r = ureg.make_quantity<double>(5, "K/min");
 
     CHECK(v.to("mi/hr").value() == Approx(22.369363));
-    CHECK(r.to("R/s").value() == Approx(5*(9./5)/60));
+    CHECK(r.to("R/s").value() == Approx(5 * (9. / 5) / 60));
 
     v = ureg.make_quantity<double>(10, "mm/ms");
     CHECK(v.to("m/s").value() == Approx(10));
@@ -354,10 +422,7 @@ TEST_CASE("v1 unit registry classes")
 
     auto g = ureg.make_quantity<double>(9.80665, "m/s^2");
 
-    CHECK( g.to("ft/s^2").value() == Approx(32.1741));
-    CHECK( g.to("ft/min^2").value() == Approx(32.1741*60*60));
-
-
-    
+    CHECK(g.to("ft/s^2").value() == Approx(32.1741));
+    CHECK(g.to("ft/min^2").value() == Approx(32.1741 * 60 * 60));
   }
 }

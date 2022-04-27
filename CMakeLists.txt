@@ -1,8 +1,8 @@
 cmake_minimum_required( VERSION 3.13 )
 
-if( TARGET UnitConvert )
+if( TARGET unit_convert)
   return()
-endif( TARGET UnitConvert )
+endif( TARGET unit_convert )
 
 OPTION( BUILD_UNIT_TESTS "Build unit tests for the library" ON )
 OPTION( BUILD_SWIG_BINDINGS "Build bindings for other languages using SWIG" OFF )
@@ -13,9 +13,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mo
 set(INSTALL_PATH ${INSTALL_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/externals/install/")
 
 include(function-git_version)
-GIT_VERSION(UnitConvert)
-message( STATUS "UnitConvert version: ${UnitConvert_VERSION}")
-project(UnitConvert VERSION ${UnitConvert_VERSION})
+GIT_VERSION(unit_convert)
+message( STATUS "unit_convert version: ${unit_convert_VERSION}")
+project(unit_convert VERSION ${unit_convert_VERSION})
 # need to run configure_file twice
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/version.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
@@ -38,11 +38,55 @@ if( NOT TARGET CONAN_PKG::boost )
 find_package( Boost REQUIRED )
 endif()
 
-string( REGEX REPLACE "^lib" "" LIB_NAME ${PROJECT_NAME} )
-add_library( ${LIB_NAME} )
-add_library( ${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_NAME} )
+
+add_library( unit_convert )
+add_library( unit_convert::unit_convert ALIAS unit_convert )
+target_sources( unit_convert
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/io.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/units/basic_unit.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/units/si_unit.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/quantities/basic_quantity.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/quantities/si_quantity.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/quantities/add_registry.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/dimensions/si_dimension.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/dimensions/basic_dimension.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/detail/functions.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/basic_unit_registry.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/si_unit_registry.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/si_expression_unit_registry.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/parsers.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/global_unit_registry.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/global_unit_registry.cpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/unit_registry_base.hpp>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/unit_registries/expression_unit_registry.hpp>
+  )
+
+target_include_directories( unit_convert  INTERFACE
+  $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/src>
+  $<BUILD_INTERFACE:${${PROJECT_NAME}_BINARY_DIR}>
+  $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(unit_convert
+                        PUBLIC
+                        $<$<TARGET_EXISTS:CONAN_PKG::boost>:CONAN_PKG::boost>
+                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::boost>
+                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::disable_autolinking>
+                     )
+target_compile_features( unit_convert  PUBLIC cxx_std_17 )
+# set_target_properties( unit_convert PROPERTIES DEBUG_POSTFIX "-d" )
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/data/unit_definitions.txt" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY )
+
+
+
+
+# LEGACY LIB
+add_library( UnitConvert )
+add_library( UnitConvert::UnitConvert ALIAS UnitConvert )
 target_sources(
-  ${LIB_NAME}
+  UnitConvert
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert.hpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/Unit.hpp>
@@ -58,24 +102,21 @@ target_sources(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/detail/functions.hpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/HighLevelFunctions.hpp>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/UnitConvert/HighLevelFunctions.cpp>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert.hpp>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/unit_convert/dimensions/basic_dimension.hpp>
 )
-target_include_directories( ${LIB_NAME} INTERFACE
+target_include_directories( UnitConvert INTERFACE
   $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/src>
   $<BUILD_INTERFACE:${${PROJECT_NAME}_BINARY_DIR}>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(${LIB_NAME}
+target_link_libraries(UnitConvert
                         PUBLIC
                         $<$<TARGET_EXISTS:CONAN_PKG::boost>:CONAN_PKG::boost>
                         $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::boost>
                         $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::disable_autolinking>
                      )
-target_compile_features( ${LIB_NAME} PUBLIC cxx_std_17 )
-set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
+target_compile_features( UnitConvert PUBLIC cxx_std_17 )
+set_target_properties( UnitConvert PROPERTIES DEBUG_POSTFIX "-d" )
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/data/unit_definitions.txt" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY )
 
 if( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} AND BUILD_UNIT_TESTS)
 enable_testing()
@@ -96,13 +137,11 @@ if( BUILD_PYBIND11_BINDINGS )
     COMMAND ${Python3_EXECUTABLE} -m pytest -s ${PROJECT_SOURCE_DIR}/testing/PythonTests
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   )
-
-
 endif()
 
 
 # Install and Packaging
-install( TARGETS ${LIB_NAME} EXPORT ${PROJECT_NAME}Targets
+install( TARGETS unit_convert EXPORT unit_convertTargets
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
@@ -116,25 +155,62 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
   DESTINATION include
   FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
 )
-install(EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
+install(EXPORT unit_convertTargets
+  FILE unit_convertTargets.cmake
+  NAMESPACE unit_convert::
   DESTINATION cmake
 )
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/unit_convertConfig.cmake
 "include(CMakeFindDependencyMacro)
 find_dependency(Boost)
-include(\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake)
+include(\${CMAKE_CURRENT_LIST_DIR}/unit_convertTargets.cmake)
 "
   )
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${${PROJECT_NAME}_VERSION}
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/unit_convertConfigVersion.cmake
+  VERSION ${unit_convert_VERSION}
   COMPATIBILITY SameMajorVersion
   )
 install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/unit_convertConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/unit_convertConfigVersion.cmake
+  DESTINATION cmake
+  )
+
+# LEGACY LIBRARY
+install( TARGETS UnitConvert EXPORT UnitConvertTargets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+install(DIRECTORY src/
+  DESTINATION include
+  FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
+)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
+  DESTINATION include
+  FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
+)
+install(EXPORT UnitConvertTargets
+  FILE UnitConvertTargets.cmake
+  NAMESPACE UnitConvert::
+  DESTINATION cmake
+)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/UnitConvertConfig.cmake
+"include(CMakeFindDependencyMacro)
+find_dependency(Boost)
+include(\${CMAKE_CURRENT_LIST_DIR}/UnitConvertTargets.cmake)
+"
+  )
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/UnitConvertConfigVersion.cmake
+  VERSION 0.14.1
+  COMPATIBILITY SameMajorVersion
+  )
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/UnitConvertConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/UnitConvertConfigVersion.cmake
   DESTINATION cmake
   )
 

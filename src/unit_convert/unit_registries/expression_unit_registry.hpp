@@ -32,6 +32,27 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
   {
   }
 
+  using base_type::make_quantity;
+  template <typename T>
+  registered_quantity_type<T> make_quantity(const std::string& a_quantity) const
+  {
+    double value = 0;
+    std::string unit;
+    // parse quantity string
+    // a quantity should have a numerical value and a unit that makeUnit will
+    // parse
+    auto it = a_quantity.begin();
+    auto r = qi::parse(it, a_quantity.end(),
+                       -qi::double_ >> qi::as_string[+qi::char_], value, unit);
+    if (!r) {
+      throw std::runtime_error(
+          "ERROR: Could not parse string to form a quantity: " + a_quantity +
+          "\nQuantity strings should be a numerical value followed by a valid "
+          "unit string..");
+    }
+    return this->make_quantity<T>(static_cast<T>(value), unit);
+  }
+
   void add_dimension_symbol(const std::string& a_symbol, dimension_type a_dim)
   {
     m_dimension_expression_parser.dimension_symbol_parser.add(a_symbol,
@@ -120,20 +141,29 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
                       eq >> *space >> qi::as_string[+qi::char_] >> *space,
                   scale, LHS, RHS);
     if (r) {
+      bool error = true;
       if (!scale) scale = 1;
 
       auto it = RHS.begin();
       if (qi::parse(it, RHS.end(), m_unit_expression_parser) &&
           it == RHS.end()) {
         this->add_unit(LHS, get_unit(RHS) / scale.value());
+        error = false;
+      } else {
+        it = RHS.begin();
+        if (qi::parse(it, RHS.end(), m_dimension_expression_parser) &&
+            it == RHS.end()) {
+          dimension_type dim;
+          qi::parse(RHS.begin(), RHS.end(), m_dimension_expression_parser, dim);
+          this->add_unit(LHS, unit_type(1, dim) / scale.value());
+          error = false;
+        }
       }
 
-      it = RHS.begin();
-      if (qi::parse(it, RHS.end(), m_dimension_expression_parser) &&
-          it == RHS.end()) {
-        dimension_type dim;
-        qi::parse(RHS.begin(), RHS.end(), m_dimension_expression_parser, dim);
-        this->add_unit(LHS, unit_type(1, dim) / scale.value());
+      if (error) {
+        throw std::runtime_error(
+            "Could not parse right-hand side of unit equation: " +
+            a_unit_equation);
       }
 
     } else {

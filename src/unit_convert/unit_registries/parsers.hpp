@@ -37,10 +37,10 @@ struct si_prefix_parser : qi::symbols<char, int> {
  * Symbol table parser to return a dimension instance for dimension symbol.
  */
 template <typename DIMENSION_TYPE>
-struct dimension_symbol_parser : qi::symbols<char, DIMENSION_TYPE> {
+struct dimension_symbol_parser_base : qi::symbols<char, DIMENSION_TYPE> {
   using dimension_type = DIMENSION_TYPE;
   using base_type = qi::symbols<char, DIMENSION_TYPE>;
-  dimension_symbol_parser() = default;
+  dimension_symbol_parser_base() = default;
   template <typename INDEX_TYPE>
   void add_dimension(std::string a_symbol, INDEX_TYPE a_index)
   {
@@ -48,9 +48,14 @@ struct dimension_symbol_parser : qi::symbols<char, DIMENSION_TYPE> {
   }
 };
 
-struct si_dimension_symbol_parser : dimension_symbol_parser<si_dimension> {
-  using dimension_type = si_dimension;
-  si_dimension_symbol_parser()
+template <typename DIMENSION_TYPE>
+struct dimension_symbol_parser : dimension_symbol_parser_base<DIMENSION_TYPE> {
+};
+
+template <>
+struct dimension_symbol_parser<si_dimension>
+    : dimension_symbol_parser_base<si_dimension> {
+  dimension_symbol_parser()
   {
     add("L", si_dimension(si_dimension::name::Length))(
         "M", si_dimension(si_dimension::name::Mass))(
@@ -62,6 +67,9 @@ struct si_dimension_symbol_parser : dimension_symbol_parser<si_dimension> {
         "1", si_dimension());
   }
 };
+
+using si_dimension_symbol_parser = dimension_symbol_parser<si_dimension>;
+
 
 /**
  * A Boost.Spirit grammar for parsing SI dimension strings.
@@ -151,7 +159,7 @@ struct unit_expression_parser
                                             &m_unit_registry, qi::_1)];
 
     factor = (named_unit | scale | group)[qi::_val = qi::_1] >>
-             *(pow >> exponent[qi::_val ^= qi::_1 ]);
+             *(pow >> exponent[qi::_val ^= qi::_1]);
 
     term = factor[qi::_val = qi::_1] >> *(mul >> factor[qi::_val *= qi::_1] |
                                           div >> factor[qi::_val /= qi::_1]);
