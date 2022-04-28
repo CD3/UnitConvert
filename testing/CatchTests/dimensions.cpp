@@ -1,13 +1,11 @@
-#include <unit_convert/dimensions/basic_dimension.hpp>
-#include <unit_convert/dimensions/si_dimension.hpp>
-#include <unit_convert/io.hpp>
-#include <catch.hpp>
 #include <sstream>
+#include <catch.hpp>
+#include <unit_convert/dimensions/basic_dimension.hpp>
+#include <unit_convert/io.hpp>
 
-using namespace unit_convert;
-
-TEST_CASE("basic_dimension class tests")
+TEST_CASE("basic_dimension<I> tests")
 {
+  using namespace unit_convert;
   SECTION("Size")
   {
     CHECK(sizeof(basic_dimension<1>) == sizeof(int));
@@ -112,74 +110,5 @@ TEST_CASE("basic_dimension class tests")
 
     CHECK(velocity[0] == 1);
     CHECK(velocity[1] == -1);
-  }
-}
-
-TEST_CASE("si_dimension")
-{
-  si_dimension ONE;
-  si_dimension L(si_dimension::name::Length);
-  si_dimension T(si_dimension::name::Time);
-  si_dimension M(si_dimension::name::Mass);
-  si_dimension I(si_dimension::name::ElectricalCurrent);
-  si_dimension THETA(si_dimension::name::Temperature);
-  si_dimension N(si_dimension::name::Amount);
-  si_dimension J(si_dimension::name::LuminousIntensity);
-
-  // si_dimension L(0); // does not compile
-
-  CHECK(ONE.is_base());
-  CHECK(L.is_base());
-  CHECK(T.is_base());
-  CHECK(M.is_base());
-  CHECK(I.is_base());
-  CHECK(THETA.is_base());
-  CHECK(N.is_base());
-  CHECK(J.is_base());
-
-  CHECK(ONE.is_dimensionless());
-  CHECK(!L.is_dimensionless());
-  CHECK(!T.is_dimensionless());
-  CHECK(!M.is_dimensionless());
-  CHECK(!I.is_dimensionless());
-  CHECK(!THETA.is_dimensionless());
-  CHECK(!N.is_dimensionless());
-  CHECK(!J.is_dimensionless());
-
-  SECTION("string output")
-  {
-    std::stringstream out;
-
-    out << ONE;
-    CHECK(out.str() == "[L]^0 [M]^0 [T]^0 [I]^0 [THETA]^0 [N]^0 [J]^0");
-    out.str("");
-
-    out << L;
-    CHECK(out.str() == "[L]^1 [M]^0 [T]^0 [I]^0 [THETA]^0 [N]^0 [J]^0");
-    out.str("");
-
-    out << M;
-    CHECK(out.str() == "[L]^0 [M]^1 [T]^0 [I]^0 [THETA]^0 [N]^0 [J]^0");
-    out.str("");
-
-    out << T;
-    CHECK(out.str() == "[L]^0 [M]^0 [T]^1 [I]^0 [THETA]^0 [N]^0 [J]^0");
-    out.str("");
-
-    out << I;
-    CHECK(out.str() == "[L]^0 [M]^0 [T]^0 [I]^1 [THETA]^0 [N]^0 [J]^0");
-    out.str("");
-
-    out << THETA;
-    CHECK(out.str() == "[L]^0 [M]^0 [T]^0 [I]^0 [THETA]^1 [N]^0 [J]^0");
-    out.str("");
-
-    out << N;
-    CHECK(out.str() == "[L]^0 [M]^0 [T]^0 [I]^0 [THETA]^0 [N]^1 [J]^0");
-    out.str("");
-
-    out << J;
-    CHECK(out.str() == "[L]^0 [M]^0 [T]^0 [I]^0 [THETA]^0 [N]^0 [J]^1");
-    out.str("");
   }
 }

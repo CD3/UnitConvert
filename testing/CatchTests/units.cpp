@@ -1,4 +1,3 @@
-#include <UnitConvert/Unit.hpp>
 #include <catch.hpp>
 #include <sstream>
 
@@ -6,9 +5,9 @@
 #include <unit_convert/units/si_unit.hpp>
 #include <unit_convert/io.hpp>
 
-using namespace unit_convert;
-TEST_CASE("Unit class tests")
+TEST_CASE("basic_unit class tests")
 {
+using namespace unit_convert;
   basic_dimension<3> length(0);
   basic_dimension<3> time(1);
   basic_dimension<3> temperature(2);
@@ -254,6 +253,7 @@ TEST_CASE("Unit class tests")
 }
 TEST_CASE("si_unit class")
 {
+using namespace unit_convert;
   si_unit<double> radian;
   si_unit<double> degree = M_PI*radian/180;
   si_unit<double> meter(si_dimension::name::Length);
@@ -269,6 +269,7 @@ TEST_CASE("si_unit class")
 
 TEST_CASE("si_base_unit class")
 {
+using namespace unit_convert;
   si_unit<double> radian;
   si_base_unit<si_dimension::name::Length,double> meter;
   si_base_unit<si_dimension::name::Time,double> second;
