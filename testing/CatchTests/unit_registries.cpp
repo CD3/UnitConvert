@@ -95,6 +95,8 @@ TEST_CASE("v1 unit registry classes")
     ureg.add_unit("hr = 60 min");
     ureg.add_unit("R = 5*K/9");
 
+    ureg.add_unit("Q: degF = R - 459.67");
+
     auto v = ureg.make_quantity<double>(10, "m/s");
     auto r = ureg.make_quantity<double>(5, "K/min");
 
@@ -110,6 +112,11 @@ TEST_CASE("v1 unit registry classes")
 
     CHECK(g.to("ft/s^2").value() == Approx(32.1741));
     CHECK(g.to("ft/min^2").value() == Approx(32.1741 * 60 * 60));
+
+    auto T = ureg.make_quantity<double>(32, "degF");
+
+    CHECK(T.to("R").value() == Approx(459.67+32));
+
   }
   SECTION("si_unit_registry class")
   {

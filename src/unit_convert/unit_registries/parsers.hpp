@@ -52,6 +52,9 @@ template <typename DIMENSION_TYPE>
 struct dimension_symbol_parser : dimension_symbol_parser_base<DIMENSION_TYPE> {
 };
 
+/**
+ * A specialization that adds the SI dimension symbols.
+ */
 template <>
 struct dimension_symbol_parser<si_dimension>
     : dimension_symbol_parser_base<si_dimension> {
@@ -68,6 +71,9 @@ struct dimension_symbol_parser<si_dimension>
   }
 };
 
+/**
+ * An alieas for the si specialization.
+ */
 using si_dimension_symbol_parser = dimension_symbol_parser<si_dimension>;
 
 
@@ -118,7 +124,10 @@ struct dimension_expression_parser
 };
 
 /**
- * A Boost.Spirit grammar to parse unit strings for a unit registry.
+ * A Boost.Spirit grammar to parse unit strings.
+ *
+ * This class requires a unit registry so that it can lookup named units
+ * to build derived units.
  */
 template <typename UNIT_REGISTRY_TYPE>
 struct unit_expression_parser
@@ -128,15 +137,17 @@ struct unit_expression_parser
   using unit_registry_type = UNIT_REGISTRY_TYPE;
   using unit_type = typename unit_registry_type::unit_type;
 
-  qi::rule<iterator, unit_type()> named_unit, factor, term, group, scale,
-      expression, unit;
+  qi::rule<iterator, unit_type()> named_unit, scale;
+  qi::rule<iterator, unit_type()> ufactor, uterm, ugroup, uexpression;
+  qi::rule<iterator, unit_type()> qfactor, qterm, qgroup, qexpression;
+  qi::rule<iterator, unit_type()> expression;
   qi::rule<iterator, double()> offset;
   qi::rule<iterator, int()> exponent;
   qi::rule<iterator> mul, div, pow, add, sub;
   qi::rule<iterator, char()> unit_name_begin_chars, unit_name_other_chars;
 
   unit_expression_parser(const unit_registry_type& a_reg)
-      : unit_expression_parser::base_type(unit), m_unit_registry(a_reg)
+      : unit_expression_parser::base_type(expression), m_unit_registry(a_reg)
   {
     offset = qi::double_;
     exponent = qi::int_;
@@ -153,25 +164,42 @@ struct unit_expression_parser
 
     unit_name_begin_chars = qi::char_("a-zA-Z");
     unit_name_other_chars = qi::char_("a-zA-Z_0-9");
+    // a named unit is *continuous* string of characters.
+    // example:
+    // km
+    // lbf
     named_unit =
         spt::as_string[+unit_name_begin_chars >> *unit_name_other_chars]
                       [qi::_val = phx::bind(&unit_registry_type::get_named_unit,
                                             &m_unit_registry, qi::_1)];
 
-    factor = (named_unit | scale | group)[qi::_val = qi::_1] >>
+    ufactor = (named_unit | scale | ugroup)[qi::_val = qi::_1] >>
              *(pow >> exponent[qi::_val ^= qi::_1]);
 
-    term = factor[qi::_val = qi::_1] >> *(mul >> factor[qi::_val *= qi::_1] |
-                                          div >> factor[qi::_val /= qi::_1]);
+    uterm = ufactor[qi::_val = qi::_1] >> *(mul >> ufactor[qi::_val *= qi::_1] |
+                                            div >> ufactor[qi::_val /= qi::_1]);
 
-    group = '(' >> term[qi::_val = qi::_1] >> ')';
+    ugroup = '(' >> uterm[qi::_val = qi::_1] >> ')';
 
-    expression = *space >> term[qi::_val = qi::_1] >>
+    uexpression = *space >> uterm[qi::_val = qi::_1] >>
                  *(add >> offset[qi::_val += qi::_1] |
                    sub >> offset[qi::_val -= qi::_1]) >>
                  *space;
 
-    unit = expression;
+    qfactor = (named_unit | scale | qgroup)[qi::_val = qi::_1] >>
+             *(pow >> exponent[qi::_val ^= qi::_1]);
+
+    qterm = qfactor[qi::_val = qi::_1] >> *(mul >> qfactor[qi::_val /= qi::_1] |
+                                            div >> qfactor[qi::_val *= qi::_1]);
+
+    qgroup = '(' >> qterm[qi::_val = qi::_1] >> ')';
+
+    qexpression = *space >> qterm[qi::_val = qi::_1] >>
+                 *(add >> offset[qi::_val -= qi::_1] |
+                   sub >> offset[qi::_val += qi::_1]) >>
+                 *space;
+
+    expression = ("Q:">>qexpression) | uexpression;
   }
 
  protected:

@@ -343,11 +343,12 @@ si_expression_unit_registry<double>& get_global_unit_registry(bool a_load_units)
     instance.add_unit("degR = K*9/5");
     instance.add_unit("rankine = degR");
     instance.add_unit("delta_degF = degR");
+    // instance.add_unit("Q: degF = (9./5)*degC + 32");
     // The expression parser seems to be broken for offset units...
     // Even if it wasn't, we still can't use the equation most people expect
     // F = (9./5) * C + 32
     // because this is actually an equation for the *components* of the quantity, not the units.
-    instance.add_unit("degF", (5./9)*instance.get_unit("degC") - (5./9)*32);
+    instance.add_unit("degF", (5./9)*instance.get_unit("degC") - 32);
     instance.add_unit("fahrenheit = degF");
     instance.add_unit("minute = 60.0 s");
     instance.add_unit("min = 60.0 s");

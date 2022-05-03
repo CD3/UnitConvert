@@ -33,9 +33,7 @@ TEST_CASE("basic_quantity Class")
   SECTION("Temperature Conversions")
   {
     auto celsius = kelvin + 273.15;
-    auto fahrenheit =
-        (5. / 9) * celsius -
-        (5. / 9) * 32;  // note that F = 9/5 C + 32 is for the *components*
+    auto fahrenheit = (5. / 9) * celsius - 32;  // note that F = 9/5 C + 32 is for the *components*
 
     CHECK(celsius.scale() == Approx(1));
     CHECK(celsius.offset() == Approx(273.15));
@@ -46,7 +44,7 @@ TEST_CASE("basic_quantity Class")
     CHECK(temperature.to(fahrenheit).value() == Approx(212));
 
     auto rankine = (5. / 9) * kelvin;
-    fahrenheit = rankine + (5. / 9) * 459.67;
+    fahrenheit = rankine + 459.67;
 
     CHECK(temperature.to(fahrenheit).value() == Approx(212));
   }

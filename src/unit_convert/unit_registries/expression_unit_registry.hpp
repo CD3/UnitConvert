@@ -124,7 +124,8 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
     auto it = a_unit_equation.begin();
 
     std::optional<double> scale;
-    key_type LHS, RHS;
+    std::string LHS, RHS;
+    bool is_quantity_expression;
 
     // parse unit equation
     // LHS should be a new named unit (no derived units) with an optional scale.
@@ -137,12 +138,19 @@ class expression_unit_registry : public unit_registry_base<UNIT_TYPE, KEY_TYPE>
     auto uchars = qi::char_("a-zA-Z_/*+-^");
     auto r =
         qi::parse(it, a_unit_equation.end(),
+                  -qi::matches["Q:"] >>
                   -qi::double_ >> *space >> qi::as_string[+uchars] >> *space >>
                       eq >> *space >> qi::as_string[+qi::char_] >> *space,
-                  scale, LHS, RHS);
+                  is_quantity_expression, scale, LHS, RHS);
+
+    if (!scale) scale = 1;
+    if(is_quantity_expression)
+    {
+      RHS = "Q: "+RHS;
+      scale = 1./scale.value();
+    }
     if (r) {
       bool error = true;
-      if (!scale) scale = 1;
 
       auto it = RHS.begin();
       if (qi::parse(it, RHS.end(), m_unit_expression_parser) &&

@@ -377,4 +377,14 @@ TEST_CASE("unit_registry_parser")
 
   unit_str = "(km/s)**2";
   CHECK_THROWS(qi::parse(unit_str.begin(), unit_str.end(), parser, unit));
+
+
+  unit_str = "K - 273.15";
+  CHECK(qi::parse(unit_str.begin(), unit_str.end(), parser, unit));
+  CHECK(unit.offset() == Approx(-273.15));
+
+  unit_str = "Q: K - 273.15";
+  CHECK(qi::parse(unit_str.begin(), unit_str.end(), parser, unit));
+  CHECK(unit.offset() == Approx(273.15));
+
 }

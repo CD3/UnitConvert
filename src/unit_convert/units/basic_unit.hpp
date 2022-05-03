@@ -154,12 +154,18 @@ class basic_unit
     return result /= scale;
   }
 
+  /**
+   * Add to the unit's offset.
+   *
+   * IMPORTANT: The offset is *stored* in the scale of the base unit. But,
+   * when adding an offset, the value to be added should be given in the scale of this unit.
+   */
   basic_unit& operator+=(numeric_type offset)
   {
     // offset specifies the value that must be *subtraced*
     // to get an absolute unit.
     if (!this->m_Offset) this->m_Offset = 0;
-    this->m_Offset.value() += offset;
+    this->m_Offset.value() += m_Scale*offset;
     return *this;
   }
 
@@ -169,10 +175,16 @@ class basic_unit
     return result += offset;
   }
 
+  /**
+   * Subtract from the unit's offset.
+   *
+   * IMPORTANT: The offset is *stored* in the scale of the base unit. But,
+   * when subtracting an offset, the value to be subtracted should be given in the scale of this unit.
+   */
   basic_unit& operator-=(numeric_type offset)
   {
     if (!this->m_Offset) this->m_Offset = 0;
-    this->m_Offset.value() -= offset;
+    this->m_Offset.value() -= m_Scale*offset;
     return *this;
   }
 

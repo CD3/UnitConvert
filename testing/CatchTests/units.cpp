@@ -160,7 +160,7 @@ using namespace unit_convert;
     CHECK(meter_over_meter.is_offset());
     CHECK(meter_over_meter.is_base());
 
-    auto fahrenheit = (5./9)*celsius - (5./9)*32;
+    auto fahrenheit = (5./9)*celsius - 32;
 
     CHECK(fahrenheit.scale() == Approx(5./9));
     CHECK(fahrenheit.offset() == Approx(273 - (5./9)*32));
