@@ -22,17 +22,7 @@ configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/version.h.in"
 configure_file( "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/version.h")
 
-
-if( NOT TARGET CONAN_PKG::boost ) # protect against being included
-if( EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake" )
-  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-  conan_basic_setup(TARGETS)
-endif()
-endif()
-
-if( NOT TARGET CONAN_PKG::boost )
 find_package( Boost REQUIRED )
-endif()
 
 string( REGEX REPLACE "^lib" "" LIB_NAME ${PROJECT_NAME} )
 add_library( ${LIB_NAME} )
@@ -60,12 +50,7 @@ target_include_directories( ${LIB_NAME} INTERFACE
   $<BUILD_INTERFACE:${${PROJECT_NAME}_BINARY_DIR}>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(${LIB_NAME}
-                        PUBLIC
-                        $<$<TARGET_EXISTS:CONAN_PKG::boost>:CONAN_PKG::boost>
-                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::boost>
-                        $<$<NOT:$<TARGET_EXISTS:CONAN_PKG::boost>>:Boost::disable_autolinking>
-                     )
+target_link_libraries(${LIB_NAME} PUBLIC Boost::headers)
 target_compile_features( ${LIB_NAME} PUBLIC cxx_std_17 )
 set_target_properties( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "-d" )
 
